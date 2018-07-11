@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "genui": {
+      "signature": "40445da030dbd801b4b94ba5e6d5977c",
+      "file": true
+    }
+  }
+}

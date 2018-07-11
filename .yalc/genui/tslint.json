@@ -1,0 +1,10 @@
+{
+  "extends": ["tslint-config-airbnb", "tslint-config-prettier"],
+  "linterOptions": {
+    "exclude": ["config/**/*.js", "node_modules/**/*.ts"]
+  },
+  "rules": {
+    "import-name": false,
+    "variable-name": [true, "allow-pascal-case"]
+  }
+}
