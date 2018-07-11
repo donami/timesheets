@@ -9,7 +9,7 @@ type Props = {
 };
 
 const isAllowed = (userRole: UserRole, allowedRoles: UserRole[]) => {
-  return allowedRoles.concat(UserRole.User).indexOf(userRole) > -1;
+  return allowedRoles.indexOf(userRole) > -1;
 };
 
 class HasAccess extends React.Component<Props> {

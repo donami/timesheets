@@ -1,16 +1,20 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import LanguageSelector from './language-selector';
+import { getAuthedUser } from '../../auth/store/selectors';
+import { User } from '../../users/store/models';
 
 export interface HeaderProps {
   containerHeight: number;
+  user: User;
 }
 
 class Header extends React.Component<HeaderProps> {
   render() {
-    const { containerHeight } = this.props;
+    const { containerHeight, user } = this.props;
 
     return (
       <Container>
@@ -22,7 +26,7 @@ class Header extends React.Component<HeaderProps> {
         </LogoContainer>
 
         <RightNode className="right-node" containerHeight={containerHeight}>
-          <div>Markus Hederström</div>
+          <div>{`${user.firstname} ${user.lastname}`}</div>
           <LanguageSelector />
           <div>
             <Link to="/logout">Sign out</Link>
@@ -66,4 +70,8 @@ const Logo = styled.img`
   margin-top: -25px;
 `;
 
-export default Header;
+const mapStateToProps = (state: any) => ({
+  user: getAuthedUser(state),
+});
+
+export default connect(mapStateToProps)(Header);

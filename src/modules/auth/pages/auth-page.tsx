@@ -33,11 +33,7 @@ class AuthPage extends React.Component<AuthPageProps> {
 
             <Title>Sign in to Timesheets</Title>
 
-            <button onClick={() => this.handleAuth('markus@gmail.com', '123')}>
-              Auth
-            </button>
-
-            <AuthForm />
+            <AuthForm onSubmit={this.handleAuth} />
           </Content>
         </Container>
       </Page>
@@ -59,6 +55,7 @@ const Container = styled.div`
 const Content = styled.div`
   background: #fff;
   padding: 60px;
+  text-align: center;
 `;
 
 const Logo = styled.div`
