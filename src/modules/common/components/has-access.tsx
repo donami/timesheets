@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { UserRole } from '../../auth/store/models';
-import { getAuthedUser } from '../../auth/store/selectors';
+import { getAuthedUserRole } from '../../auth/store/selectors';
 
 type Props = {
-  user: any;
+  userRole: UserRole;
   roles: UserRole[];
 };
 
@@ -14,8 +14,7 @@ const isAllowed = (userRole: UserRole, allowedRoles: UserRole[]) => {
 
 class HasAccess extends React.Component<Props> {
   render() {
-    if (!isAllowed(this.props.user.role, this.props.roles)) {
-      console.warn('Trying to view content that user has not access to.');
+    if (!isAllowed(this.props.userRole, this.props.roles)) {
       return null;
     }
 
@@ -24,7 +23,7 @@ class HasAccess extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: any) => ({
-  user: getAuthedUser(state),
+  userRole: getAuthedUserRole(state),
 });
 
 export default connect(mapStateToProps)(HasAccess);

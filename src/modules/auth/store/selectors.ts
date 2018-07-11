@@ -32,6 +32,11 @@ export const getAuthedUser = createSelector(
   }
 );
 
+export const getAuthedUserRole = createSelector(
+  getAuthedUser,
+  user => user.role
+);
+
 export const getAuthedUserProjects = createSelector(
   getAuthedUserId,
   getProjects,

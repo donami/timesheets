@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { UserRole } from '../../auth/store/models';
+import HasAccess from './has-access';
 
 class Sidebar extends React.Component {
   render() {
@@ -19,12 +21,14 @@ class Sidebar extends React.Component {
               Timesheets
             </Link>
           </li>
-          <li>
-            <Link to="/manage-timesheets">
-              <i className="fas fa-clock" />
-              Manage Timesheets
-            </Link>
-          </li>
+          <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
+            <li>
+              <Link to="/manage-timesheets">
+                <i className="fas fa-clock" />
+                Manage Timesheets
+              </Link>
+            </li>
+          </HasAccess>
           <li>
             <Link to="/expense-reports">
               <i className="far fa-credit-card" />
@@ -49,12 +53,14 @@ class Sidebar extends React.Component {
               Groups
             </Link>
           </li>
-          <li>
-            <Link to="/timesheet-templates">
-              <i className="fas fa-users" />
-              Timesheet Templates
-            </Link>
-          </li>
+          <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
+            <li>
+              <Link to="/timesheet-templates">
+                <i className="fas fa-users" />
+                Timesheet Templates
+              </Link>
+            </li>
+          </HasAccess>
         </ul>
       </Container>
     );

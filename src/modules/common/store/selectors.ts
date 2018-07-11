@@ -15,6 +15,5 @@ export const getSelectedGroupMembers = createSelector(
 );
 
 export const getSelectedLanguage = (state: any) => {
-  console.log(state);
   return state.common.language;
 };
