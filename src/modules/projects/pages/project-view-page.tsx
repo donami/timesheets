@@ -13,8 +13,6 @@ import { Project, ProjectMember } from '../store/models';
 import { TimesheetItem, TimesheetStatus } from '../../timesheets/store/models';
 import { TimesheetList } from '../../timesheets';
 import { Box } from '../../ui';
-import { HasAccess } from '../../common';
-import { UserRole } from '../../users/store/models';
 
 export interface ProjectViewPageProps {
   match: any;
@@ -39,32 +37,30 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
     const { project, timesheets, projectMembers } = this.props;
 
     return (
-      <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
-        <div>
-          <ProjectInfo project={project} />
+      <div>
+        <ProjectInfo project={project} />
 
-          <Box title="All timesheets">
-            <TimesheetList timesheets={timesheets} />
-          </Box>
+        <Box title="All timesheets">
+          <TimesheetList timesheets={timesheets} />
+        </Box>
 
-          <Box title="Timesheets waiting for approval">
-            <TimesheetList
-              noTimesheetsText="No timesheets are waiting for approval"
-              timesheets={timesheets.filter(
-                (timesheet: TimesheetItem) =>
-                  timesheet.status === TimesheetStatus.WaitingForApproval
-              )}
-            />
-          </Box>
+        <Box title="Timesheets waiting for approval">
+          <TimesheetList
+            noTimesheetsText="No timesheets are waiting for approval"
+            timesheets={timesheets.filter(
+              (timesheet: TimesheetItem) =>
+                timesheet.status === TimesheetStatus.WaitingForApproval
+            )}
+          />
+        </Box>
 
-          <Box title="Users attached to this project">
-            <ProjectMemberList
-              noMembersText="No users are attached to this project"
-              members={projectMembers}
-            />
-          </Box>
-        </div>
-      </HasAccess>
+        <Box title="Users attached to this project">
+          <ProjectMemberList
+            noMembersText="No users are attached to this project"
+            members={projectMembers}
+          />
+        </Box>
+      </div>
     );
   }
 }

@@ -5,8 +5,6 @@ import { bindActionCreators } from 'redux';
 import { TimesheetTemplateList } from '../components';
 import { fetchTimesheetTemplates } from '../store/actions';
 import { timesheetSelectors } from '../store';
-import { HasAccess } from '../../common/components';
-import { UserRole } from '../../auth/store/models';
 
 export interface TimesheetTemplatesPageProps {
   templates: any;
@@ -24,11 +22,9 @@ class TimesheetTemplatesPage extends React.Component<
     const { templates } = this.props;
 
     return (
-      <HasAccess roles={[UserRole.Admin, UserRole.Manager]}>
-        <div>
-          <TimesheetTemplateList templates={templates} />
-        </div>
-      </HasAccess>
+      <div>
+        <TimesheetTemplateList templates={templates} />
+      </div>
     );
   }
 }

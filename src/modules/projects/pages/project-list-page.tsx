@@ -6,8 +6,6 @@ import { getProjects } from '../store/selectors';
 import { fetchProjects } from '../store/actions';
 import { Project } from '../store/models';
 import { ProjectList } from '../components';
-import { HasAccess } from '../../common';
-import { UserRole } from '../../users/store/models';
 
 export interface ProjectListPageProps {
   fetchProjects: () => any;
@@ -22,11 +20,7 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
   render() {
     const { projects } = this.props;
 
-    return (
-      <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
-        <ProjectList projects={projects} />
-      </HasAccess>
-    );
+    return <ProjectList projects={projects} />;
   }
 }
 

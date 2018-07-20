@@ -22,6 +22,7 @@ import { GroupViewPage, GroupListPage } from '../../groups';
 import textManager from '../../../services/text-manager';
 import { history } from '../../../store';
 import { NotFoundPage } from '../pages';
+import { UserRole } from '../../users/store/models';
 
 export interface RoutingProps {
   checkStorage: () => any;
@@ -62,23 +63,46 @@ class Routing extends React.Component<RoutingProps> {
             <ProtectedRoute path="/expense-reports" component={ExpensesPage} />
             <ProtectedRoute path="/user/:id" component={UserViewPage} />
             <ProtectedRoute path="/profile" component={ProfilePage} />
-            <ProtectedRoute path="/users" component={UserListPage} />
+            <ProtectedRoute
+              path="/users"
+              component={UserListPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
             <ProtectedRoute
               path="/manage-timesheets"
               component={ManageTimesheets}
+              roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/timesheet-template/:id"
               component={TemplateViewPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/timesheet-templates"
               component={TimesheetTemplatesPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
             />
-            <ProtectedRoute path="/project/:id" component={ProjectViewPage} />
-            <ProtectedRoute path="/projects" component={ProjectListPage} />
-            <ProtectedRoute path="/group/:id" component={GroupViewPage} />
-            <ProtectedRoute path="/groups" component={GroupListPage} />
+            <ProtectedRoute
+              path="/project/:id"
+              component={ProjectViewPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/projects"
+              component={ProjectListPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/group/:id"
+              component={GroupViewPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/groups"
+              component={GroupListPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
             <Route path="*" component={NotFoundPage} />
           </Switch>
         </ConnectedRouter>

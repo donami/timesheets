@@ -4,11 +4,8 @@ import { bindActionCreators } from 'redux';
 
 import { TimesheetList } from '../components';
 import { fetchTimesheets } from '../store/actions';
-import { TimesheetItem } from '../store/models';
 import { timesheetSelectors } from '../store';
-import { isSameOrBeforeMonth } from '../../../utils/calendar';
-import { DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET } from '../../../config/constants';
-import { sortByDate } from '../utils';
+import { sortByDate, filterOutFutureTimesheets } from '../utils';
 
 type Props = {
   fetchTimesheets: () => any;
@@ -23,13 +20,9 @@ class TimesheetsPage extends React.Component<Props> {
   render() {
     const { timesheets } = this.props;
 
-    const filteredTimesheets = DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET
-      ? timesheets
-          .filter((timesheet: TimesheetItem) =>
-            isSameOrBeforeMonth(timesheet.periodStart)
-          )
-          .sort(sortByDate)
-      : timesheets.sort(sortByDate);
+    const filteredTimesheets = timesheets
+      .filter(filterOutFutureTimesheets)
+      .sort(sortByDate);
 
     return (
       <div>
