@@ -14,7 +14,7 @@ import ProtectedRoute from './protected-route';
 import { ExpenseReportPage, ExpensesPage } from '../../expenses';
 import { connect } from 'react-redux';
 import { DashboardPage } from '../../dashboard';
-import { AuthPage, LogoutPage } from '../../auth';
+import { AuthPage, LogoutPage, ProfilePage } from '../../auth';
 import { checkStorage } from '../../auth/store/actions';
 import { UserListPage, UserViewPage } from '../../users';
 import { ProjectListPage, ProjectViewPage } from '../../projects';
@@ -60,6 +60,7 @@ class Routing extends React.Component<RoutingProps> {
             />
             <ProtectedRoute path="/expense-reports" component={ExpensesPage} />
             <ProtectedRoute path="/user/:id" component={UserViewPage} />
+            <ProtectedRoute path="/profile" component={ProfilePage} />
             <ProtectedRoute path="/users" component={UserListPage} />
             <ProtectedRoute
               path="/manage-timesheets"
