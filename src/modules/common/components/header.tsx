@@ -7,21 +7,28 @@ import { Dropdown } from 'genui';
 import LanguageSelector from './language-selector';
 import { getAuthedUser } from '../../auth/store/selectors';
 import { User } from '../../users/store/models';
+import Avatar from './avatar';
 
 export interface HeaderProps {
   containerHeight: number;
   user: User;
 }
 
-const items = [
+type DropdownItem = {
+  label: string;
+  icon: string;
+  to: string;
+};
+
+const items: DropdownItem[] = [
   {
     label: 'Profile',
-    icon: 'profile.png',
+    icon: 'fas fa-user',
     to: '/profile',
   },
   {
     label: 'Sign out',
-    icon: 'logout.png',
+    icon: 'fas fa-sign-out-alt',
     to: '/logout',
   },
 ];
@@ -45,20 +52,14 @@ class Header extends React.Component<HeaderProps> {
           <StyledDropdown
             className="dropdown"
             items={items}
-            renderItem={(item: any) => (
+            renderItem={(item: DropdownItem) => (
               <Link to={item.to}>
-                <img
-                  src="https://semantic-ui.com/images/avatar/small/jenny.jpg"
-                  alt=""
-                />
+                <i className={item.icon} />
                 {item.label}
               </Link>
             )}
           >
-            <img
-              src="https://semantic-ui.com/images/avatar/small/jenny.jpg"
-              alt=""
-            />
+            <Avatar avatar={user.image} />
             {`${user.firstname} ${user.lastname}`}
           </StyledDropdown>
         </RightNode>
@@ -78,6 +79,10 @@ const LogoContainer = styled.div``;
 const StyledDropdown = styled(Dropdown)`
   line-height: normal;
   align-self: center;
+
+  i {
+    margin-right: 0.5em;
+  }
 `;
 
 interface RightNodeProps {

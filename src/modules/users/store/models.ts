@@ -5,6 +5,7 @@ export interface User {
   email: string;
   password: string;
   role: UserRole;
+  image: string;
 }
 
 // TODO: UserRole also exists in auth module
