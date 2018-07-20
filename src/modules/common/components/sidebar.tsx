@@ -41,12 +41,14 @@ class Sidebar extends React.Component {
               Projects
             </Link>
           </li>
-          <li>
-            <Link to="/users">
-              <i className="fas fa-users" />
-              Users
-            </Link>
-          </li>
+          <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
+            <li>
+              <Link to="/users">
+                <i className="fas fa-users" />
+                Users
+              </Link>
+            </li>
+          </HasAccess>
           <li>
             <Link to="/groups">
               <i className="fas fa-users" />

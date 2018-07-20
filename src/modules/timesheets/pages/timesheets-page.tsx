@@ -7,15 +7,15 @@ import { fetchTimesheets } from '../store/actions';
 import { TimesheetItem } from '../store/models';
 import { timesheetSelectors } from '../store';
 import { isSameOrBeforeMonth } from '../../../utils/calendar';
+import { DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET } from '../../../config/constants';
+import { sortByDate } from '../utils';
 
-export interface TimesheetsPageProps {
+type Props = {
   fetchTimesheets: () => any;
   timesheets: any;
-}
+};
 
-const DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET = true;
-
-class TimesheetsPage extends React.Component<TimesheetsPageProps> {
+class TimesheetsPage extends React.Component<Props> {
   componentWillMount() {
     this.props.fetchTimesheets();
   }
@@ -24,10 +24,12 @@ class TimesheetsPage extends React.Component<TimesheetsPageProps> {
     const { timesheets } = this.props;
 
     const filteredTimesheets = DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET
-      ? timesheets.filter((timesheet: TimesheetItem) =>
-          isSameOrBeforeMonth(timesheet.periodStart)
-        )
-      : timesheets;
+      ? timesheets
+          .filter((timesheet: TimesheetItem) =>
+            isSameOrBeforeMonth(timesheet.periodStart)
+          )
+          .sort(sortByDate)
+      : timesheets.sort(sortByDate);
 
     return (
       <div>

@@ -4,8 +4,9 @@ import { bindActionCreators } from 'redux';
 
 import { getUsers } from '../store/selectors';
 import { fetchUsers } from '../store/actions';
-import { User } from '../store/models';
+import { User, UserRole } from '../store/models';
 import { UserList } from '../components';
+import { HasAccess } from '../../common';
 
 export interface UserListPageProps {
   fetchUsers: () => any;
@@ -19,7 +20,11 @@ class UserListPage extends React.Component<UserListPageProps> {
 
   render() {
     const { users } = this.props;
-    return <UserList users={users} />;
+    return (
+      <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
+        <UserList users={users} />;
+      </HasAccess>
+    );
   }
 }
 

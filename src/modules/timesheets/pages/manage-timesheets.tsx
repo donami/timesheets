@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React from 'react';
+
 import { TimesheetsReadyForReview } from '../components';
 import { HasAccess } from '../../common';
 import { UserRole } from '../../auth/store/models';

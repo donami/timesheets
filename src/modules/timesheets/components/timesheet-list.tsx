@@ -6,6 +6,7 @@ import { TimesheetItem } from '../store/models';
 import { dateFormat } from '../../../utils/calendar';
 import withDefaultProps from '../../common/components/with-default-props';
 import { Translate } from '../../common';
+import { sortByDate } from '../utils';
 
 type Props = {
   timesheets: TimesheetItem[];
@@ -27,7 +28,7 @@ class TimesheetList extends React.Component<Props> {
       return <div>{noTimesheetsText || 'No timesheets'}</div>;
     }
 
-    const tableItems = timesheets.map(timesheet => ({
+    const tableItems = timesheets.sort(sortByDate).map(timesheet => ({
       id: <Link to={`/timesheet/${timesheet.id}`}>{timesheet.id}</Link>,
       period: dateFormat(timesheet.periodStart, 'MMMM, YYYY'),
       status: <Translate text={`timesheet.status.${timesheet.status}`} />,
