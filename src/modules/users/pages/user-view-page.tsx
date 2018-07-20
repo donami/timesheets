@@ -22,34 +22,47 @@ import {
   confirmTemplates,
 } from '../../timesheets/store/actions';
 import { getGeneratedTimesheets } from '../../timesheets/store/selectors';
+import { fetchProjects } from '../../projects/store/actions';
+import { Project } from '../../projects/store/models';
+import { getSelectedUserProjects } from '../../common/store/selectors';
 
-export interface UserViewPageProps {
+type Props = {
   match: any;
   selectUser: (userId: number) => any;
   fetchUserById: (userId: number) => any;
   generateTimesheets: (
     from: string,
     to: string,
+    projectId: number,
     template: TimesheetTemplateItem
   ) => any;
   fetchGroups: () => any;
+  fetchProjects: () => any;
   updateGroupMember: (groupIds: number[], userId: number) => any;
   confirmTemplates: (timesheets: any) => any;
   user: User;
   groups: Group[];
+  projects: Project[];
   allGroups: Group[];
   group: Group;
   template: TimesheetTemplateItem;
   generated: any;
-}
+};
 
-class UserViewPage extends React.Component<UserViewPageProps> {
+class UserViewPage extends React.Component<Props> {
   generateForm: HTMLFormElement | null;
 
   componentWillMount() {
-    const { match, selectUser, fetchUserById, fetchGroups } = this.props;
+    const {
+      match,
+      selectUser,
+      fetchUserById,
+      fetchGroups,
+      fetchProjects,
+    } = this.props;
 
     fetchGroups();
+    fetchProjects();
 
     if (match && match.params.id) {
       selectUser(+match.params.id);
@@ -65,9 +78,14 @@ class UserViewPage extends React.Component<UserViewPageProps> {
 
   handleGenerateTimesheets = (e: any) => {
     e.preventDefault();
-    const { from, to } = this.generateForm as any;
+    const { from, to, project } = this.generateForm as any;
 
-    this.props.generateTimesheets(from.value, to.value, this.props.template);
+    this.props.generateTimesheets(
+      from.value,
+      to.value,
+      +project.value,
+      this.props.template
+    );
   };
 
   handleConfirmTemplates = (e: any) => {
@@ -75,7 +93,14 @@ class UserViewPage extends React.Component<UserViewPageProps> {
   };
 
   render() {
-    const { user, groups, allGroups, template, generated } = this.props;
+    const {
+      user,
+      groups,
+      allGroups,
+      template,
+      generated,
+      projects,
+    } = this.props;
 
     return (
       <div>
@@ -126,6 +151,17 @@ class UserViewPage extends React.Component<UserViewPageProps> {
                     <option value="2018-12-01">Dec 2018</option>
                   </select>
 
+                  <div>
+                    <label>Project:</label>
+                    <select name="project">
+                      {projects.map(project => (
+                        <option value={project.id} key={project.id}>
+                          {project.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <Button type="submit" color="blue">
                     Generate
                   </Button>
@@ -149,6 +185,7 @@ class UserViewPage extends React.Component<UserViewPageProps> {
 const mapStateToProps = (state: any) => ({
   user: getSelectedUser(state),
   groups: getSelectedUserGroups(state),
+  projects: getSelectedUserProjects(state),
   allGroups: getGroups(state),
   group: getSelectedUserGroup(state),
   template: getSelectedUserGroupTemplate(state),
@@ -162,6 +199,7 @@ const mapDispatchToProps = (dispatch: any) =>
       updateGroupMember,
       fetchUserById,
       fetchGroups,
+      fetchProjects,
       generateTimesheets,
       confirmTemplates,
     },

@@ -5,7 +5,7 @@ import { getTemplateEntities } from '../../timesheets/store/selectors';
 
 export const getUserEntities = (state: any) => state.users.byId;
 const getUserIds = (state: any) => state.users.ids;
-const getSelectedId = (state: any) => state.users.selected;
+export const getSelectedUserId = (state: any) => state.users.selected;
 
 export const getUsers = createSelector(
   getUserEntities,
@@ -15,14 +15,12 @@ export const getUsers = createSelector(
 
 export const getSelectedUser = createSelector(
   getUserEntities,
-  getSelectedId,
-  (entities, id) => {
-    return entities[id];
-  }
+  getSelectedUserId,
+  (entities, id) => entities[id]
 );
 
 export const getSelectedUserGroups = createSelector(
-  getSelectedId,
+  getSelectedUserId,
   getGroups,
   (userId, groups) =>
     groups.filter((group: any) => group.members.indexOf(userId) > -1)

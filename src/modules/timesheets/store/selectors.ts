@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { TimesheetItem, TimesheetStatus } from './models';
 
 const getTimesheetState = (state: any) => state.timesheets.timesheets;
 
@@ -58,6 +59,15 @@ export const getSelectedTemplate = createSelector(
   getSelectedTemplateId,
   (entities, id) => {
     return entities[id];
+  }
+);
+
+export const getTimesheetsWaitingForApproval = createSelector(
+  getTimesheets,
+  (timesheets: TimesheetItem[]) => {
+    return timesheets.filter(
+      timesheet => timesheet.status === TimesheetStatus.WaitingForApproval
+    );
   }
 );
 

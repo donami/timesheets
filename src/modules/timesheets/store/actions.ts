@@ -51,12 +51,14 @@ export const updateTimesheet = (
 export const generateTimesheets = (
   from: string,
   to: string,
+  projectId: number,
   template: TimesheetTemplateItem
 ) => ({
   type: types.TIMESHEETS_GENERATE.REQUEST,
   payload: {
     from,
     to,
+    projectId,
     template,
   },
 });
