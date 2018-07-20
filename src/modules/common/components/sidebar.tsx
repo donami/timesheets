@@ -1,68 +1,61 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { UserRole } from '../../auth/store/models';
-import HasAccess from './has-access';
+import SidebarLink from './sidebar-link';
 
 class Sidebar extends React.Component {
   render() {
     return (
       <Container>
         <ul>
-          <li>
-            <Link to="/">
-              <i className="fas fa-chalkboard" />
-              Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link to="/timesheets">
-              <i className="fas fa-clock" />
-              Timesheets
-            </Link>
-          </li>
-          <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
-            <li>
-              <Link to="/manage-timesheets">
-                <i className="fas fa-clock" />
-                Manage Timesheets
-              </Link>
-            </li>
-          </HasAccess>
-          <li>
-            <Link to="/expense-reports">
-              <i className="far fa-credit-card" />
-              Expenses
-            </Link>
-          </li>
-          <li>
-            <Link to="/projects">
-              <i className="fas fa-briefcase" />
-              Projects
-            </Link>
-          </li>
-          <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
-            <li>
-              <Link to="/users">
-                <i className="fas fa-users" />
-                Users
-              </Link>
-            </li>
-          </HasAccess>
-          <li>
-            <Link to="/groups">
-              <i className="fas fa-users" />
-              Groups
-            </Link>
-          </li>
-          <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
-            <li>
-              <Link to="/timesheet-templates">
-                <i className="fas fa-users" />
-                Timesheet Templates
-              </Link>
-            </li>
-          </HasAccess>
+          <SidebarLink to="/" icon="fas fa-chalkboard" label="Dashboard" />
+
+          <SidebarLink
+            to="/timesheets"
+            icon="fas fa-clock"
+            label="Timesheets"
+          />
+
+          <SidebarLink
+            roles={[UserRole.Manager, UserRole.Admin]}
+            to="/manage-timesheets"
+            icon="fas fa-clock"
+            label="Manage Timesheets"
+          />
+
+          <SidebarLink
+            to="/expense-reports"
+            icon="far fa-credit-card"
+            label="Expenses"
+          />
+
+          <SidebarLink
+            roles={[UserRole.Manager, UserRole.Admin]}
+            to="/projects"
+            icon="fas fa-briefcase"
+            label="Projects"
+          />
+
+          <SidebarLink
+            roles={[UserRole.Manager, UserRole.Admin]}
+            to="/users"
+            icon="fas fa-users"
+            label="Users"
+          />
+
+          <SidebarLink
+            roles={[UserRole.Manager, UserRole.Admin]}
+            to="/groups"
+            icon="fas fa-users"
+            label="Groups"
+          />
+
+          <SidebarLink
+            roles={[UserRole.Manager, UserRole.Admin]}
+            to="/timesheet-templates"
+            icon="fas fa-users"
+            label="Timesheet Templates"
+          />
         </ul>
       </Container>
     );
