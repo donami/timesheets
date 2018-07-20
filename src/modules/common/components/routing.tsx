@@ -21,6 +21,7 @@ import { ProjectListPage, ProjectViewPage } from '../../projects';
 import { GroupViewPage, GroupListPage } from '../../groups';
 import textManager from '../../../services/text-manager';
 import { history } from '../../../store';
+import { NotFoundPage } from '../pages';
 
 export interface RoutingProps {
   checkStorage: () => any;
@@ -78,6 +79,7 @@ class Routing extends React.Component<RoutingProps> {
             <ProtectedRoute path="/projects" component={ProjectListPage} />
             <ProtectedRoute path="/group/:id" component={GroupViewPage} />
             <ProtectedRoute path="/groups" component={GroupListPage} />
+            <Route path="*" component={NotFoundPage} />
           </Switch>
         </ConnectedRouter>
       </TextManagerContext.Provider>
