@@ -33,3 +33,5 @@ export const createUser = (user: Partial<User> & { projects: number[] }) => ({
     user,
   },
 });
+
+export const loadUserPage = () => ({ type: types.LOAD_USER_PAGE });

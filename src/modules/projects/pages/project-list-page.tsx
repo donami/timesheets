@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Heading } from 'genui';
 
-import { getProjects } from '../store/selectors';
 import { fetchProjects } from '../store/actions';
 import { Project } from '../store/models';
 import { ProjectList } from '../components';
+import { getAuthedUserProjects } from '../../auth/store/selectors';
 
 export interface ProjectListPageProps {
   fetchProjects: () => any;
@@ -20,12 +21,19 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
   render() {
     const { projects } = this.props;
 
-    return <ProjectList projects={projects} />;
+    return (
+      <div>
+        <Heading as="h1" dividing="true">
+          Projects
+        </Heading>
+        <ProjectList projects={projects} />;
+      </div>
+    );
   }
 }
 
 const mapStateToProps = (state: any) => ({
-  projects: getProjects(state),
+  projects: getAuthedUserProjects(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

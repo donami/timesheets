@@ -4,6 +4,7 @@ import { push } from 'connected-react-router';
 import Api from '../../../services/api';
 import types from './types';
 import * as toastr from '../../../services/toastr';
+import * as projectActions from '../../projects/store/actions';
 
 function* fetchUsers(action: any) {
   yield put({ type: types.FETCH_USERS_REQUEST });
@@ -43,21 +44,24 @@ function* fetchUserById(action: any) {
 }
 
 function* selectUser(action: any) {
-  yield put({
-    type: types.FETCH_USER_BY_ID,
-    payload: {
-      userId: action.payload.userId,
-    },
-  });
-
-  yield put({
-    type: 'FETCH_GROUPS',
-    payload: {
-      options: {
-        byUser: action.payload.userId,
+  yield [
+    put({
+      type: types.FETCH_USER_BY_ID,
+      payload: {
+        userId: action.payload.userId,
       },
-    },
-  });
+    }),
+    put({
+      type: 'FETCH_GROUPS',
+      // TODO:
+      // payload: {
+      //   options: {
+      //     byUser: action.payload.userId,
+      //   },
+      // },
+    }),
+    put(projectActions.fetchProjects()),
+  ];
 
   try {
     yield put({
