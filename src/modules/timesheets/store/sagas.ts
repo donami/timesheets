@@ -160,6 +160,8 @@ function* generateTimesheets(action: any) {
       type: types.TIMESHEETS_GENERATE.SUCCESS,
       payload: {
         timesheets,
+        projectId: action.payload.projectId,
+        userId: action.payload.userId,
       },
     });
   } catch (e) {
@@ -172,7 +174,7 @@ function* generateTimesheets(action: any) {
 
 function* confirmTemplates(action: any) {
   try {
-    const response = yield call(Api.createTimesheets, action.payload.templates);
+    const response = yield call(Api.createTimesheets, action.payload);
 
     yield put({
       type: types.TIMESHEETS_CONFIRM.SUCCESS,

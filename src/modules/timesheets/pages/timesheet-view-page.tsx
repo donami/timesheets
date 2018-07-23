@@ -10,6 +10,12 @@ import {
   updateTimesheet,
 } from '../store/actions';
 import { getSelectedTimesheet } from '../store/selectors';
+import {
+  getTimesheetsInProjectsWhereAdmin,
+  getProjectOfSelectedTimesheet,
+} from '../../common/store/selectors';
+import { fetchProjects } from '../../projects/store/actions';
+import { Project } from '../../projects/store/models';
 
 export interface TimesheetViewPageProps {
   match: any;
@@ -17,9 +23,20 @@ export interface TimesheetViewPageProps {
   selectTimesheet: (timesheetId: number) => any;
   updateTimesheet: (timesheetId: number, timesheet: TimesheetItem) => any;
   fetchTimesheetById: (timesheetId: number) => any;
+  fetchProjects: () => any;
+  timesheetsWhereAdmin: TimesheetItem[];
+  project: Project;
 }
 
-const calendarEditable = (status: TimesheetStatus): boolean => {
+const calendarEditable = (
+  status: TimesheetStatus,
+  isAdmin: boolean
+): boolean => {
+  // Admins should not be allowed to edit the hours
+  if (isAdmin) {
+    return false;
+  }
+
   return (
     status === TimesheetStatus.InProgress ||
     status === TimesheetStatus.InProgressSaved ||
@@ -29,8 +46,14 @@ const calendarEditable = (status: TimesheetStatus): boolean => {
 
 class TimesheetViewPage extends React.Component<TimesheetViewPageProps> {
   componentWillMount() {
-    const { match, selectTimesheet, fetchTimesheetById } = this.props;
+    const {
+      match,
+      selectTimesheet,
+      fetchTimesheetById,
+      fetchProjects,
+    } = this.props;
 
+    fetchProjects();
     if (match && match.params.id) {
       selectTimesheet(+match.params.id);
       fetchTimesheetById(+match.params.id);
@@ -47,6 +70,26 @@ class TimesheetViewPage extends React.Component<TimesheetViewPageProps> {
     this.props.updateTimesheet(timesheet.id, data);
   };
 
+  handleApprove = () => {
+    const { timesheet } = this.props;
+
+    const data = Object.assign({}, timesheet, {
+      status: TimesheetStatus.Approved,
+    });
+
+    this.props.updateTimesheet(timesheet.id, data);
+  };
+
+  handleDecline = () => {
+    const { timesheet } = this.props;
+
+    const data = Object.assign({}, timesheet, {
+      status: TimesheetStatus.NeedsRevisement,
+    });
+
+    this.props.updateTimesheet(timesheet.id, data);
+  };
+
   handleSubmit = (dates: any[]) => {
     const { timesheet } = this.props;
     const data = Object.assign({}, timesheet, {
@@ -58,25 +101,33 @@ class TimesheetViewPage extends React.Component<TimesheetViewPageProps> {
   };
 
   render() {
-    const { timesheet } = this.props;
+    const { timesheet, timesheetsWhereAdmin, project } = this.props;
 
     if (!timesheet) {
       return null;
     }
 
-    const editable = calendarEditable(timesheet.status);
+    // If viewing the timesheet as admin or as user
+    const isAdmin = Boolean(
+      timesheetsWhereAdmin.find(item => item.id === timesheet.id)
+    );
+    // If the calendar (hours) should be editable
+    const editable = calendarEditable(timesheet.status, isAdmin);
 
     return (
       <div>
-        <TimesheetInfo timesheet={timesheet} />
+        <TimesheetInfo project={project} timesheet={timesheet} />
 
         <div>
           <Calendar
             onSaveDraft={this.handleSaveDraft}
             onSubmit={this.handleSubmit}
+            onApprove={this.handleApprove}
+            onDecline={this.handleDecline}
             dates={timesheet.dates}
             editable={editable}
             startOfMonth={timesheet.periodStart}
+            isAdmin={isAdmin}
           />
         </div>
       </div>
@@ -86,6 +137,8 @@ class TimesheetViewPage extends React.Component<TimesheetViewPageProps> {
 
 const mapStateToProps = (state: any) => ({
   timesheet: getSelectedTimesheet(state),
+  timesheetsWhereAdmin: getTimesheetsInProjectsWhereAdmin(state),
+  project: getProjectOfSelectedTimesheet(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>
@@ -94,6 +147,7 @@ const mapDispatchToProps = (dispatch: any) =>
       selectTimesheet,
       fetchTimesheetById,
       updateTimesheet,
+      fetchProjects,
     },
     dispatch
   );

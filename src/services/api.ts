@@ -12,8 +12,10 @@ import { User } from '../modules/users/store/models';
 import { API_URL } from '../config/constants';
 import { groupSchema, Group } from '../modules/groups/store/models';
 
-const handleError = (error: any) =>
-  error.json().then((err: any) => Promise.reject(err));
+const handleError = (error: any) => {
+  console.log(error);
+  return error.json().then((err: any) => Promise.reject(err));
+};
 
 export interface NormalizedResponse {
   entities: {
@@ -132,9 +134,9 @@ const fetchUsers = (): Promise<NormalizedResponse> =>
 const auth = (email: string, password: string): Promise<NormalizedResponse> =>
   fetchApi(`auth`, 'POST', userSchema, { email, password });
 
-const createTimesheets = (dates: any): Promise<NormalizedResponse> =>
+const createTimesheets = (data: any): Promise<NormalizedResponse> =>
   fetchApi('timesheets/create-timesheets', 'POST', [timesheetSchema], {
-    dates,
+    data,
   });
 
 export default {

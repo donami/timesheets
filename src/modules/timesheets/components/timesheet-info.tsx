@@ -4,15 +4,18 @@ import { Box } from '../../ui';
 import { TimesheetItem } from '../store/models';
 import { asMonth } from '../../../utils/calendar';
 import { Translate } from '../../common';
+import { Project } from '../../projects/store/models';
 
 export interface TimesheetInfoProps {
   timesheet: TimesheetItem;
+  project: Project;
 }
 
 const TimesheetInfo: React.StatelessComponent<TimesheetInfoProps> = ({
   timesheet,
+  project,
 }) => (
-  <Box title="Hourly timesheet for ___Humany - Karlskrona___">
+  <Box title={`Hourly timesheet for ${project.name}`}>
     <strong>Timesheet Period:</strong> {asMonth(timesheet.periodStart)} <br />
     <strong>Status: </strong>
     <Translate text={`timesheet.status.${timesheet.status}`} /> <br />

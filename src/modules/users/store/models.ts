@@ -1,3 +1,5 @@
+import { TimesheetItem } from '../../timesheets/store/models';
+
 export interface User {
   id: number;
   firstname: string;
@@ -6,6 +8,7 @@ export interface User {
   password: string;
   role: UserRole;
   image: string;
+  timesheets: TimesheetItem[];
 }
 
 // TODO: UserRole also exists in auth module

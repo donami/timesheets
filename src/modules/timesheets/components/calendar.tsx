@@ -7,9 +7,12 @@ import { isSameMonthAs } from '../../../utils/calendar';
 export interface CalendarProps {
   onSubmit?: Function;
   onSaveDraft?: Function;
+  onApprove: () => any;
+  onDecline: () => any;
   dates?: any[];
   editable: boolean;
   startOfMonth: string;
+  isAdmin: boolean;
 }
 
 class Calendar extends React.Component<CalendarProps> {
@@ -24,14 +27,6 @@ class Calendar extends React.Component<CalendarProps> {
 
   componentWillMount() {
     this.setState({ dates: this.props.dates });
-
-    // TODO: safe to remove?
-    // if (this.props.dates && this.props.dates.length) {
-    //   this.setState({ dates: this.props.dates });
-    // } else {
-    //   const generatedDates = generateDates(this.props.startOfMonth);
-    //   this.setState({ dates: generatedDates });
-    // }
   }
 
   componentWillReceiveProps(nextProps: any) {
@@ -119,7 +114,7 @@ class Calendar extends React.Component<CalendarProps> {
 
   render() {
     const { dates } = this.state;
-    const { editable } = this.props;
+    const { editable, isAdmin } = this.props;
 
     const monthlyTotalHours = this.calcMonthlyHours(dates);
 
@@ -138,20 +133,34 @@ class Calendar extends React.Component<CalendarProps> {
         </TotalMonthlyHours>
 
         <div>
-          <Button
-            color="blue"
-            onClick={this.handleSaveAsDraft}
-            disabled={!editable}
-          >
-            Save as draft
-          </Button>
-          <Button
-            color="green"
-            onClick={this.handleSubmit}
-            disabled={!editable}
-          >
-            Submit
-          </Button>
+          {isAdmin && (
+            <React.Fragment>
+              <Button color="green" onClick={this.props.onApprove}>
+                Approve
+              </Button>
+              <Button color="red" onClick={this.props.onDecline}>
+                Decline, needs revisement
+              </Button>
+            </React.Fragment>
+          )}
+          {!isAdmin && (
+            <React.Fragment>
+              <Button
+                color="blue"
+                onClick={this.handleSaveAsDraft}
+                disabled={!editable}
+              >
+                Save as draft
+              </Button>
+              <Button
+                color="green"
+                onClick={this.handleSubmit}
+                disabled={!editable}
+              >
+                Submit
+              </Button>
+            </React.Fragment>
+          )}
         </div>
       </div>
     );

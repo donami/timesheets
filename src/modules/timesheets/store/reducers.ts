@@ -148,11 +148,15 @@ const timesheetTemplatesReducer = (
 };
 
 export interface GeneratorState {
-  generated: any[];
+  generated: {
+    projectId: number;
+    userId: number;
+    timesheets: any[];
+  } | null;
 }
 
 const generatorInitialState: GeneratorState = {
-  generated: [],
+  generated: null,
 };
 
 const generatorReducer = (state = generatorInitialState, action: any) => {
@@ -165,7 +169,11 @@ const generatorReducer = (state = generatorInitialState, action: any) => {
     case types.TIMESHEETS_GENERATE.SUCCESS:
       return {
         ...state,
-        generated: action.payload.timesheets,
+        generated: {
+          timesheets: action.payload.timesheets,
+          projectId: action.payload.projectId,
+          userId: action.payload.userId,
+        },
       };
 
     default:

@@ -34,6 +34,7 @@ type Props = {
     from: string,
     to: string,
     projectId: number,
+    userId: number,
     template: TimesheetTemplateItem
   ) => any;
   fetchGroups: () => any;
@@ -84,6 +85,7 @@ class UserViewPage extends React.Component<Props> {
       from.value,
       to.value,
       +project.value,
+      this.props.user.id,
       this.props.template
     );
   };
@@ -117,24 +119,28 @@ class UserViewPage extends React.Component<Props> {
             <React.Fragment>
               <h4>Generate timesheets using the template: {template.name}</h4>
 
-              {generated.length > 0 && (
-                <div>
-                  <h4>Generated Timesheets</h4>
-
-                  {generated.map((month: any, index: any) => (
-                    <div key={index}>{month.month}</div>
-                  ))}
-
+              {generated &&
+                generated.timesheets.length > 0 && (
                   <div>
-                    <Button color="green" onClick={this.handleConfirmTemplates}>
-                      Confirm
-                    </Button>
-                    <Button>Cancel</Button>
-                  </div>
-                </div>
-              )}
+                    <h4>Generated Timesheets</h4>
 
-              {generated.length === 0 && (
+                    {generated.timesheets.map((month: any, index: any) => (
+                      <div key={index}>{month.month}</div>
+                    ))}
+
+                    <div>
+                      <Button
+                        color="green"
+                        onClick={this.handleConfirmTemplates}
+                      >
+                        Confirm
+                      </Button>
+                      <Button>Cancel</Button>
+                    </div>
+                  </div>
+                )}
+
+              {!generated && (
                 <form
                   onSubmit={this.handleGenerateTimesheets}
                   ref={form => {

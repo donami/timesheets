@@ -5,13 +5,11 @@ import { bindActionCreators } from 'redux';
 import { TimesheetList } from '../components';
 import { TimesheetItem } from '../store/models';
 import { fetchTimesheets } from '../store/actions';
-import { getTimesheetsWaitingForApproval } from '../store/selectors';
-import { getAuthedUserProjectsWhereAdmin } from '../../auth/store/selectors';
 import { fetchProjects } from '../../projects/store/actions';
+import { getTimesheetsWaitingForApprovalWhereAdmin } from '../../common/store/selectors';
 
 type Props = {
   timesheets: TimesheetItem[];
-  projects: any[] | any;
   fetchTimesheets: () => any;
   fetchProjects: () => any;
 };
@@ -36,8 +34,7 @@ class TimesheetsReadyForReview extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: any) => ({
-  timesheets: getTimesheetsWaitingForApproval(state),
-  projects: getAuthedUserProjectsWhereAdmin(state),
+  timesheets: getTimesheetsWaitingForApprovalWhereAdmin(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

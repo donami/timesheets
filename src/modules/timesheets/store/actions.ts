@@ -52,6 +52,7 @@ export const generateTimesheets = (
   from: string,
   to: string,
   projectId: number,
+  userId: number,
   template: TimesheetTemplateItem
 ) => ({
   type: types.TIMESHEETS_GENERATE.REQUEST,
@@ -59,6 +60,7 @@ export const generateTimesheets = (
     from,
     to,
     projectId,
+    userId,
     template,
   },
 });
@@ -66,6 +68,6 @@ export const generateTimesheets = (
 export const confirmTemplates = (templates: any) => ({
   type: types.TIMESHEETS_CONFIRM.REQUEST,
   payload: {
-    templates,
+    ...templates,
   },
 });
