@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 
 import { TimesheetList } from '../components';
 import { fetchTimesheets } from '../store/actions';
-import { timesheetSelectors } from '../store';
+import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
 import { sortByDate, filterOutFutureTimesheets } from '../utils';
 
 type Props = {
@@ -33,7 +33,7 @@ class TimesheetsPage extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: any) => ({
-  timesheets: timesheetSelectors.getTimesheets(state),
+  timesheets: getTimesheetsForAuthedUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

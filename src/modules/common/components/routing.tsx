@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import { DashboardPage } from '../../dashboard';
 import { AuthPage, LogoutPage, ProfilePage } from '../../auth';
 import { checkStorage } from '../../auth/store/actions';
-import { UserListPage, UserViewPage } from '../../users';
+import { UserListPage, UserViewPage, UserAddPage } from '../../users';
 import { ProjectListPage, ProjectViewPage } from '../../projects';
 import { GroupViewPage, GroupListPage } from '../../groups';
 import textManager from '../../../services/text-manager';
@@ -61,8 +61,13 @@ class Routing extends React.Component<RoutingProps> {
               component={ExpenseReportPage}
             />
             <ProtectedRoute path="/expense-reports" component={ExpensesPage} />
-            <ProtectedRoute path="/user/:id" component={UserViewPage} />
             <ProtectedRoute path="/profile" component={ProfilePage} />
+            <ProtectedRoute path="/user/:id" component={UserViewPage} />
+            <ProtectedRoute
+              path="/users/add"
+              component={UserAddPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
             <ProtectedRoute
               path="/users"
               component={UserListPage}

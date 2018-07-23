@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Heading } from 'genui';
+import { Link } from 'react-router-dom';
 
 import { getUsers } from '../store/selectors';
 import { fetchUsers } from '../store/actions';
-import { User, UserRole } from '../store/models';
+import { User } from '../store/models';
 import { UserList } from '../components';
-import { HasAccess } from '../../common';
 
 export interface UserListPageProps {
   fetchUsers: () => any;
@@ -21,9 +22,15 @@ class UserListPage extends React.Component<UserListPageProps> {
   render() {
     const { users } = this.props;
     return (
-      <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
-        <UserList users={users} />;
-      </HasAccess>
+      <div>
+        <Heading as="h1" dividing="true">
+          Users
+        </Heading>
+
+        <Link to="/users/add">Add user</Link>
+
+        <UserList users={users} />
+      </div>
     );
   }
 }

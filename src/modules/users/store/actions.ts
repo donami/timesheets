@@ -26,3 +26,10 @@ export const updateUser = (userId: number, user: User) => ({
     user,
   },
 });
+
+export const createUser = (user: Partial<User> & { projects: number[] }) => ({
+  type: types.CREATE_USER.REQUEST,
+  payload: {
+    user,
+  },
+});

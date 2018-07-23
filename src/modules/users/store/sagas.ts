@@ -1,7 +1,9 @@
 import { call, put, takeEvery, all } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
 
 import Api from '../../../services/api';
 import types from './types';
+import * as toastr from '../../../services/toastr';
 
 function* fetchUsers(action: any) {
   yield put({ type: types.FETCH_USERS_REQUEST });
@@ -92,9 +94,35 @@ function* updateUser(action: any) {
   }
 }
 
+function* createUser(action: any) {
+  try {
+    const response = yield call(Api.createUser, action.payload.user);
+
+    yield put({
+      payload: { ...response },
+      type: types.CREATE_USER.SUCCESS,
+    });
+
+    yield put(
+      toastr.success({
+        title: 'User was created!',
+        message: 'User was successfully created!',
+      })
+    );
+
+    yield put(push('/users'));
+  } catch (e) {
+    yield put({
+      type: types.CREATE_USER.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 export default all([
   takeEvery(types.SELECT_USER, selectUser),
   takeEvery(types.FETCH_USERS, fetchUsers),
   takeEvery(types.FETCH_USER_BY_ID, fetchUserById),
   takeEvery(types.UPDATE_USER.REQUEST, updateUser),
+  takeEvery(types.CREATE_USER.REQUEST, createUser),
 ]);

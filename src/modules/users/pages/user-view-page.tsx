@@ -73,7 +73,6 @@ class UserViewPage extends React.Component<Props> {
 
   handleUpdateGroups = (groupIds: number[]) => {
     // TODO:
-    console.log(groupIds);
     this.props.updateGroupMember(groupIds, this.props.user.id);
   };
 

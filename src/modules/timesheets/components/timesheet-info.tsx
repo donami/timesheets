@@ -15,7 +15,7 @@ const TimesheetInfo: React.StatelessComponent<TimesheetInfoProps> = ({
   timesheet,
   project,
 }) => (
-  <Box title={`Hourly timesheet for ${project.name}`}>
+  <Box title={`Hourly timesheet for ${(project && project.name) || ''}`}>
     <strong>Timesheet Period:</strong> {asMonth(timesheet.periodStart)} <br />
     <strong>Status: </strong>
     <Translate text={`timesheet.status.${timesheet.status}`} /> <br />

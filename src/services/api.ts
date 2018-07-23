@@ -120,6 +120,9 @@ const updateGroupMember = (
 const updateUser = (userId: number, user: User): Promise<NormalizedResponse> =>
   fetchApi(`users/${userId}`, 'PUT', userSchema, { ...user });
 
+const createUser = (user: Partial<User>): Promise<NormalizedResponse> =>
+  fetchApi(`users`, 'POST', userSchema, { ...user });
+
 const fetchExpenseReportById = (
   expenseReportId: number
 ): Promise<NormalizedResponse> =>
@@ -149,6 +152,7 @@ export default {
   fetchExpenseReportById,
   auth,
   updateUser,
+  createUser,
   fetchProjects,
   fetchProjectById,
   updateProject,
