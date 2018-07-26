@@ -26,3 +26,11 @@ export const updateProject = (projectId: number, project: Project) => ({
     project,
   },
 });
+
+export const createProject = (project: Partial<Project>, userId: number) => ({
+  type: types.CREATE_PROJECT.REQUEST,
+  payload: {
+    project,
+    userId,
+  },
+});

@@ -1,7 +1,9 @@
 import { call, put, takeEvery, all } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
 
 import Api from '../../../services/api';
 import types from './types';
+import * as toastr from '../../../services/toastr';
 
 function* fetchProjects(action: any) {
   yield put({ type: types.FETCH_PROJECTS_REQUEST });
@@ -83,9 +85,39 @@ function* updateProject(action: any) {
   }
 }
 
+function* createProject(action: any) {
+  try {
+    const response = yield call(
+      Api.createProject,
+      action.payload.project,
+      action.payload.userId
+    );
+
+    yield put({
+      payload: { ...response },
+      type: types.CREATE_PROJECT.SUCCESS,
+    });
+
+    yield put(
+      toastr.success({
+        title: 'Project was created!',
+        message: 'Project was successfully created!',
+      })
+    );
+
+    yield put(push('/projects'));
+  } catch (e) {
+    yield put({
+      type: types.CREATE_PROJECT.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 export default all([
   takeEvery(types.SELECT_PROJECT, selectProjectFunction),
   takeEvery(types.FETCH_PROJECTS, fetchProjects),
   takeEvery(types.FETCH_PROJECT_BY_ID, fetchProjectById),
   takeEvery(types.UPDATE_PROJECT.REQUEST, updateProject),
+  takeEvery(types.CREATE_PROJECT.REQUEST, createProject),
 ]);

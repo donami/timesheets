@@ -6,7 +6,7 @@ import { UserRole } from '../../users/store/models';
 const getUserEntities = (state: any) => state.auth.byId;
 const getUserIds = (state: any) => state.auth.ids;
 const getSelectedId = (state: any) => state.auth.selected;
-const getAuthedUserId = (state: any) => state.auth.userId;
+export const getAuthedUserId = (state: any) => state.auth.userId;
 
 export const getIsAuthed = (state: any) => state.auth.isAuthed;
 

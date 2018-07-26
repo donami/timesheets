@@ -26,12 +26,9 @@ class UserListPage extends React.Component<UserListPageProps> {
       <div>
         <PageHeader
           options={() => (
-            <>
-              {/* <Link to="/users/add">Add user</Link> */}
-              <Button to="/users/add" color="blue">
-                Add user
-              </Button>
-            </>
+            <Button to="/users/add" color="blue">
+              Add user
+            </Button>
           )}
         >
           Users

@@ -17,30 +17,30 @@ import { DashboardPage } from '../../dashboard';
 import { AuthPage, LogoutPage, ProfilePage } from '../../auth';
 import { checkStorage } from '../../auth/store/actions';
 import { UserListPage, UserViewPage, UserAddPage } from '../../users';
-import { ProjectListPage, ProjectViewPage } from '../../projects';
+import {
+  ProjectListPage,
+  ProjectViewPage,
+  ProjectAddPage,
+} from '../../projects';
 import { GroupViewPage, GroupListPage } from '../../groups';
 import textManager from '../../../services/text-manager';
 import { history } from '../../../store';
 import { NotFoundPage } from '../pages';
 import { UserRole } from '../../users/store/models';
 
-export interface RoutingProps {
+type Props = {
   checkStorage: () => any;
-}
+};
 
 export const TextManagerContext = React.createContext(textManager);
 
-class Routing extends React.Component<RoutingProps> {
+class Routing extends React.Component<Props> {
   textManager: any;
 
   constructor(props: any) {
     super(props);
 
     this.textManager = textManager;
-  }
-
-  componentWillMount() {
-    // this.props.checkStorage();
   }
 
   render() {
@@ -66,6 +66,11 @@ class Routing extends React.Component<RoutingProps> {
             <ProtectedRoute
               path="/users/add"
               component={UserAddPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/projects/add"
+              component={ProjectAddPage}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute

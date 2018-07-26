@@ -102,6 +102,12 @@ const updateProject = (
 ): Promise<NormalizedResponse> =>
   fetchApi(`projects/${projectId}`, 'PUT', projectSchema, { ...project });
 
+const createProject = (
+  project: Partial<Project>,
+  userId: number
+): Promise<NormalizedResponse> =>
+  fetchApi(`projects`, 'POST', projectSchema, { ...project, userId });
+
 const updateGroup = (
   groupId: number,
   group: Group
@@ -156,6 +162,7 @@ export default {
   fetchProjects,
   fetchProjectById,
   updateProject,
+  createProject,
   updateGroup,
   updateGroupMember,
   fetchGroupById,

@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Heading } from 'genui';
+import { Button } from 'genui';
 
 import { fetchProjects } from '../store/actions';
 import { Project } from '../store/models';
 import { ProjectList } from '../components';
 import { getAuthedUserProjects } from '../../auth/store/selectors';
+import { PageHeader } from '../../common';
 
 export interface ProjectListPageProps {
   fetchProjects: () => any;
@@ -23,10 +24,16 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
 
     return (
       <div>
-        <Heading as="h1" dividing="true">
+        <PageHeader
+          options={() => (
+            <Button to="/projects/add" color="blue">
+              New Project
+            </Button>
+          )}
+        >
           Projects
-        </Heading>
-        <ProjectList projects={projects} />;
+        </PageHeader>
+        <ProjectList projects={projects} />
       </div>
     );
   }
