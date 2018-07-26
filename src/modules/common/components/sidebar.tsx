@@ -11,6 +11,7 @@ class Sidebar extends React.Component {
           <SidebarLink to="/" icon="fas fa-chalkboard" label="Dashboard" />
 
           <SidebarLink
+            roles={[UserRole.User]}
             to="/timesheets"
             icon="fas fa-clock"
             label="Timesheets"
@@ -24,6 +25,7 @@ class Sidebar extends React.Component {
           />
 
           <SidebarLink
+            roles={[UserRole.User]}
             to="/expense-reports"
             icon="far fa-credit-card"
             label="Expenses"

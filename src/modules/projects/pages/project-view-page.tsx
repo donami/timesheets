@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Badge } from 'genui';
 
 import { selectProject, fetchProjectById } from '../store/actions';
 import { ProjectInfo, ProjectMemberList } from '../components';
@@ -13,6 +14,7 @@ import { Project, ProjectMember } from '../store/models';
 import { TimesheetItem, TimesheetStatus } from '../../timesheets/store/models';
 import { TimesheetList } from '../../timesheets';
 import { Box } from '../../ui';
+import styled from '../../../styled/styled-components';
 
 export interface ProjectViewPageProps {
   match: any;
@@ -36,6 +38,11 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
   render() {
     const { project, timesheets, projectMembers } = this.props;
 
+    const timesheetsWaitingForApproval = timesheets.filter(
+      (timesheet: TimesheetItem) =>
+        timesheet.status === TimesheetStatus.WaitingForApproval
+    );
+
     return (
       <div>
         <ProjectInfo project={project} />
@@ -44,17 +51,32 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
           <TimesheetList timesheets={timesheets} />
         </Box>
 
-        <Box title="Timesheets waiting for approval">
+        <Box
+          title={() => (
+            <div>
+              <BoxTitleWithBadge>
+                Timesheets waiting for approval
+              </BoxTitleWithBadge>
+              <Badge color="blue">{timesheetsWaitingForApproval.length}</Badge>
+            </div>
+          )}
+        >
           <TimesheetList
             noTimesheetsText="No timesheets are waiting for approval"
-            timesheets={timesheets.filter(
-              (timesheet: TimesheetItem) =>
-                timesheet.status === TimesheetStatus.WaitingForApproval
-            )}
+            timesheets={timesheetsWaitingForApproval}
           />
         </Box>
 
-        <Box title="Users attached to this project">
+        <Box
+          title={() => (
+            <div>
+              <BoxTitleWithBadge>
+                Users attached to this project
+              </BoxTitleWithBadge>
+              <Badge color="blue">{projectMembers.length}</Badge>
+            </div>
+          )}
+        >
           <ProjectMemberList
             noMembersText="No users are attached to this project"
             members={projectMembers}
@@ -84,3 +106,7 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ProjectViewPage);
+
+const BoxTitleWithBadge = styled.span`
+  margin-right: 5px;
+`;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { List } from 'genui';
 
 import { getAuthedUser } from '../store/selectors';
 import { User } from '../../users/store/models';
@@ -15,7 +16,13 @@ class ProfilePage extends React.Component<Props> {
 
     return (
       <div>
-        <Box title="Profile">Name: {`${user.firstname} ${user.lastname}`}</Box>
+        <Box title="Profile">
+          <List divided>
+            <List.Item>Name: {`${user.firstname} ${user.lastname}`}</List.Item>
+            <List.Item>Role: {user.role}</List.Item>
+          </List>
+          <br />
+        </Box>
       </div>
     );
   }

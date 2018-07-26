@@ -40,10 +40,12 @@ class Header extends React.Component<HeaderProps> {
     return (
       <Container>
         <LogoContainer>
-          <Logo
-            src="https://staticeu.zerochaos.com/StaticContent/assets/images/ZeroChaosLogoHorizontal.svg"
-            alt="Logo"
-          />
+          <Link to="/">
+            <Logo
+              src="https://staticeu.zerochaos.com/StaticContent/assets/images/ZeroChaosLogoHorizontal.svg"
+              alt="Logo"
+            />
+          </Link>
         </LogoContainer>
 
         <RightNode className="right-node" containerHeight={containerHeight}>

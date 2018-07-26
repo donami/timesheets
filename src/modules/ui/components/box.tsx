@@ -2,15 +2,16 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 export interface BoxProps {
-  title: string;
+  title: string | Function;
 }
 
 class Box extends React.Component<BoxProps> {
   render() {
     const { title, children } = this.props;
+
     return (
       <StyledBox>
-        <BoxTitle>{title}</BoxTitle>
+        <BoxTitle>{typeof title === 'function' ? title() : title}</BoxTitle>
         <BoxContent>{children}</BoxContent>
       </StyledBox>
     );
