@@ -1,7 +1,9 @@
 import { schema } from 'normalizr';
+
 import { User, UserRole } from '../../users/store/models';
 import { TimesheetItem, timesheetSchema } from '../../timesheets/store/models';
 import { userSchema } from '../../auth/store/models';
+import { Group, groupSchema } from '../../groups/store/models';
 
 export interface ProjectMember {
   user: User | number;
@@ -13,6 +15,7 @@ export interface Project {
   name: string;
   members: ProjectMember[];
   timesheets: TimesheetItem[] | number[];
+  groups: Group[];
 }
 
 export const projectSchema = new schema.Entity(
@@ -23,6 +26,7 @@ export const projectSchema = new schema.Entity(
     members: new schema.Array({
       user: userSchema,
     }),
+    groups: [groupSchema],
   },
   { idAttribute: 'id' }
 );
