@@ -1,36 +1,73 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button } from 'genui';
 
-import { getGroups } from '../store/selectors';
-import { fetchGroups } from '../store/actions';
+import {
+  getGroups,
+  getGroupListPageState,
+  getTotalCount,
+} from '../store/selectors';
+import { loadGroupListPage, fetchGroups } from '../store/actions';
 import { Group } from '../store/models';
 import { GroupList } from '../components';
+import { PageHeader } from '../../common';
 
-export interface GroupListPageProps {
-  fetchGroups: () => any;
+type Props = {
+  loadGroupListPage: (options?: any) => any;
+  fetchGroups: (options?: any) => any;
+  groupListPage: any;
   groups: Group[];
-}
+  totalCount: number;
+};
 
-class GroupListPage extends React.Component<GroupListPageProps> {
+class GroupListPage extends React.Component<Props> {
   componentWillMount() {
-    this.props.fetchGroups();
+    const { take, skip } = this.props.groupListPage;
+
+    this.props.loadGroupListPage({ take, skip });
   }
 
-  render() {
-    const { groups } = this.props;
+  handleLoadMore = () => {
+    const { take, skip } = this.props.groupListPage;
 
-    return <GroupList groups={groups} />;
+    this.props.loadGroupListPage({ take, skip: skip + take });
+  };
+
+  render() {
+    const { groups, totalCount } = this.props;
+
+    return (
+      <div>
+        <PageHeader
+          options={() => (
+            <Button to="/groups/add" color="blue">
+              New Group
+            </Button>
+          )}
+        >
+          Groups
+        </PageHeader>
+        <GroupList
+          groups={groups}
+          onLoadMore={this.handleLoadMore}
+          totalCount={totalCount}
+        />
+      </div>
+    );
   }
 }
 
 const mapStateToProps = (state: any) => ({
   groups: getGroups(state),
+  groupListPage: getGroupListPageState(state),
+  totalCount: getTotalCount(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
+      loadGroupListPage,
       fetchGroups,
     },
     dispatch

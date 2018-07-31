@@ -31,14 +31,6 @@ const authReducer = (state = initialState, action: any) => {
 
   switch (action.type) {
     case types.AUTH.SUCCESS: {
-      const serialized = {
-        ...newState,
-        isAuthed: true,
-        userId: action.payload.result,
-      };
-
-      localStorage.setItem('serializedUser', JSON.stringify(serialized));
-
       return {
         ...newState,
         isAuthed: true,
@@ -47,10 +39,13 @@ const authReducer = (state = initialState, action: any) => {
     }
 
     case types.AUTH.FAILURE: {
+      localStorage.removeItem('token');
+
       return {
         ...newState,
         isAuthed: false,
         userId: null,
+        loaded: false,
       };
     }
 

@@ -9,7 +9,7 @@ type State = Readonly<{
   name: string;
 }>;
 
-class UserForm extends React.Component<Props, State> {
+class ProjectForm extends React.Component<Props, State> {
   readonly state: State = {
     name: '',
   };
@@ -55,4 +55,4 @@ class UserForm extends React.Component<Props, State> {
   }
 }
 
-export default UserForm;
+export default ProjectForm;

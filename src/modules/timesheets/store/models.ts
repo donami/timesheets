@@ -1,4 +1,4 @@
-import { schema } from 'normalizr';
+import { User } from '../../users/store/models';
 
 export interface TimesheetItem {
   id: number;
@@ -7,6 +7,7 @@ export interface TimesheetItem {
   status: TimesheetStatus;
   dateApproved?: string;
   dates?: any[];
+  owner: User;
 }
 
 export enum ReportType {
@@ -54,15 +55,3 @@ export enum TimesheetStatus {
   WaitingForApproval = 'WAITING_FOR_APPROVAL',
   NeedsRevisement = 'NEEDS_REVISEMENT',
 }
-
-export const timesheetSchema = new schema.Entity(
-  'timesheets',
-  {},
-  { idAttribute: 'id' }
-);
-
-export const timesheetTemplateSchema = new schema.Entity(
-  'timesheetTemplates',
-  {},
-  { idAttribute: 'id' }
-);

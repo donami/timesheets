@@ -1,5 +1,3 @@
-import { schema } from 'normalizr';
-
 // Expense report:
 // - Description
 // - Line items
@@ -38,9 +36,3 @@ export interface ExpenseLineItem {
   currency: string;
   attachment?: string;
 }
-
-export const expenseSchema = new schema.Entity(
-  'expenses',
-  {},
-  { idAttribute: 'id' }
-);

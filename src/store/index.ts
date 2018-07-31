@@ -7,6 +7,7 @@ import { connectRouter, routerMiddleware } from 'connected-react-router';
 import rootReducer from './rootReducer';
 import rootSaga from './sagas';
 import textManager from '../services/text-manager';
+import Api from '../services/api';
 
 const loggerMiddleware = createLogger();
 export const history = createHistory();
@@ -14,14 +15,7 @@ export const history = createHistory();
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware();
 
-const auth = localStorage.getItem('serializedUser');
-
-let initialState = {};
-if (auth) {
-  initialState = {
-    auth: JSON.parse(auth),
-  };
-}
+const initialState = {};
 
 function createTranslationsMiddleware(service: any) {
   return ({ dispatch, getState }: any) => (next: any) => (action: any) => {
@@ -34,6 +28,42 @@ function createTranslationsMiddleware(service: any) {
 
 const myTranslationsMiddleware = createTranslationsMiddleware(textManager);
 
+function checkAuthMiddleware() {
+  return ({ dispatch, getState }: any) => (next: any) => async (
+    action: any
+  ) => {
+    const { auth: authState, common: commonState } = getState();
+
+    if (
+      authState.isAuthed === false &&
+      localStorage.getItem('token') &&
+      action.type !== 'AUTH_REQUEST' &&
+      action.type !== 'ON_INIT'
+    ) {
+      const response = await Api.verifyToken();
+
+      if (!response.result) {
+        next({
+          type: 'AUTH_FAILURE',
+        });
+      } else {
+        next({
+          payload: { ...response },
+          type: 'AUTH_SUCCESS',
+        });
+      }
+    }
+
+    if (action.type !== 'ON_INIT' && commonState.initialized === false) {
+      next({
+        type: 'ON_INIT',
+      });
+    }
+
+    return next(action);
+  };
+}
+
 const store = createStore(
   connectRouter(history)(rootReducer),
   // window.devToolsExtension(),
@@ -42,6 +72,7 @@ const store = createStore(
     applyMiddleware(
       routerMiddleware(history),
       myTranslationsMiddleware,
+      checkAuthMiddleware(),
       sagaMiddleware,
       loggerMiddleware
     )

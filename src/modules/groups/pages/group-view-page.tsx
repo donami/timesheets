@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button } from 'genui';
 
-import { selectGroup, fetchGroupById } from '../store/actions';
+import { selectGroup, fetchGroupById, removeGroup } from '../store/actions';
 import { GroupInfo } from '../components';
 import { getSelectedGroup } from '../store/selectors';
 import { Group } from '../store/models';
@@ -12,6 +13,7 @@ import { getSelectedGroupMembers } from '../../common/store/selectors';
 
 export interface GroupViewPageProps {
   match: any;
+  removeGroup: (groupId: number) => any;
   selectGroup: (groupId: number) => any;
   fetchGroupById: (groupId: number) => any;
   group: Group;
@@ -28,6 +30,10 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
     }
   }
 
+  handleRemove = () => {
+    this.props.removeGroup(this.props.group.id);
+  };
+
   render() {
     const { group } = this.props;
 
@@ -41,6 +47,10 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
             members={groupMembers}
           />
         </Box> */}
+
+        <div>
+          <Button onClick={this.handleRemove}>Remove</Button>
+        </div>
       </div>
     );
   }
@@ -56,6 +66,7 @@ const mapDispatchToProps = (dispatch: any) =>
     {
       selectGroup,
       fetchGroupById,
+      removeGroup,
     },
     dispatch
   );

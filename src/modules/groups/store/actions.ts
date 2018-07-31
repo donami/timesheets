@@ -37,3 +37,32 @@ export const updateGroupMember = (groupIds: number[], userId: number) => ({
     userId,
   },
 });
+
+export const removeGroup = (groupId: number) => ({
+  type: types.REMOVE_GROUP.REQUEST,
+  payload: {
+    groupId,
+  },
+});
+
+export const createGroup = (
+  group: Partial<Group>,
+  userId: number,
+  projectId: number
+) => ({
+  type: types.CREATE_GROUP.REQUEST,
+  payload: {
+    group,
+    userId,
+    projectId,
+  },
+});
+
+export const loadGroupListPage = (options: any = {}) => ({
+  type: types.LOAD_GROUP_LIST_PAGE.REQUEST,
+  payload: options,
+});
+
+export const loadGroupAddPage = () => ({
+  type: types.LOAD_GROUP_ADD_PAGE.REQUEST,
+});

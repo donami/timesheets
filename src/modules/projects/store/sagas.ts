@@ -5,7 +5,7 @@ import Api from '../../../services/api';
 import types from './types';
 import * as toastr from '../../../services/toastr';
 
-function* fetchProjects(action: any) {
+export function* fetchProjects(action: any) {
   yield put({ type: types.FETCH_PROJECTS_REQUEST });
 
   try {

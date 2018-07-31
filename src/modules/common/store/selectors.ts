@@ -48,6 +48,10 @@ export const getSelectedLanguage = (state: any) => {
   return state.common.language;
 };
 
+export const getIsInitialized = (state: any) => {
+  return state.common.initialized;
+};
+
 // Get projects of the selected user
 export const getSelectedUserProjects = createSelector(
   getSelectedUserId,
@@ -104,6 +108,10 @@ export const getProjectOfSelectedTimesheet = createSelector(
   getSelectedTimesheet,
   getProjects,
   (timesheet: TimesheetItem, projects: Project[]) => {
+    if (!timesheet) {
+      return null;
+    }
+
     return projects.find((project: any) => {
       if (project.timesheets.indexOf(timesheet.id) > -1) {
         return true;

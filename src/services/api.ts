@@ -1,16 +1,16 @@
 import { normalize } from 'normalizr';
 
-import {
-  timesheetSchema,
-  TimesheetItem,
-  timesheetTemplateSchema,
-} from '../modules/timesheets/store/models';
-import { userSchema } from '../modules/auth/store/models';
-import { expenseSchema } from '../modules/expenses/store/models';
-import { Project, projectSchema } from '../modules/projects/store/models';
+import { TimesheetItem } from '../modules/timesheets/store/models';
+import { Project } from '../modules/projects/store/models';
 import { User } from '../modules/users/store/models';
 import { API_URL } from '../config/constants';
-import { groupSchema, Group } from '../modules/groups/store/models';
+import {
+  projectSchema,
+  expenseSchema,
+  timesheetSchema,
+  timesheetTemplateSchema,
+  userSchema,
+} from '../utils/schemas';
 
 const handleError = (error: any) => {
   console.log(error);
@@ -24,7 +24,7 @@ export interface NormalizedResponse {
   result: any[];
 }
 
-const fetchApi = (
+export const fetchApi = (
   endpoint: string,
   method: string,
   schema: any = null,
@@ -35,6 +35,7 @@ const fetchApi = (
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
+      'x-access-token': localStorage.getItem('token') || '',
     },
     body: body ? JSON.stringify(body) : null,
   })
@@ -48,6 +49,20 @@ const fetchApi = (
     .then(responseJson => {
       if (!schema) {
         return responseJson;
+      }
+
+      if (responseJson.data) {
+        const result: any = {
+          ...normalize(responseJson.data, schema),
+          count: responseJson.count,
+          totalCount: responseJson.totalCount,
+        };
+
+        if (responseJson.token) {
+          result.token = responseJson.token;
+        }
+
+        return result;
       }
 
       return normalize(responseJson, schema);
@@ -75,19 +90,6 @@ const fetchTemplateById = (templateId: number): Promise<NormalizedResponse> =>
 const fetchProjectById = (projectId: number): Promise<NormalizedResponse> =>
   fetchApi(`projects/${projectId}`, 'GET', projectSchema);
 
-const fetchGroups = (options: any = {}): Promise<NormalizedResponse> => {
-  let url = 'groups';
-
-  if (options.byUser) {
-    url = `groups?byUser=${options.byUser}`;
-  }
-
-  return fetchApi(url, 'GET', [groupSchema]);
-};
-
-const fetchGroupById = (groupId: number): Promise<NormalizedResponse> =>
-  fetchApi(`groups/${groupId}`, 'GET', groupSchema);
-
 const updateTimesheet = (
   timesheetId: number,
   timesheet: TimesheetItem
@@ -107,21 +109,6 @@ const createProject = (
   userId: number
 ): Promise<NormalizedResponse> =>
   fetchApi(`projects`, 'POST', projectSchema, { ...project, userId });
-
-const updateGroup = (
-  groupId: number,
-  group: Group
-): Promise<NormalizedResponse> =>
-  fetchApi(`groups/${groupId}`, 'PUT', groupSchema, { ...group });
-
-const updateGroupMember = (
-  groupIds: number[],
-  userId: number
-): Promise<NormalizedResponse> =>
-  fetchApi(`groups/update-group-member`, 'PUT', [groupSchema], {
-    groupIds,
-    userId,
-  });
 
 const updateUser = (userId: number, user: User): Promise<NormalizedResponse> =>
   fetchApi(`users/${userId}`, 'PUT', userSchema, { ...user });
@@ -143,6 +130,9 @@ const fetchUsers = (): Promise<NormalizedResponse> =>
 const auth = (email: string, password: string): Promise<NormalizedResponse> =>
   fetchApi(`auth`, 'POST', userSchema, { email, password });
 
+const verifyToken = (): Promise<NormalizedResponse> =>
+  fetchApi(`verify-token`, 'GET', userSchema);
+
 const createTimesheets = (data: any): Promise<NormalizedResponse> =>
   fetchApi('timesheets/create-timesheets', 'POST', [timesheetSchema], {
     data,
@@ -157,16 +147,13 @@ export default {
   fetchExpenses,
   fetchExpenseReportById,
   auth,
+  verifyToken,
   updateUser,
   createUser,
   fetchProjects,
   fetchProjectById,
   updateProject,
   createProject,
-  updateGroup,
-  updateGroupMember,
-  fetchGroupById,
-  fetchGroups,
   fetchTimesheetTemplates,
   fetchTemplateById,
   createTimesheets,

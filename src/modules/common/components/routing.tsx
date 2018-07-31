@@ -15,21 +15,20 @@ import { ExpenseReportPage, ExpensesPage } from '../../expenses';
 import { connect } from 'react-redux';
 import { DashboardPage } from '../../dashboard';
 import { AuthPage, LogoutPage, ProfilePage } from '../../auth';
-import { checkStorage } from '../../auth/store/actions';
 import { UserListPage, UserViewPage, UserAddPage } from '../../users';
 import {
   ProjectListPage,
   ProjectViewPage,
   ProjectAddPage,
 } from '../../projects';
-import { GroupViewPage, GroupListPage } from '../../groups';
+import { GroupViewPage, GroupListPage, GroupAddPage } from '../../groups';
 import textManager from '../../../services/text-manager';
 import { history } from '../../../store';
 import { NotFoundPage } from '../pages';
 import { UserRole } from '../../users/store/models';
 
 type Props = {
-  checkStorage: () => any;
+  initialize: () => any;
 };
 
 export const TextManagerContext = React.createContext(textManager);
@@ -41,6 +40,10 @@ class Routing extends React.Component<Props> {
     super(props);
 
     this.textManager = textManager;
+  }
+
+  componentWillMount() {
+    this.props.initialize();
   }
 
   render() {
@@ -71,6 +74,11 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute
               path="/projects/add"
               component={ProjectAddPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/groups/add"
+              component={GroupAddPage}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
@@ -124,7 +132,9 @@ class Routing extends React.Component<Props> {
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
-      checkStorage,
+      initialize: () => ({
+        type: 'INITIALIZE_ROUTING',
+      }),
     },
     dispatch
   );
