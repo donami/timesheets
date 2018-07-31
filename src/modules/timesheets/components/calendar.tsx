@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Button } from 'genui';
 
 import { isSameMonthAs } from '../../../utils/calendar';
+import { TimesheetStatus } from '../store/models';
 
 export interface CalendarProps {
   onSubmit?: Function;
@@ -13,6 +14,7 @@ export interface CalendarProps {
   editable: boolean;
   startOfMonth: string;
   isAdmin: boolean;
+  status: TimesheetStatus;
 }
 
 class Calendar extends React.Component<CalendarProps> {
@@ -114,7 +116,7 @@ class Calendar extends React.Component<CalendarProps> {
 
   render() {
     const { dates } = this.state;
-    const { editable, isAdmin } = this.props;
+    const { editable, isAdmin, status } = this.props;
 
     const monthlyTotalHours = this.calcMonthlyHours(dates);
 
@@ -143,24 +145,25 @@ class Calendar extends React.Component<CalendarProps> {
               </Button>
             </React.Fragment>
           )}
-          {!isAdmin && (
-            <React.Fragment>
-              <Button
-                color="blue"
-                onClick={this.handleSaveAsDraft}
-                disabled={!editable}
-              >
-                Save as draft
-              </Button>
-              <Button
-                color="green"
-                onClick={this.handleSubmit}
-                disabled={!editable}
-              >
-                Submit
-              </Button>
-            </React.Fragment>
-          )}
+          {!isAdmin &&
+            status !== TimesheetStatus.Approved && (
+              <React.Fragment>
+                <Button
+                  color="blue"
+                  onClick={this.handleSaveAsDraft}
+                  disabled={!editable}
+                >
+                  Save as draft
+                </Button>
+                <Button
+                  color="green"
+                  onClick={this.handleSubmit}
+                  disabled={!editable}
+                >
+                  Submit
+                </Button>
+              </React.Fragment>
+            )}
         </div>
       </div>
     );

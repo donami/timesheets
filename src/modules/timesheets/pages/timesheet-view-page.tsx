@@ -124,6 +124,7 @@ class TimesheetViewPage extends React.Component<TimesheetViewPageProps> {
             onSubmit={this.handleSubmit}
             onApprove={this.handleApprove}
             onDecline={this.handleDecline}
+            status={timesheet.status}
             dates={timesheet.dates}
             editable={editable}
             startOfMonth={timesheet.periodStart}
