@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { List } from 'genui';
 
 import { getAuthedUser } from '../store/selectors';
-import { User } from '../../users/store/models';
+import { User, UserRole } from '../../users/store/models';
 import { Box } from '../../ui';
 import { TimesheetItem } from '../../timesheets/store/models';
 import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
@@ -27,9 +27,11 @@ class ProfilePage extends React.Component<Props> {
           </List>
         </Box>
 
-        <Box title="Your Timesheets">
-          <TimesheetList timesheets={timesheets} />
-        </Box>
+        {user.role === UserRole.User && (
+          <Box title="Your Timesheets">
+            <TimesheetList timesheets={timesheets} />
+          </Box>
+        )}
       </div>
     );
   }

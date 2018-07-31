@@ -13,7 +13,11 @@ const TemplateInfo: React.SFC<Props> = ({ template }) => (
   <Row>
     <Column sm={6}>
       <Box title="Basic Information">
-        <strong>Name:</strong> {template.name} <br />
+        <List>
+          <List.Item>
+            <strong>Name:</strong> {template.name}
+          </List.Item>
+        </List>
       </Box>
     </Column>
     <Column sm={6}>

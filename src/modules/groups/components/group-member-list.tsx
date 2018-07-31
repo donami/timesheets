@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Table } from 'genui';
 
-import { User } from '../../users/store/models';
+import { User, UserRole } from '../../users/store/models';
 
 export interface GroupMemberListProps {
   members: User[];
@@ -17,16 +17,19 @@ class GroupMemberList extends React.Component<GroupMemberListProps> {
       return <div>{noMembersText || 'No members exist'}</div>;
     }
 
-    const tableItems = members.map((user: User) => {
-      return {
-        id: <Link to={`/user/${user.id}`}>{user.id}</Link>,
-        email: user.email,
-      };
-    });
+    const tableItems = members
+      .filter(user => user.role === UserRole.User)
+      .map(user => {
+        return {
+          id: <Link to={`/user/${user.id}`}>{user.id}</Link>,
+          name: `${user.firstname} ${user.lastname}`,
+          email: user.email,
+        };
+      });
 
     return (
       <div>
-        <Table headings={['ID', 'Email']} items={tableItems} />
+        <Table headings={['ID', 'Name', 'Email']} items={tableItems} />
       </div>
     );
   }

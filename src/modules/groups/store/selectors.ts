@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { getTemplateEntities } from '../../timesheets/store/selectors';
 
 const getDataState = (state: any) => state.groups.data;
 const getPagesState = (state: any) => state.groups.pages;
@@ -28,6 +29,17 @@ export const getSelectedGroup = createSelector(
   getSelectedId,
   (entities, id) => {
     return entities[id];
+  }
+);
+
+export const getSelectedGroupTimesheetTemplate = createSelector(
+  getSelectedGroup,
+  getTemplateEntities,
+  (group, templates) => {
+    if (!group || !group.timesheetTemplate || !templates) {
+      return null;
+    }
+    return templates[group.timesheetTemplate];
   }
 );
 
