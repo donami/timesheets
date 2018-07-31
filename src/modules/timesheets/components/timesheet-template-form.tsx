@@ -1,6 +1,7 @@
 import React from 'react';
 import { Field, Input, Button } from 'genui';
 import { ReportType } from '../store/models';
+import { capitalize } from '../../../utils/helpers';
 
 type Props = {
   onSubmit: (data: State) => any;
@@ -48,6 +49,21 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     });
   };
 
+  handleHoursDayChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const {
+      name,
+      value,
+    }: { name: keyof State; value: string; type: string } = e.target as any;
+
+    this.setState({
+      ...this.state,
+      hoursDays: {
+        ...this.state.hoursDays,
+        [name]: +value,
+      },
+    });
+  };
+
   handleSubmit = (e: any) => {
     e.preventDefault();
 
@@ -55,7 +71,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { name, workHoursPerDay } = this.state;
+    const { name, workHoursPerDay, hoursDays } = this.state;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -79,6 +95,21 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
             onChange={this.handleChange}
           />
         </Field>
+
+        <h3>Work hours per individual day</h3>
+
+        {Object.keys(hoursDays).map(day => (
+          <Field key={day}>
+            <label>{capitalize(day)} *</label>
+            <Input
+              placeholder="8"
+              type="number"
+              name={day}
+              value={hoursDays[day]}
+              onChange={this.handleHoursDayChange}
+            />
+          </Field>
+        ))}
 
         <Button type="submit" color="green">
           Add

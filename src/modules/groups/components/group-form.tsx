@@ -2,21 +2,25 @@ import React from 'react';
 import { Field, Input, Button } from 'genui';
 
 import { Project } from '../../projects/store/models';
+import { TimesheetTemplateItem } from '../../timesheets/store/models';
 
 type Props = {
   onSubmit: (data: State, projectId: number) => any;
   projects: Project[];
+  templates: TimesheetTemplateItem[];
 };
 
 type State = Readonly<{
   name: string;
   project: number | null;
+  timesheetTemplate: TimesheetTemplateItem | null;
 }>;
 
 class GroupForm extends React.Component<Props, State> {
   readonly state: State = {
     name: '',
     project: null,
+    timesheetTemplate: null,
   };
 
   handleChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -39,6 +43,16 @@ class GroupForm extends React.Component<Props, State> {
     });
   };
 
+  handleTemplateChange = (e: any) => {
+    const { value }: { value: string } = e.target as any;
+
+    const template = this.props.templates.find(item => item.id === +value);
+
+    this.setState({
+      timesheetTemplate: template || null,
+    });
+  };
+
   handleSubmit = (e: any) => {
     e.preventDefault();
 
@@ -51,7 +65,7 @@ class GroupForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { projects } = this.props;
+    const { projects, templates } = this.props;
     const { name } = this.state;
 
     return (
@@ -73,6 +87,18 @@ class GroupForm extends React.Component<Props, State> {
             {projects.map(project => (
               <option key={project.id} value={project.id}>
                 {project.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field>
+          <label>Timesheet Template *</label>
+          <select name="timesheetTemplate" onChange={this.handleTemplateChange}>
+            <option value="0">Select Project</option>
+            {templates.map(template => (
+              <option key={template.id} value={template.id}>
+                {template.name}
               </option>
             ))}
           </select>
