@@ -3,6 +3,7 @@ import { getSelectedGroup } from '../../groups/store/selectors';
 import {
   getUserEntities,
   getSelectedUserId,
+  getSelectedUser,
 } from '../../users/store/selectors';
 import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
@@ -63,6 +64,19 @@ export const getSelectedUserProjects = createSelector(
       }
       return false;
     });
+  }
+);
+
+export const getSelectedUserTimesheets = createSelector(
+  getSelectedUser,
+  getTimesheetEntities,
+  (user, timesheets) => {
+    if (!user) {
+      return [];
+    }
+    return user.timesheets
+      .map((timesheetId: any) => timesheets[timesheetId])
+      .filter((timesheet: any) => timesheet);
   }
 );
 

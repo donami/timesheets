@@ -14,22 +14,28 @@ type Props = {
 
 const defaultProps: DefaultProps = {
   noTimesheetsText: 'No timesheets',
+  disableFilter: false,
 };
 
 type DefaultProps = {
+  disableFilter: boolean;
   noTimesheetsText: string;
 };
 
 class TimesheetList extends React.Component<Props> {
   render() {
-    const { timesheets, noTimesheetsText } = this.props;
+    const { timesheets, noTimesheetsText, disableFilter } = this.props;
 
     if (!timesheets.length) {
       return <div>{noTimesheetsText || 'No timesheets'}</div>;
     }
 
+    // If disableFilter is true, there should be
+    // no filtering of future timesheets
+    const filter = disableFilter ? () => true : filterOutFutureTimesheets;
+
     const tableItems = timesheets
-      .filter(filterOutFutureTimesheets)
+      .filter(filter)
       .sort(sortByDate)
       .map(timesheet => ({
         id: <Link to={`/timesheet/${timesheet.id}`}>{timesheet.id}</Link>,
