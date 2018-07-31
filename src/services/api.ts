@@ -1,6 +1,9 @@
 import { normalize } from 'normalizr';
 
-import { TimesheetItem } from '../modules/timesheets/store/models';
+import {
+  TimesheetItem,
+  TimesheetTemplateItem,
+} from '../modules/timesheets/store/models';
 import { Project } from '../modules/projects/store/models';
 import { User } from '../modules/users/store/models';
 import { API_URL } from '../config/constants';
@@ -90,6 +93,13 @@ const fetchTemplateById = (templateId: number): Promise<NormalizedResponse> =>
 const fetchProjectById = (projectId: number): Promise<NormalizedResponse> =>
   fetchApi(`projects/${projectId}`, 'GET', projectSchema);
 
+const createTimesheetTemplate = (
+  template: Partial<TimesheetTemplateItem>
+): Promise<NormalizedResponse> =>
+  fetchApi(`timesheet-templates`, 'POST', timesheetTemplateSchema, {
+    ...template,
+  });
+
 const updateTimesheet = (
   timesheetId: number,
   timesheet: TimesheetItem
@@ -157,4 +167,5 @@ export default {
   fetchTimesheetTemplates,
   fetchTemplateById,
   createTimesheets,
+  createTimesheetTemplate,
 };

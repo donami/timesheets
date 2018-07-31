@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button } from 'genui';
 
 import { TimesheetTemplateList } from '../components';
 import { fetchTimesheetTemplates } from '../store/actions';
 import { timesheetSelectors } from '../store';
+import { PageHeader } from '../../common';
 
 export interface TimesheetTemplatesPageProps {
   templates: any;
@@ -23,6 +25,15 @@ class TimesheetTemplatesPage extends React.Component<
 
     return (
       <div>
+        <PageHeader
+          options={() => (
+            <Button to="/timesheet-templates/create" color="blue">
+              Create new template
+            </Button>
+          )}
+        >
+          Timesheet Templates
+        </PageHeader>
         <TimesheetTemplateList templates={templates} />
       </div>
     );

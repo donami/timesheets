@@ -1,5 +1,7 @@
 import { call, put, takeEvery, all } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
 
+import * as toastr from '../../../services/toastr';
 import Api from '../../../services/api';
 import types from './types';
 import {
@@ -188,6 +190,34 @@ function* confirmTemplates(action: any) {
   }
 }
 
+function* createTimesheetTemplate(action: any) {
+  try {
+    const response = yield call(
+      Api.createTimesheetTemplate,
+      action.payload.template
+    );
+
+    yield put({
+      payload: { ...response },
+      type: types.CREATE_TIMESHEET_TEMPLATE.SUCCESS,
+    });
+
+    yield put(
+      toastr.success({
+        title: 'Template was created!',
+        message: 'Template was successfully created!',
+      })
+    );
+
+    yield put(push('/timesheet-templates'));
+  } catch (e) {
+    yield put({
+      type: types.CREATE_TIMESHEET_TEMPLATE.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 export default all([
   takeEvery(types.SELECT_TIMESHEET, selectTimesheetFunction),
   takeEvery(types.FETCH_TIMESHEETS, fetchTimesheets),
@@ -198,4 +228,5 @@ export default all([
   takeEvery(types.SELECT_TEMPLATE.SUCCESS, fetchTemplateById),
   takeEvery(types.TIMESHEETS_GENERATE.REQUEST, generateTimesheets),
   takeEvery(types.TIMESHEETS_CONFIRM.REQUEST, confirmTemplates),
+  takeEvery(types.CREATE_TIMESHEET_TEMPLATE.REQUEST, createTimesheetTemplate),
 ]);

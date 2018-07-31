@@ -71,3 +71,12 @@ export const confirmTemplates = (templates: any) => ({
     ...templates,
   },
 });
+
+export const createTimesheetTemplate = (
+  template: Partial<TimesheetTemplateItem>
+) => ({
+  type: types.CREATE_TIMESHEET_TEMPLATE.REQUEST,
+  payload: {
+    template,
+  },
+});
