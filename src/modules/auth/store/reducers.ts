@@ -1,8 +1,6 @@
 import types from './types';
 
 const initialState = {
-  ids: [],
-  byId: {},
   loaded: false,
   loading: false,
   isAuthed: false,
@@ -11,23 +9,7 @@ const initialState = {
 };
 
 const authReducer = (state = initialState, action: any) => {
-  let newState = state;
-
-  if (
-    action.payload &&
-    action.payload.result &&
-    action.payload.entities &&
-    action.payload.entities.users
-  ) {
-    newState = {
-      ...state,
-      ids: [...new Set([...state.ids].concat(action.payload.result))],
-      byId: {
-        ...state.byId,
-        ...action.payload.entities.users,
-      },
-    };
-  }
+  const newState = state;
 
   switch (action.type) {
     case types.AUTH.SUCCESS: {

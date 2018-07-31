@@ -2,27 +2,11 @@ import { createSelector } from 'reselect';
 import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
 import { UserRole } from '../../users/store/models';
+import { getUserEntities } from '../../users/store/selectors';
 
-const getUserEntities = (state: any) => state.auth.byId;
-const getUserIds = (state: any) => state.auth.ids;
-const getSelectedId = (state: any) => state.auth.selected;
 export const getAuthedUserId = (state: any) => state.auth.userId;
 
 export const getIsAuthed = (state: any) => state.auth.isAuthed;
-
-export const getUsers = createSelector(
-  getUserEntities,
-  getUserIds,
-  (entities, ids) => ids.map((id: number | string) => entities[id])
-);
-
-export const getSelectedUser = createSelector(
-  getUserEntities,
-  getSelectedId,
-  (entities, id) => {
-    return entities[id];
-  }
-);
 
 export const getAuthedUser = createSelector(
   getAuthedUserId,
