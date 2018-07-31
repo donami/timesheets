@@ -6,10 +6,12 @@ import { TimesheetList } from '../components';
 import { fetchTimesheets } from '../store/actions';
 import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
 import { sortByDate, filterOutFutureTimesheets } from '../utils';
+import { PageHeader } from '../../common';
+import { TimesheetItem } from '../store/models';
 
 type Props = {
   fetchTimesheets: () => any;
-  timesheets: any;
+  timesheets: TimesheetItem[];
 };
 
 class TimesheetsPage extends React.Component<Props> {
@@ -26,6 +28,7 @@ class TimesheetsPage extends React.Component<Props> {
 
     return (
       <div>
+        <PageHeader>Your Timesheets</PageHeader>
         <TimesheetList timesheets={filteredTimesheets} />
       </div>
     );

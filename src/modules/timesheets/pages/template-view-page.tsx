@@ -6,6 +6,7 @@ import { TimesheetTemplateItem } from '../store/models';
 import { selectTemplate, fetchTemplateById } from '../store/actions';
 import { getSelectedTemplate } from '../store/selectors';
 import { TemplateInfo } from '../components';
+import { PageHeader } from '../../common';
 
 export interface TemplateViewPageProps {
   match: any;
@@ -32,6 +33,7 @@ class TemplateViewPage extends React.Component<TemplateViewPageProps> {
     }
     return (
       <div>
+        <PageHeader>View Template: {template.name}</PageHeader>
         <TemplateInfo template={template} />
       </div>
     );
