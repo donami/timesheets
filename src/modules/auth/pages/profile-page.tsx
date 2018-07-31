@@ -5,14 +5,18 @@ import { List } from 'genui';
 import { getAuthedUser } from '../store/selectors';
 import { User } from '../../users/store/models';
 import { Box } from '../../ui';
+import { TimesheetItem } from '../../timesheets/store/models';
+import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
+import { TimesheetList } from '../../timesheets';
 
 type Props = {
   user: User;
+  timesheets: TimesheetItem[];
 };
 
 class ProfilePage extends React.Component<Props> {
   render() {
-    const { user } = this.props;
+    const { user, timesheets } = this.props;
 
     return (
       <div>
@@ -21,7 +25,10 @@ class ProfilePage extends React.Component<Props> {
             <List.Item>Name: {`${user.firstname} ${user.lastname}`}</List.Item>
             <List.Item>Role: {user.role}</List.Item>
           </List>
-          <br />
+        </Box>
+
+        <Box title="Your Timesheets">
+          <TimesheetList timesheets={timesheets} />
         </Box>
       </div>
     );
@@ -30,6 +37,7 @@ class ProfilePage extends React.Component<Props> {
 
 const mapStateToProps = (state: any) => ({
   user: getAuthedUser(state),
+  timesheets: getTimesheetsForAuthedUser(state),
 });
 
 export default connect(mapStateToProps)(ProfilePage);
