@@ -5,7 +5,6 @@ const initialState = {
   loading: false,
   isAuthed: false,
   userId: null,
-  checkedStorage: false,
 };
 
 const authReducer = (state = initialState, action: any) => {
@@ -34,13 +33,6 @@ const authReducer = (state = initialState, action: any) => {
     case types.LOGOUT.SUCCESS: {
       return {
         ...initialState,
-      };
-    }
-
-    case types.CHECK_STORAGE.SUCCESS: {
-      return {
-        ...newState,
-        checkedStorage: true,
       };
     }
 

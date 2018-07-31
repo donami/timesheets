@@ -8,10 +8,6 @@ export const auth = (email: string, password: string) => ({
   },
 });
 
-export const checkStorage = () => ({
-  type: types.CHECK_STORAGE.REQUEST,
-});
-
 export const logout = () => ({
   type: types.LOGOUT.REQUEST,
 });

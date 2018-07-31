@@ -40,7 +40,6 @@ function* redirectToAuthPage(action: any) {
 
 export default all([
   takeEvery(types.AUTH.REQUEST, auth),
-  // takeEvery(types.CHECK_STORAGE.REQUEST, checkStorage),
   takeEvery(types.LOGOUT.REQUEST, logout),
   takeEvery(types.LOGOUT.SUCCESS, redirectToAuthPage),
 ]);
