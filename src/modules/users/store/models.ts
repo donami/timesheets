@@ -9,6 +9,7 @@ export interface User {
   role: UserRole;
   image: string;
   timesheets: TimesheetItem[];
+  fullName: string;
 }
 
 // TODO: UserRole also exists in auth module
