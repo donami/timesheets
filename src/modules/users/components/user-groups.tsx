@@ -1,70 +1,45 @@
 import * as React from 'react';
-import { Select, Button } from 'genui';
+import { Button } from 'genui';
 
 import { Box } from '../../ui';
 import { Group } from '../../groups/store/models';
 
 export interface UserGroupsProps {
   groups: Group[];
-  allGroups: Group[];
-  onSubmit: (groupIds: number[]) => any;
+  onSubmit: (groupId: number) => any;
 }
 
 export interface UserGroupsState {
-  selected: SelectItem[];
+  selectedGroupId: number | null;
 }
-
-export interface SelectItem {
-  label: string;
-  value: number;
-}
-
-const toSelectItem = (groups: Group[]): SelectItem[] => {
-  return groups.map((group: Group) => {
-    return {
-      label: group.name,
-      value: group.id,
-    };
-  });
-};
 
 class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
   state: UserGroupsState = {
-    selected: [],
+    selectedGroupId: null,
   };
 
   formElem: any;
 
-  componentWillMount() {
-    if (this.props.groups) {
-      this.setState({
-        selected: toSelectItem(this.props.groups),
-      });
-    }
-  }
+  handleChange = (e: any) => {
+    const { value } = e.target;
 
-  componentWillReceiveProps(nextProps: any) {
-    if (nextProps.groups) {
-      this.setState({
-        selected: toSelectItem(nextProps.groups),
-      });
-    }
-  }
-
-  handleChange = (selected: any[]) => {
-    this.setState({ selected });
+    this.setState({
+      selectedGroupId: +value,
+    });
   };
 
   handleSubmit = (e: any) => {
     e.preventDefault();
 
-    const ids = this.state.selected.map((item: SelectItem) => item.value);
+    if (this.state.selectedGroupId === null) {
+      return;
+    }
 
-    this.props.onSubmit && this.props.onSubmit(ids);
+    this.props.onSubmit && this.props.onSubmit(this.state.selectedGroupId);
   };
 
   render() {
-    const { groups, allGroups } = this.props;
+    const { groups } = this.props;
     return (
       <Box title="User Groups">
         <form
@@ -73,14 +48,14 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
             this.formElem = elem;
           }}
         >
-          <Select
-            name="user-group-select"
-            id="user-group-select"
-            placeholder="Groups"
-            items={toSelectItem(allGroups)}
-            defaultSelected={toSelectItem(groups)}
-            onChange={this.handleChange}
-          />
+          <select name="group" onChange={this.handleChange}>
+            <option value="0">Choose a group...</option>
+            {groups.map(group => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
 
           <Button type="submit">Save</Button>
         </form>

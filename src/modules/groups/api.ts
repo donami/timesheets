@@ -48,10 +48,10 @@ export const updateGroup = (
   fetchApi(`groups/${groupId}`, 'PUT', groupSchema, { ...group });
 
 export const updateGroupMember = (
-  groupIds: number[],
+  groupId: number,
   userId: number
 ): Promise<NormalizedResponse> =>
-  fetchApi(`groups/update-group-member`, 'PUT', [groupSchema], {
-    groupIds,
+  fetchApi(`groups/update-group-member`, 'PUT', groupSchema, {
+    groupId,
     userId,
   });

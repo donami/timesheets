@@ -4,11 +4,7 @@ import { bindActionCreators } from 'redux';
 
 import { selectUser, fetchUserById } from '../store/actions';
 import { UserInfo, UserGroups } from '../components';
-import {
-  getSelectedUser,
-  getSelectedUserGroups,
-  getSelectedUserGroup,
-} from '../store/selectors';
+import { getSelectedUser, getSelectedUserGroup } from '../store/selectors';
 import { User } from '../store/models';
 import { Group } from '../../groups/store/models';
 import { getGroups } from '../../groups/store/selectors';
@@ -31,11 +27,10 @@ type Props = {
   match: any;
   selectUser: (userId: number) => any;
   fetchUserById: (userId: number) => any;
-  updateGroupMember: (groupIds: number[], userId: number) => any;
+  updateGroupMember: (groupId: number, userId: number) => any;
   user: User;
-  groups: Group[];
   projects: Project[];
-  allGroups: Group[];
+  groups: Group[];
   group: Group;
   timesheets: TimesheetItem[];
 };
@@ -50,13 +45,12 @@ class UserViewPage extends React.Component<Props> {
     }
   }
 
-  handleUpdateGroups = (groupIds: number[]) => {
-    // TODO:
-    this.props.updateGroupMember(groupIds, this.props.user.id);
+  handleUpdateGroups = (groupId: number) => {
+    this.props.updateGroupMember(groupId, this.props.user.id);
   };
 
   render() {
-    const { user, groups, allGroups, projects, timesheets } = this.props;
+    const { user, groups, projects, timesheets } = this.props;
 
     if (!user) {
       return null;
@@ -73,11 +67,7 @@ class UserViewPage extends React.Component<Props> {
             <UserInfo user={user} />
           </Column>
           <Column sm={6}>
-            <UserGroups
-              groups={groups}
-              allGroups={allGroups}
-              onSubmit={this.handleUpdateGroups}
-            />
+            <UserGroups groups={groups} onSubmit={this.handleUpdateGroups} />
           </Column>
         </Row>
 
@@ -104,9 +94,8 @@ class UserViewPage extends React.Component<Props> {
 
 const mapStateToProps = (state: any) => ({
   user: getSelectedUser(state),
-  groups: getSelectedUserGroups(state),
   projects: getSelectedUserProjects(state),
-  allGroups: getGroups(state),
+  groups: getGroups(state),
   group: getSelectedUserGroup(state),
   timesheets: getSelectedUserTimesheets(state),
 });

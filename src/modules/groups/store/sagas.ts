@@ -101,7 +101,7 @@ function* updateGroupMember(action: any) {
   try {
     const response = yield call(
       Api.updateGroupMember,
-      action.payload.groupIds,
+      action.payload.groupId,
       action.payload.userId
     );
 

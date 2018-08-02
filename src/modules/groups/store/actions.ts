@@ -30,10 +30,10 @@ export const updateGroup = (groupId: number, group: Group) => ({
   },
 });
 
-export const updateGroupMember = (groupIds: number[], userId: number) => ({
+export const updateGroupMember = (groupId: number, userId: number) => ({
   type: types.UPDATE_GROUP_MEMBER.REQUEST,
   payload: {
-    groupIds,
+    groupId,
     userId,
   },
 });
