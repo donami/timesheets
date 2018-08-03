@@ -45,12 +45,7 @@ function* fetchUserById(action: any) {
 
 function* selectUser(action: any) {
   yield [
-    put({
-      type: types.FETCH_USER_BY_ID,
-      payload: {
-        userId: action.payload.userId,
-      },
-    }),
+    call(fetchUserById, action),
     put({
       type: 'FETCH_GROUPS',
       // TODO:

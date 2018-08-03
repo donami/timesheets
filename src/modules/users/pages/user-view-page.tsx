@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { selectUser, fetchUserById } from '../store/actions';
+import { selectUser } from '../store/actions';
 import { UserInfo, UserGroups } from '../components';
 import { getSelectedUser, getSelectedUserGroup } from '../store/selectors';
 import { User } from '../store/models';
@@ -26,7 +26,6 @@ import { PageHeader } from '../../common';
 type Props = {
   match: any;
   selectUser: (userId: number) => any;
-  fetchUserById: (userId: number) => any;
   updateGroupMember: (groupId: number, userId: number) => any;
   user: User;
   projects: Project[];
@@ -37,11 +36,10 @@ type Props = {
 
 class UserViewPage extends React.Component<Props> {
   componentWillMount() {
-    const { match, selectUser, fetchUserById } = this.props;
+    const { match, selectUser } = this.props;
 
     if (match && match.params.id) {
       selectUser(+match.params.id);
-      fetchUserById(+match.params.id);
     }
   }
 
@@ -105,7 +103,6 @@ const mapDispatchToProps = (dispatch: any) =>
     {
       selectUser,
       updateGroupMember,
-      fetchUserById,
       generateTimesheets,
       confirmTemplates,
     },

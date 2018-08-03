@@ -1,6 +1,12 @@
 import { schema } from 'normalizr';
 
-const userSchema = new schema.Entity('users', {}, { idAttribute: 'id' });
+const userSchema = new schema.Entity(
+  'users',
+  {},
+  {
+    idAttribute: 'id',
+  }
+);
 
 export const timesheetTemplateSchema = new schema.Entity(
   'timesheetTemplates',
@@ -44,6 +50,6 @@ export const expenseSchema = new schema.Entity(
   { idAttribute: 'id' }
 );
 
-userSchema.define({ timesheets: [timesheetSchema] });
+userSchema.define({ timesheets: [timesheetSchema], group: groupSchema });
 
 export { userSchema };

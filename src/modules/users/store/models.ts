@@ -1,4 +1,5 @@
 import { TimesheetItem } from '../../timesheets/store/models';
+import { Group } from '../../groups/store/models';
 
 export interface User {
   id: number;
@@ -10,6 +11,7 @@ export interface User {
   image: string;
   timesheets: TimesheetItem[];
   fullName: string;
+  group: Group;
 }
 
 // TODO: UserRole also exists in auth module
