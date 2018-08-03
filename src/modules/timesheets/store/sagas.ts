@@ -1,4 +1,4 @@
-import { call, put, takeEvery, all } from 'redux-saga/effects';
+import { call, put, takeEvery, all, takeLatest } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 
 import * as toastr from '../../../services/toastr';
@@ -220,7 +220,7 @@ function* createTimesheetTemplate(action: any) {
 
 export default all([
   takeEvery(types.SELECT_TIMESHEET, selectTimesheetFunction),
-  takeEvery(types.FETCH_TIMESHEETS, fetchTimesheets),
+  takeLatest(types.FETCH_TIMESHEETS, fetchTimesheets),
   takeEvery(types.FETCH_TIMESHEET_BY_ID, fetchTimesheetById),
   takeEvery(types.UPDATE_TIMESHEET.REQUEST, updateTimesheet),
   takeEvery(types.FETCH_TIMESHEET_TEMPLATES.REQUEST, fetchTemplates),

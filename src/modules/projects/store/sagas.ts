@@ -1,11 +1,19 @@
-import { call, put, takeEvery, all } from 'redux-saga/effects';
+import { call, put, takeEvery, all, select } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 
 import Api from '../../../services/api';
 import types from './types';
 import * as toastr from '../../../services/toastr';
+import { getProjectsLoaded, getProjectsLoading } from './selectors';
 
 export function* fetchProjects(action: any) {
+  const loaded = yield select(getProjectsLoaded);
+  const loading = yield select(getProjectsLoading);
+
+  if (loaded || loading) {
+    return;
+  }
+
   yield put({ type: types.FETCH_PROJECTS_REQUEST });
 
   try {

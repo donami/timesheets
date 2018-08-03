@@ -28,7 +28,9 @@ export const timesheetSchema: any = new schema.Entity(
   {
     owner: userSchema,
   },
-  { idAttribute: 'id' }
+  {
+    idAttribute: 'id',
+  }
 );
 
 export const projectSchema = new schema.Entity(

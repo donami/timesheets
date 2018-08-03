@@ -7,19 +7,29 @@ import { TimesheetItem } from '../store/models';
 import { fetchTimesheets } from '../store/actions';
 import { fetchProjects } from '../../projects/store/actions';
 import { getTimesheetsWaitingForApprovalWhereAdmin } from '../../common/store/selectors';
+import { getTimesheetsLoaded, getTimesheetsLoading } from '../store/selectors';
 
 type Props = {
   timesheets: TimesheetItem[];
   fetchTimesheets: () => any;
   fetchProjects: () => any;
+  timesheetsLoaded: boolean;
+  timesheetsLoading: boolean;
 };
 
 class TimesheetsReadyForReview extends React.Component<Props> {
   componentWillMount() {
-    const { fetchTimesheets, fetchProjects } = this.props;
+    const {
+      fetchTimesheets,
+      fetchProjects,
+      timesheetsLoaded,
+      timesheetsLoading,
+    } = this.props;
 
+    if (!timesheetsLoaded && !timesheetsLoading) {
+      fetchTimesheets();
+    }
     fetchProjects();
-    fetchTimesheets();
   }
 
   render() {
@@ -35,6 +45,8 @@ class TimesheetsReadyForReview extends React.Component<Props> {
 
 const mapStateToProps = (state: any) => ({
   timesheets: getTimesheetsWaitingForApprovalWhereAdmin(state),
+  timesheetsLoaded: getTimesheetsLoaded(state),
+  timesheetsLoading: getTimesheetsLoading(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

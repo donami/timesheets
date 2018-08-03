@@ -15,6 +15,16 @@ export const getTimesheetEntities = createSelector(
   state => state.byId
 );
 
+export const getTimesheetsLoaded = createSelector(
+  getTimesheetState,
+  state => state.loaded
+);
+
+export const getTimesheetsLoading = createSelector(
+  getTimesheetState,
+  state => state.loading
+);
+
 export const getTimesheets = createSelector(
   getTimesheetEntities,
   getTimesheetIds,

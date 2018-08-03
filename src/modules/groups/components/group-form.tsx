@@ -95,7 +95,7 @@ class GroupForm extends React.Component<Props, State> {
         <Field>
           <label>Timesheet Template *</label>
           <select name="timesheetTemplate" onChange={this.handleTemplateChange}>
-            <option value="0">Select Project</option>
+            <option value="0">Select Template</option>
             {templates.map(template => (
               <option key={template.id} value={template.id}>
                 {template.name}
