@@ -17,12 +17,11 @@ class GroupList extends React.Component<GroupListProps> {
     const tableItems = groups.map(group => ({
       id: <Link to={`/group/${group.id}`}>{group.id}</Link>,
       name: group.name,
-      members: group.members.length || '0',
     }));
 
     return (
       <div>
-        <Table headings={['ID', 'Name', 'Members']} items={tableItems} />
+        <Table headings={['ID', 'Name']} items={tableItems} />
 
         <Button onClick={onLoadMore} disabled={groups.length >= totalCount}>
           Load More...

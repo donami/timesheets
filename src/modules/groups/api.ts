@@ -1,6 +1,6 @@
 import { fetchApi, NormalizedResponse } from '../../services/api';
 import { Group } from './store/models';
-import { groupSchema } from '../../utils/schemas';
+import { groupSchema, userSchema } from '../../utils/schemas';
 
 export const removeGroup = (groupId: number): Promise<NormalizedResponse> =>
   fetchApi(`groups/${groupId}`, 'DELETE');
@@ -51,7 +51,7 @@ export const updateGroupMember = (
   groupId: number,
   userId: number
 ): Promise<NormalizedResponse> =>
-  fetchApi(`groups/update-group-member`, 'PUT', groupSchema, {
+  fetchApi(`groups/update-group-member`, 'PUT', userSchema, {
     groupId,
     userId,
   });

@@ -48,7 +48,7 @@ class UserViewPage extends React.Component<Props> {
   };
 
   render() {
-    const { user, groups, projects, timesheets } = this.props;
+    const { user, groups, projects, timesheets, group } = this.props;
 
     if (!user) {
       return null;
@@ -65,7 +65,11 @@ class UserViewPage extends React.Component<Props> {
             <UserInfo user={user} />
           </Column>
           <Column sm={6}>
-            <UserGroups groups={groups} onSubmit={this.handleUpdateGroups} />
+            <UserGroups
+              groups={groups}
+              onSubmit={this.handleUpdateGroups}
+              initialSelectedGroup={group ? group.id : 0}
+            />
           </Column>
         </Row>
 

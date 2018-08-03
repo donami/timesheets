@@ -68,15 +68,13 @@ export const getSelectedUserProjects = createSelector(
 );
 
 export const getSelectedUserTimesheets = createSelector(
-  getSelectedUser,
-  getTimesheetEntities,
-  (user, timesheets) => {
-    if (!user) {
+  getSelectedUserId,
+  getTimesheets,
+  (userId, timesheets: TimesheetItem[]) => {
+    if (!userId || !timesheets) {
       return [];
     }
-    return user.timesheets
-      .map((timesheetId: any) => timesheets[timesheetId])
-      .filter((timesheet: any) => timesheet);
+    return timesheets.filter(timesheet => timesheet.owner === userId);
   }
 );
 

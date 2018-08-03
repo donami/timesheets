@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { getGroups } from '../../groups/store/selectors';
+import { getGroups, getGroupEntities } from '../../groups/store/selectors';
 import { getTemplateEntities } from '../../timesheets/store/selectors';
 
 export const getUserEntities = (state: any) => state.users.byId;
@@ -19,20 +19,14 @@ export const getSelectedUser = createSelector(
   (entities, id) => entities[id]
 );
 
-export const getSelectedUserGroups = createSelector(
-  getSelectedUserId,
-  getGroups,
-  (userId, groups) =>
-    groups.filter((group: any) => group.members.indexOf(userId) > -1)
-);
-
 export const getSelectedUserGroup = createSelector(
-  getSelectedUserGroups,
-  groups => {
-    if (groups && groups.length > 0) {
-      return groups[0];
+  getSelectedUser,
+  getGroupEntities,
+  (user, groups) => {
+    if (!user || !groups || !user.group) {
+      return null;
     }
-    return null;
+    return groups[user.group];
   }
 );
 

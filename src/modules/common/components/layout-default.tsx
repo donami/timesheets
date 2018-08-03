@@ -19,9 +19,8 @@ class LayoutDefault extends React.Component {
           <SideBarContainer className="sidebar-container">
             <Sidebar />
           </SideBarContainer>
-
           <ContentContainer className="content-container">
-            <MainContentContainer className="main-content-container">
+            <MainContentContainer>
               <MainContent>{children}</MainContent>
             </MainContentContainer>
 
@@ -37,11 +36,12 @@ class LayoutDefault extends React.Component {
 
 const headerHeight = 80;
 const footerHeight = 60;
-const sidebarWidth = 120;
+const sidebarWidth = 150;
 
 const Wrapper = styled.div`
+  display: flex;
+  min-height: calc(100% - ${headerHeight}px);
   width: 100%;
-  height: calc(100% - ${headerHeight}px);
 `;
 
 const HeaderContainer = styled.div`
@@ -50,9 +50,7 @@ const HeaderContainer = styled.div`
 `;
 
 const ContentContainer = styled.div`
-  width: calc(100% - ${sidebarWidth}px);
-  float: left;
-  height: 100%;
+  flex: 1;
 `;
 
 const MainContentContainer = styled.div`
@@ -64,9 +62,8 @@ const MainContent = styled.div`
 `;
 
 const SideBarContainer = styled.div`
-  width: ${sidebarWidth}px;
-  float: left;
-  height: 100%;
+  flex: 1;
+  max-width: ${sidebarWidth}px;
 `;
 
 const FooterContainer = styled.div`

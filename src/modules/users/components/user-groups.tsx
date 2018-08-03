@@ -6,19 +6,26 @@ import { Group } from '../../groups/store/models';
 
 export interface UserGroupsProps {
   groups: Group[];
+  initialSelectedGroup: number;
   onSubmit: (groupId: number) => any;
 }
 
 export interface UserGroupsState {
-  selectedGroupId: number | null;
+  selectedGroupId: number;
 }
 
 class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
   state: UserGroupsState = {
-    selectedGroupId: null,
+    selectedGroupId: 0,
   };
 
   formElem: any;
+
+  componentWillMount() {
+    if (this.props.initialSelectedGroup) {
+      this.setState({ selectedGroupId: this.props.initialSelectedGroup });
+    }
+  }
 
   handleChange = (e: any) => {
     const { value } = e.target;
@@ -31,7 +38,7 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
   handleSubmit = (e: any) => {
     e.preventDefault();
 
-    if (this.state.selectedGroupId === null) {
+    if (this.state.selectedGroupId === 0) {
       return;
     }
 
@@ -48,7 +55,11 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
             this.formElem = elem;
           }}
         >
-          <select name="group" onChange={this.handleChange}>
+          <select
+            name="group"
+            onChange={this.handleChange}
+            defaultValue={this.state.selectedGroupId.toString()}
+          >
             <option value="0">Choose a group...</option>
             {groups.map(group => (
               <option key={group.id} value={group.id}>
