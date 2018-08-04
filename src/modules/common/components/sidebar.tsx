@@ -58,6 +58,12 @@ class Sidebar extends React.Component {
             icon="fas fa-users"
             label="Timesheet Templates"
           />
+
+          <SidebarLink
+            to="/help"
+            icon="fas fa-question-circle"
+            label="Support"
+          />
         </ul>
       </Container>
     );

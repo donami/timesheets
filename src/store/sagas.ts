@@ -7,6 +7,7 @@ import { userSagas } from '../modules/users/store';
 import { projectSagas } from '../modules/projects/store';
 import { groupSagas } from '../modules/groups/store';
 import { commonSagas } from '../modules/common/store';
+import { helpSagas } from '../modules/help/store';
 
 export default function* rootSaga() {
   yield all([
@@ -16,6 +17,7 @@ export default function* rootSaga() {
     userSagas,
     projectSagas,
     groupSagas,
+    helpSagas,
     commonSagas,
   ]);
 }

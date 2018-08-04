@@ -132,3 +132,5 @@ export const getProjectOfSelectedTimesheet = createSelector(
     });
   }
 );
+
+export const getCurrentLocation = (state: any) => state.router.location;

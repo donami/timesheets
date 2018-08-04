@@ -27,6 +27,12 @@ import textManager from '../../../services/text-manager';
 import { history } from '../../../store';
 import { NotFoundPage } from '../pages';
 import { UserRole } from '../../users/store/models';
+import {
+  HelpPage,
+  ArticleViewPage,
+  CategoryViewPage,
+  SearchPage,
+} from '../../help';
 
 type Props = {
   initialize: () => any;
@@ -55,6 +61,13 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute exact path="/" component={DashboardPage} />
             <Route path="/auth" component={AuthPage} />
             <Route path="/logout" component={LogoutPage} />
+            <ProtectedRoute path="/help/search" component={SearchPage} />
+            <ProtectedRoute
+              path="/help/category/:id"
+              component={CategoryViewPage}
+            />
+            <ProtectedRoute path="/help/:id" component={ArticleViewPage} />
+            <ProtectedRoute path="/help" component={HelpPage} />
             <ProtectedRoute
               path="/timesheet/:id"
               component={TimesheetViewPage}

@@ -52,6 +52,22 @@ export const expenseSchema = new schema.Entity(
   { idAttribute: 'id' }
 );
 
+export const questionArticleSchema = new schema.Entity(
+  'questionArticles',
+  {
+    author: userSchema,
+  },
+  { idAttribute: 'id' }
+);
+
+export const questionCategorySchema = new schema.Entity(
+  'questionCategories',
+  {
+    articles: [questionArticleSchema],
+  },
+  { idAttribute: 'id' }
+);
+
 userSchema.define({ timesheets: [timesheetSchema], group: groupSchema });
 
 export { userSchema };

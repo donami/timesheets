@@ -8,6 +8,7 @@ import auth from '../modules/auth/store';
 import users from '../modules/users/store';
 import projects from '../modules/projects/store';
 import groups from '../modules/groups/store';
+import help from '../modules/help/store';
 
 export default combineReducers({
   common,
@@ -17,5 +18,6 @@ export default combineReducers({
   users,
   projects,
   groups,
+  help,
   toastr: toastrReducer,
 });
