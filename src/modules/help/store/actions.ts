@@ -95,3 +95,11 @@ export const selectCategory = (categoryId: number) => ({
     categoryId,
   },
 });
+
+export const giveFeedback = (articleId: number, response: string) => ({
+  type: types.GIVE_FEEDBACK_ARTICLE.REQUEST,
+  payload: {
+    articleId,
+    response,
+  },
+});

@@ -205,6 +205,25 @@ function* searchArticles(action: any) {
   }
 }
 
+function* giveFeedback(action: any) {
+  try {
+    const response = yield call(
+      Api.giveFeedback,
+      action.payload.articleId,
+      action.payload.response
+    );
+    yield put({
+      payload: { ...response },
+      type: types.GIVE_FEEDBACK_ARTICLE.SUCCESS,
+    });
+  } catch (e) {
+    yield put({
+      type: types.GIVE_FEEDBACK_ARTICLE.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 function* searchArticlesClear(action: any) {
   yield put(goBack());
 }
@@ -225,4 +244,5 @@ export default all([
   takeLatest(types.SEARCH_QUESTION_ARTICLES_CLEAR, searchArticlesClear),
   takeLatest(types.CREATE_QUESTION_ARTICLE.REQUEST, createArticle),
   takeLatest(types.UPDATE_QUESTION_ARTICLE.REQUEST, updateArticle),
+  takeLatest(types.GIVE_FEEDBACK_ARTICLE.REQUEST, giveFeedback),
 ]);

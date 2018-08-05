@@ -38,6 +38,20 @@ export const updateArticle = (
     categoryId,
   });
 
+export const giveFeedback = (
+  articleId: number,
+  response: string
+): Promise<NormalizedResponse> =>
+  fetchApi(
+    `question-articles/${articleId}/give-feedback`,
+    'PUT',
+    questionArticleSchema,
+    {
+      articleId,
+      response,
+    }
+  );
+
 export const searchArticles = (query: string): Promise<NormalizedResponse> =>
   fetchApi(`question-articles?q=${query}`, 'GET', [questionArticleSchema]);
 

@@ -9,3 +9,4 @@ export { default as Search } from './search';
 export { default as SearchResults } from './search-results';
 export { default as ArticleList } from './article-list';
 export { default as CategoryForm } from './category-form';
+export { default as ArticleFeedback } from './article-feedback';
