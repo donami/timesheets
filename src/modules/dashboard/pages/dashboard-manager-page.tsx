@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Button } from 'genui';
+import { Link } from 'react-router-dom';
 
 import { Row, Column, Box } from '../../ui';
 import { TimesheetsReadyForReview } from '../../timesheets';
@@ -28,7 +30,13 @@ class DashboardManagerPage extends React.Component<Props> {
               <TimesheetsReadyForReview />
             </Box>
           </Column>
-          <Column sm={6} />
+          <Column sm={6}>
+            <Box title="Support &amp; Help">
+              <div style={{ textAlign: 'center' }}>
+                <Button to="/help/manage">Manage help pages</Button>
+              </div>
+            </Box>
+          </Column>
         </Row>
       </div>
     );
