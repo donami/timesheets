@@ -176,6 +176,12 @@ const generatorReducer = (state = generatorInitialState, action: any) => {
         },
       };
 
+    case types.TIMESHEETS_CONFIRM.SUCCESS:
+      return {
+        ...state,
+        generated: null,
+      };
+
     default:
       return state;
   }

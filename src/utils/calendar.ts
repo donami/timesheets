@@ -21,6 +21,12 @@ export const isSameOrBeforeMonth = (date: string): boolean => {
   return moment(date).isSameOrBefore(today);
 };
 
+export const monthIsInPast = (date: string): boolean => {
+  return moment(date)
+    .endOf('month')
+    .isBefore();
+};
+
 export const toStartOfMonth = (
   date: string,
   format: string = DEFAULT_FORMAT

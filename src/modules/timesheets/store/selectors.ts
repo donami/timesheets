@@ -1,5 +1,6 @@
 import { createSelector } from 'reselect';
 import { TimesheetItem, TimesheetStatus } from './models';
+import { isSameOrBeforeMonth, monthIsInPast } from '../../../utils/calendar';
 
 const getTimesheetState = (state: any) => state.timesheets.timesheets;
 
@@ -77,6 +78,17 @@ export const getTimesheetsWaitingForApproval = createSelector(
   (timesheets: TimesheetItem[]) => {
     return timesheets.filter(
       timesheet => timesheet.status === TimesheetStatus.WaitingForApproval
+    );
+  }
+);
+
+export const getTimesheetsPastDueDate = createSelector(
+  getTimesheets,
+  (timesheets: TimesheetItem[]) => {
+    return timesheets.filter(
+      timesheet =>
+        monthIsInPast(timesheet.periodStart) &&
+        timesheet.status !== TimesheetStatus.Approved
     );
   }
 );

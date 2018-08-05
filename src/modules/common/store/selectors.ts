@@ -3,14 +3,12 @@ import { getSelectedGroup } from '../../groups/store/selectors';
 import {
   getUserEntities,
   getSelectedUserId,
-  getSelectedUser,
 } from '../../users/store/selectors';
 import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
 import {
   getTimesheetsWaitingForApproval,
   getTimesheets,
-  getTimesheetEntities,
   getSelectedTimesheet,
 } from '../../timesheets/store/selectors';
 import {
@@ -23,12 +21,9 @@ import { User } from '../../users/store/models';
 // Get timesheets assigned to the authed user
 export const getTimesheetsForAuthedUser = createSelector(
   getAuthedUser,
-  getTimesheetEntities,
-  (user: User, timesheets) => {
-    return user.timesheets
-      .map((timesheetId: any) => timesheets[timesheetId] || null)
-      .filter(timesheet => timesheet);
-  }
+  getTimesheets,
+  (user: User, timesheets: TimesheetItem[]) =>
+    timesheets.filter((timesheet: any) => timesheet.owner === user.id)
 );
 
 // Get the members of the selected group

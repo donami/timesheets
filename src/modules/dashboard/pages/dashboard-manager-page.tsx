@@ -4,7 +4,10 @@ import { Button } from 'genui';
 import { Link } from 'react-router-dom';
 
 import { Row, Column, Box } from '../../ui';
-import { TimesheetsReadyForReview } from '../../timesheets';
+import {
+  TimesheetsReadyForReview,
+  TimesheetsPastDueDate,
+} from '../../timesheets';
 import { bindActionCreators } from 'redux';
 import { fetchTimesheets } from '../../timesheets/store/actions';
 import { fetchExpenses } from '../../expenses/store/actions';
@@ -37,6 +40,15 @@ class DashboardManagerPage extends React.Component<Props> {
               </div>
             </Box>
           </Column>
+        </Row>
+
+        <Row>
+          <Column sm={6}>
+            <Box title="Timesheets Past Due Date">
+              <TimesheetsPastDueDate />
+            </Box>
+          </Column>
+          <Column sm={6} />
         </Row>
       </div>
     );

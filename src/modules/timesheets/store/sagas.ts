@@ -178,6 +178,13 @@ function* confirmTemplates(action: any) {
   try {
     const response = yield call(Api.createTimesheets, action.payload);
 
+    yield put(
+      toastr.success({
+        title: 'Templates was created!',
+        message: 'Templates was successfully created!',
+      })
+    );
+
     yield put({
       type: types.TIMESHEETS_CONFIRM.SUCCESS,
       payload: { ...response },
