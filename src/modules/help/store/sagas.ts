@@ -72,6 +72,59 @@ function* fetchCategoryById(action: any) {
   }
 }
 
+function* removeCategory(action: any) {
+  try {
+    const response = yield call(Api.removeCategory, action.payload.categoryId);
+    yield put({
+      payload: { ...response },
+      type: types.REMOVE_QUESTION_CATEGORY.SUCCESS,
+    });
+  } catch (e) {
+    yield put({
+      type: types.REMOVE_QUESTION_CATEGORY.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
+function* createCategory(action: any) {
+  try {
+    const response = yield call(Api.createCategory, action.payload.data);
+    yield put({
+      payload: { ...response },
+      type: types.CREATE_QUESTION_CATEGORY.SUCCESS,
+    });
+
+    yield put(push('/help/manage'));
+  } catch (e) {
+    yield put({
+      type: types.CREATE_QUESTION_CATEGORY.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
+function* updateCategory(action: any) {
+  try {
+    const response = yield call(
+      Api.updateCategory,
+      action.payload.categoryId,
+      action.payload.category
+    );
+    yield put({
+      payload: { ...response },
+      type: types.UPDATE_QUESTION_CATEGORY.SUCCESS,
+    });
+
+    yield put(push('/help/manage'));
+  } catch (e) {
+    yield put({
+      type: types.UPDATE_QUESTION_CATEGORY.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 function* fetchArticleById(action: any) {
   try {
     const response = yield call(Api.fetchArticleById, action.payload.articleId);
@@ -82,6 +135,50 @@ function* fetchArticleById(action: any) {
   } catch (e) {
     yield put({
       type: types.FETCH_QUESTION_ARTICLE_BY_ID.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
+function* createArticle(action: any) {
+  try {
+    const response = yield call(
+      Api.createArticle,
+      action.payload.data,
+      action.payload.userId,
+      action.payload.categoryId
+    );
+    yield put({
+      payload: { ...response },
+      type: types.CREATE_QUESTION_ARTICLE.SUCCESS,
+    });
+
+    yield put(push('/help/manage'));
+  } catch (e) {
+    yield put({
+      type: types.CREATE_QUESTION_ARTICLE.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
+function* updateArticle(action: any) {
+  try {
+    const response = yield call(
+      Api.updateArticle,
+      action.payload.articleId,
+      action.payload.article,
+      action.payload.categoryId
+    );
+    yield put({
+      payload: { ...response },
+      type: types.UPDATE_QUESTION_ARTICLE.SUCCESS,
+    });
+
+    yield put(push('/help/manage'));
+  } catch (e) {
+    yield put({
+      type: types.UPDATE_QUESTION_ARTICLE.FAILURE,
       message: e.message,
     });
   }
@@ -119,8 +216,13 @@ export default all([
     fetchCategoriesIfNeeded
   ),
   takeLatest(types.SELECT_QUESTION_CATEGORY.REQUEST, selectCategory),
+  takeLatest(types.CREATE_QUESTION_CATEGORY.REQUEST, createCategory),
+  takeLatest(types.UPDATE_QUESTION_CATEGORY.REQUEST, updateCategory),
+  takeLatest(types.REMOVE_QUESTION_CATEGORY.REQUEST, removeCategory),
   takeLatest(types.SELECT_QUESTION_ARTICLE.REQUEST, selectArticle),
   takeLatest(types.FETCH_QUESTION_CATEGORY_BY_ID.REQUEST, fetchCategoryById),
   takeLatest(types.SEARCH_QUESTION_ARTICLES.REQUEST, searchArticles),
   takeLatest(types.SEARCH_QUESTION_ARTICLES_CLEAR, searchArticlesClear),
+  takeLatest(types.CREATE_QUESTION_ARTICLE.REQUEST, createArticle),
+  takeLatest(types.UPDATE_QUESTION_ARTICLE.REQUEST, updateArticle),
 ]);

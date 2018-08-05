@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { PageHeader } from '../../common';
 import { fetchCategoriesIfNeeded } from '../store/actions';
 import { getCategories } from '../store/selectors';
 import { QuestionCategory } from '../store/models';

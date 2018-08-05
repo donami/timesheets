@@ -14,7 +14,7 @@ const Category: React.SFC<Props> = ({ category }) => {
   return (
     <Container to={`/help/category/${category.id}`}>
       <LeftNode>
-        <Icon name="far fa-comment" size="5x" />
+        <Icon name={category.icon} size="5x" />
       </LeftNode>
       <RightNode>
         <h3>{category.title}</h3>
@@ -61,7 +61,8 @@ const Container = styled(Link)`
 
 const LeftNode = styled.div`
   flex: 1;
-  max-width: 80px;
+  max-width: 90px;
+  text-align: center;
 `;
 
 const RightNode = styled.div`

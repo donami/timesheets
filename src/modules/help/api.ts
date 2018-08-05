@@ -18,18 +18,24 @@ export const fetchArticles = (): Promise<NormalizedResponse> => {
 };
 
 export const createArticle = (
-  data: QuestionArticle & { categoryId: number }
+  data: QuestionArticle,
+  userId: number,
+  categoryId: number
 ): Promise<NormalizedResponse> =>
-  fetchApi(`question-articles/create`, 'POST', questionCategorySchema, {
+  fetchApi(`question-articles`, 'POST', questionCategorySchema, {
     ...data,
+    userId,
+    categoryId,
   });
 
 export const updateArticle = (
   articleId: number,
-  article: QuestionArticle
+  article: QuestionArticle,
+  categoryId: number
 ): Promise<NormalizedResponse> =>
-  fetchApi(`question-articles/${articleId}`, 'PUT', questionArticleSchema, {
+  fetchApi(`question-articles/${articleId}`, 'PUT', questionCategorySchema, {
     ...article,
+    categoryId,
   });
 
 export const searchArticles = (query: string): Promise<NormalizedResponse> =>
@@ -38,7 +44,11 @@ export const searchArticles = (query: string): Promise<NormalizedResponse> =>
 export const removeCategory = (
   categoryId: number
 ): Promise<NormalizedResponse> =>
-  fetchApi(`question-categories/${categoryId}`, 'DELETE');
+  fetchApi(
+    `question-categories/${categoryId}`,
+    'DELETE',
+    questionCategorySchema
+  );
 
 export const fetchCategoryById = (
   categoryId: number
@@ -52,7 +62,7 @@ export const fetchCategories = (): Promise<NormalizedResponse> => {
 export const createCategory = (
   data: QuestionCategory
 ): Promise<NormalizedResponse> =>
-  fetchApi(`question-categories/create`, 'POST', questionCategorySchema, {
+  fetchApi(`question-categories`, 'POST', questionCategorySchema, {
     ...data,
   });
 

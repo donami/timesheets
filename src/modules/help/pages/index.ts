@@ -2,3 +2,8 @@ export { default as HelpPage } from './help-page';
 export { default as CategoryViewPage } from './category-view-page';
 export { default as ArticleViewPage } from './article-view-page';
 export { default as SearchPage } from './search-page';
+export { default as ManageHelpPage } from './manage-help-page';
+export { default as CategoryAddPage } from './category-add-page';
+export { default as CategoryEditPage } from './category-edit-page';
+export { default as ArticleEditPage } from './article-edit-page';
+export { default as ArticleAddPage } from './article-add-page';

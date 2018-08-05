@@ -88,6 +88,17 @@ const articleReducer = (state = articleInitialState, action: any) => {
         selected: action.payload.articleId,
       };
 
+    case types.REMOVE_QUESTION_ARTICLE.SUCCESS:
+      const index = newState.ids.indexOf(action.payload.result);
+
+      return {
+        ...newState,
+        ids: [
+          ...newState.ids.slice(0, index),
+          ...newState.ids.slice(index + 1),
+        ],
+      };
+
     case types.SEARCH_QUESTION_ARTICLES.SUCCESS:
       return {
         ...newState,
@@ -155,6 +166,17 @@ const categoryReducer = (state = categoryInitialState, action: any) => {
       return {
         ...newState,
         selected: action.payload.categoryId,
+      };
+
+    case types.REMOVE_QUESTION_CATEGORY.SUCCESS:
+      const index = newState.ids.indexOf(action.payload.result);
+
+      return {
+        ...newState,
+        ids: [
+          ...newState.ids.slice(0, index),
+          ...newState.ids.slice(index + 1),
+        ],
       };
 
     default:

@@ -10,4 +10,5 @@ export { default as Translate } from './translate';
 export { default as HasAccess } from './has-access';
 export { default as Avatar } from './avatar';
 export { default as Flag } from './flag';
+export { default as BackButton } from './back-button';
 export { default as PageHeader } from './page-header';

@@ -32,7 +32,12 @@ import {
   ArticleViewPage,
   CategoryViewPage,
   SearchPage,
+  ManageHelpPage,
+  CategoryAddPage,
+  ArticleAddPage,
+  ArticleEditPage,
 } from '../../help';
+import categoryEditPage from '../../help/pages/category-edit-page';
 
 type Props = {
   initialize: () => any;
@@ -61,6 +66,31 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute exact path="/" component={DashboardPage} />
             <Route path="/auth" component={AuthPage} />
             <Route path="/logout" component={LogoutPage} />
+            <ProtectedRoute
+              path="/help/manage/add-category"
+              component={CategoryAddPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/help/manage/edit-category/:id"
+              component={categoryEditPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/help/manage/add-article"
+              component={ArticleAddPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/help/manage/edit-article/:id"
+              component={ArticleEditPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/help/manage"
+              component={ManageHelpPage}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
             <ProtectedRoute path="/help/search" component={SearchPage} />
             <ProtectedRoute
               path="/help/category/:id"

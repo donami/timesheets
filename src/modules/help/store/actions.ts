@@ -5,20 +5,29 @@ export const fetchArticles = () => ({
   type: types.FETCH_QUESTION_ARTICLES.REQUEST,
 });
 
-export const updateArticle = (articleId: number, article: QuestionArticle) => ({
+export const updateArticle = (
+  articleId: number,
+  article: QuestionArticle,
+  categoryId: number
+) => ({
   type: types.UPDATE_QUESTION_ARTICLE.REQUEST,
   payload: {
     articleId,
     article,
+    categoryId,
   },
 });
 
 export const createArticle = (
-  data: QuestionArticle & { categoryId: number }
+  data: Partial<QuestionArticle>,
+  userId: number,
+  categoryId: number
 ) => ({
   type: types.CREATE_QUESTION_ARTICLE.REQUEST,
   payload: {
     data,
+    userId,
+    categoryId,
   },
 });
 
@@ -66,7 +75,7 @@ export const updateCategory = (
   },
 });
 
-export const createCategory = (data: QuestionArticle) => ({
+export const createCategory = (data: QuestionCategory) => ({
   type: types.CREATE_QUESTION_CATEGORY.REQUEST,
   payload: {
     data,

@@ -72,6 +72,12 @@ export const getCategories = createSelector(getCategoryState, categoryState => {
   );
 });
 
+export const getArticles = createSelector(getArticleState, articleState => {
+  return articleState.ids.map(
+    (articleId: number) => articleState.byId[articleId]
+  );
+});
+
 export const getSelectedArticleCategory = createSelector(
   getSelectedArticleId,
   getCategories,
