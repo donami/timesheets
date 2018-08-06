@@ -27,6 +27,48 @@ export const monthIsInPast = (date: string): boolean => {
     .isBefore();
 };
 
+/**
+ * Generates an array of months from current month
+ * @param numberOfMonths Number of months to be generated
+ * @param options Options: { future: if months should be future or past dates, includeCurrent: include current month }
+ * @param format Optional: Format used for the generated months
+ */
+export const listOfMonthsFromToday = (
+  numberOfMonths: number,
+  options: { future: boolean; includeCurrent: boolean },
+  format: string = DEFAULT_FORMAT
+) => {
+  const today = moment();
+  const months = [];
+
+  if (options.includeCurrent) {
+    months.push(today.startOf('month').format(format));
+  }
+
+  if (options.future) {
+    // tslint:disable-next-line:no-increment-decrement
+    for (let i = 0; i < numberOfMonths; i++) {
+      months.push(
+        today
+          .add(1, 'month')
+          .startOf('month')
+          .format(format)
+      );
+    }
+  } else {
+    // tslint:disable-next-line:no-increment-decrement
+    for (let i = 0; i < numberOfMonths; i++) {
+      months.push(
+        today
+          .subtract(1, 'month')
+          .startOf('month')
+          .format(format)
+      );
+    }
+  }
+  return months;
+};
+
 export const toStartOfMonth = (
   date: string,
   format: string = DEFAULT_FORMAT

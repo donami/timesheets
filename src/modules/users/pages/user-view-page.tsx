@@ -21,7 +21,7 @@ import {
 } from '../../common/store/selectors';
 import { TimesheetGenerator, TimesheetList } from '../../timesheets';
 import { TimesheetItem } from '../../timesheets/store/models';
-import { PageHeader } from '../../common';
+import { PageHeader, Translate } from '../../common';
 
 type Props = {
   match: any;
@@ -57,7 +57,7 @@ class UserViewPage extends React.Component<Props> {
     return (
       <div>
         <PageHeader>
-          User Profile: {user.firstname} {user.lastname}
+          <Translate text="users.labels.USER_PROFILE" />: {user.fullName}
         </PageHeader>
 
         <Row>
@@ -75,12 +75,20 @@ class UserViewPage extends React.Component<Props> {
 
         <Row>
           <Column sm={6}>
-            <Box title="Generate new timesheets">
+            <Box
+              title={() => (
+                <Translate text="timesheet.labels.GENERATE_NEW_TIMESHEETS" />
+              )}
+            >
               <TimesheetGenerator userId={user.id} projects={projects} />
             </Box>
           </Column>
           <Column sm={6}>
-            <Box title="Timesheets for user">
+            <Box
+              title={() => (
+                <Translate text="timesheet.labels.TIMESHEETS_FOR_USER" />
+              )}
+            >
               <TimesheetList
                 timesheets={timesheets || []}
                 disableFilter={true}
@@ -93,6 +101,8 @@ class UserViewPage extends React.Component<Props> {
     );
   }
 }
+
+// TODO: translate noTimesheetsText in "Timesheets fr user"
 
 const mapStateToProps = (state: any) => ({
   user: getSelectedUser(state),

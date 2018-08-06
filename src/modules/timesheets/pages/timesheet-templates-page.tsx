@@ -6,7 +6,7 @@ import { Button } from 'genui';
 import { TimesheetTemplateList } from '../components';
 import { fetchTimesheetTemplates } from '../store/actions';
 import { timesheetSelectors } from '../store';
-import { PageHeader } from '../../common';
+import { PageHeader, Translate } from '../../common';
 
 export interface TimesheetTemplatesPageProps {
   templates: any;
@@ -28,11 +28,11 @@ class TimesheetTemplatesPage extends React.Component<
         <PageHeader
           options={() => (
             <Button to="/timesheet-templates/create" color="blue">
-              Create new template
+              <Translate text="timesheetTemplates.labels.NEW_TIMESHEET_TEMPLATE" />
             </Button>
           )}
         >
-          Timesheet Templates
+          <Translate text="timesheetTemplates.labels.TIMESHEET_TEMPLATES" />
         </PageHeader>
         <TimesheetTemplateList templates={templates} />
       </div>

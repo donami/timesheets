@@ -5,14 +5,21 @@ import { Button } from 'genui';
 
 import { getGeneratedTimesheets } from '../store/selectors';
 import { getSelectedUserGroupTemplate } from '../../users/store/selectors';
-import { generateTimesheets, confirmTemplates } from '../store/actions';
+import {
+  generateTimesheets,
+  confirmTemplates,
+  cancelTemplates,
+} from '../store/actions';
 import { TimesheetTemplateItem } from '../store/models';
 import { Project } from '../../projects/store/models';
+import { listOfMonthsFromToday } from '../../../utils/calendar';
+import { Translate } from '../../common';
 
 type Props = {
   template: TimesheetTemplateItem;
   generated: any;
   confirmTemplates: (timesheets: any) => any;
+  cancelTemplates: () => any;
   generateTimesheets: (
     from: string,
     to: string,
@@ -44,19 +51,40 @@ class TimesheetGenerator extends React.Component<Props> {
     this.props.confirmTemplates(this.props.generated);
   };
 
+  handleCancelTemplates = (e: any) => {
+    this.props.cancelTemplates();
+  };
+
   render() {
     const { template, generated, projects } = this.props;
+
+    const pastMonths = listOfMonthsFromToday(
+      6,
+      { future: false, includeCurrent: true },
+      'YYYY-MM-DD'
+    );
+    const futureMonths = listOfMonthsFromToday(
+      6,
+      { future: true, includeCurrent: true },
+      'YYYY-MM-DD'
+    );
 
     return (
       <React.Fragment>
         {template && (
           <React.Fragment>
-            <h4>Generate timesheets using the template: {template.name}</h4>
+            <h4>
+              <Translate text="timesheet.labels.GENERATE_TIMESHEETS_USING_TEMPLATE" />:
+              &nbsp;
+              {template.name}
+            </h4>
 
             {generated &&
               generated.timesheets.length > 0 && (
                 <div>
-                  <h4>Generated Timesheets</h4>
+                  <h4>
+                    <Translate text="timesheet.labels.GENERATED_TIMESHEETS" />
+                  </h4>
 
                   {generated.timesheets.map((month: any, index: any) => (
                     <div key={index}>{month.month}</div>
@@ -64,9 +92,11 @@ class TimesheetGenerator extends React.Component<Props> {
 
                   <div>
                     <Button color="green" onClick={this.handleConfirmTemplates}>
-                      Confirm
+                      <Translate text="common.labels.CONFIRM" />
                     </Button>
-                    <Button>Cancel</Button>
+                    <Button onClick={this.handleCancelTemplates}>
+                      <Translate text="common.labels.CANCEL" />
+                    </Button>
                   </div>
                 </div>
               )}
@@ -78,18 +108,32 @@ class TimesheetGenerator extends React.Component<Props> {
                   this.generateForm = form;
                 }}
               >
-                <label>From:</label>
+                <label>
+                  <Translate text="common.labels.FROM" />:
+                </label>
                 <select name="from">
-                  <option value="2018-06-01">Jun 2018</option>
+                  {pastMonths.map((month: string, index: number) => (
+                    <option key={index} value={month}>
+                      {month}
+                    </option>
+                  ))}
                 </select>
 
-                <label>To:</label>
+                <label>
+                  <Translate text="common.labels.TO" />:
+                </label>
                 <select name="to">
-                  <option value="2018-12-01">Dec 2018</option>
+                  {futureMonths.map((month: string, index: number) => (
+                    <option key={index} value={month}>
+                      {month}
+                    </option>
+                  ))}
                 </select>
 
                 <div>
-                  <label>Project:</label>
+                  <label>
+                    <Translate text="projects.labels.PROJECT" />:
+                  </label>
                   <select name="project">
                     {projects.map(project => (
                       <option value={project.id} key={project.id}>
@@ -100,7 +144,7 @@ class TimesheetGenerator extends React.Component<Props> {
                 </div>
 
                 <Button type="submit" color="blue">
-                  Generate
+                  <Translate text="common.labels.GENERATE" />
                 </Button>
               </form>
             )}
@@ -109,8 +153,7 @@ class TimesheetGenerator extends React.Component<Props> {
 
         {!template && (
           <React.Fragment>
-            In order to generate timesheets, the user needs to be attached to a
-            group which has a timesheet template assigned to it.
+            <Translate text="timesheet.messages.NEED_GROUP_TO_GENERATE" />
           </React.Fragment>
         )}
       </React.Fragment>
@@ -128,6 +171,7 @@ const mapDispatchToProps = (dispatch: any) =>
     {
       generateTimesheets,
       confirmTemplates,
+      cancelTemplates,
     },
     dispatch
   );

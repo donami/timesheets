@@ -8,7 +8,7 @@ import { getUsers } from '../store/selectors';
 import { fetchUsers } from '../store/actions';
 import { User } from '../store/models';
 import { UserList } from '../components';
-import { PageHeader } from '../../common';
+import { PageHeader, Translate } from '../../common';
 
 export interface UserListPageProps {
   fetchUsers: () => any;
@@ -27,11 +27,11 @@ class UserListPage extends React.Component<UserListPageProps> {
         <PageHeader
           options={() => (
             <Button to="/users/add" color="blue">
-              Add user
+              <Translate text="users.labels.NEW_USER" />
             </Button>
           )}
         >
-          Users
+          <Translate text="users.labels.USERS" />
         </PageHeader>
 
         <UserList users={users} />

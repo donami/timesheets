@@ -11,7 +11,7 @@ import {
 import { loadGroupListPage, fetchGroups } from '../store/actions';
 import { Group } from '../store/models';
 import { GroupList } from '../components';
-import { PageHeader } from '../../common';
+import { PageHeader, Translate } from '../../common';
 
 type Props = {
   loadGroupListPage: (options?: any) => any;
@@ -42,11 +42,11 @@ class GroupListPage extends React.Component<Props> {
         <PageHeader
           options={() => (
             <Button to="/groups/add" color="blue">
-              New Group
+              <Translate text="groups.labels.NEW_GROUP" />
             </Button>
           )}
         >
-          Groups
+          <Translate text="groups.labels.GROUPS" />
         </PageHeader>
         <GroupList
           groups={groups}

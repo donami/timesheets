@@ -12,6 +12,7 @@ import { bindActionCreators } from 'redux';
 import { fetchTimesheets } from '../../timesheets/store/actions';
 import { fetchExpenses } from '../../expenses/store/actions';
 import { getExpenses } from '../../expenses/store/selectors';
+import { Translate } from '../../common';
 
 type Props = {
   fetchTimesheets: () => any;
@@ -29,14 +30,22 @@ class DashboardManagerPage extends React.Component<Props> {
       <div>
         <Row>
           <Column sm={6}>
-            <Box title="Timesheets Ready for Review">
+            <Box
+              title={() => (
+                <Translate text="timesheet.labels.TIMESHEETS_READY_FOR_REVIEW" />
+              )}
+            >
               <TimesheetsReadyForReview />
             </Box>
           </Column>
           <Column sm={6}>
-            <Box title="Support &amp; Help">
+            <Box
+              title={() => <Translate text={`help.labels.SUPPORT_AND_HELP`} />}
+            >
               <div style={{ textAlign: 'center' }}>
-                <Button to="/help/manage">Manage help pages</Button>
+                <Button to="/help/manage">
+                  <Translate text={`help.labels.MANAGE_HELP_PAGES`} />
+                </Button>
               </div>
             </Box>
           </Column>
@@ -44,7 +53,11 @@ class DashboardManagerPage extends React.Component<Props> {
 
         <Row>
           <Column sm={6}>
-            <Box title="Timesheets Past Due Date">
+            <Box
+              title={() => (
+                <Translate text="timesheet.labels.TIMESHEETS_PAST_DUE_DATE" />
+              )}
+            >
               <TimesheetsPastDueDate />
             </Box>
           </Column>

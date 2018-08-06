@@ -72,6 +72,10 @@ export const confirmTemplates = (templates: any) => ({
   },
 });
 
+export const cancelTemplates = (templates: any) => ({
+  type: types.TIMESHEETS_CANCEL_TEMPLATES,
+});
+
 export const createTimesheetTemplate = (
   template: Partial<TimesheetTemplateItem>
 ) => ({

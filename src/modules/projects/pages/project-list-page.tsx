@@ -7,7 +7,7 @@ import { fetchProjects } from '../store/actions';
 import { Project } from '../store/models';
 import { ProjectList } from '../components';
 import { getAuthedUserProjects } from '../../auth/store/selectors';
-import { PageHeader } from '../../common';
+import { PageHeader, Translate } from '../../common';
 
 export interface ProjectListPageProps {
   fetchProjects: () => any;
@@ -27,11 +27,11 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
         <PageHeader
           options={() => (
             <Button to="/projects/add" color="blue">
-              New Project
+              <Translate text="projects.labels.NEW_PROJECT" />
             </Button>
           )}
         >
-          Projects
+          <Translate text="projects.labels.PROJECTS" />
         </PageHeader>
         <ProjectList projects={projects} />
       </div>

@@ -11,10 +11,11 @@ import { User } from '../../users/store/models';
 
 type Props = {
   timesheets: TimesheetItem[];
+  noTimesheetsText?: string;
 } & DefaultProps;
 
 const defaultProps: DefaultProps = {
-  noTimesheetsText: 'No timesheets',
+  // noTimesheetsText: 'No timesheets',
   disableFilter: false,
   includeUser: false,
   users: [],
@@ -22,12 +23,28 @@ const defaultProps: DefaultProps = {
 
 type DefaultProps = {
   disableFilter: boolean;
-  noTimesheetsText: string;
+  // noTimesheetsText: string;
   includeUser: boolean;
   users: { [key: number]: User };
 };
 
 class TimesheetList extends React.Component<Props> {
+  getUserLink(timesheet: any) {
+    const { users } = this.props;
+
+    if (!users || !timesheet.owner) {
+      return null;
+    }
+
+    const user = users[timesheet.owner];
+
+    if (!user) {
+      return null;
+    }
+
+    return <Link to={`/user/${user.id}`}>{user.fullName}</Link>;
+  }
+
   render() {
     const {
       timesheets,
@@ -38,7 +55,13 @@ class TimesheetList extends React.Component<Props> {
     } = this.props;
 
     if (!timesheets.length) {
-      return <div>{noTimesheetsText || 'No timesheets'}</div>;
+      return (
+        <div>
+          {noTimesheetsText || (
+            <Translate text="timesheet.labels.NO_TIMESHEETS" />
+          )}
+        </div>
+      );
     }
 
     // If disableFilter is true, there should be
@@ -48,15 +71,11 @@ class TimesheetList extends React.Component<Props> {
     const tableItems = timesheets
       .filter(filter)
       .sort(sortByDate)
-      .map((timesheet: any) => ({
+      .map(timesheet => ({
         id: <Link to={`/timesheet/${timesheet.id}`}>{timesheet.id}</Link>,
         period: dateFormat(timesheet.periodStart, 'MMMM, YYYY'),
         status: <Translate text={`timesheet.status.${timesheet.status}`} />,
-        user: includeUser ? (
-          <Link to={`/user/${users[timesheet.owner].id}`}>
-            {users[timesheet.owner].fullName}
-          </Link>
-        ) : null,
+        user: includeUser ? this.getUserLink(timesheet) : null,
       }));
 
     const headings = ['ID', 'Period', 'Status'];

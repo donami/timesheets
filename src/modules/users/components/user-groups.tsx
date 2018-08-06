@@ -3,6 +3,7 @@ import { Button } from 'genui';
 
 import { Box } from '../../ui';
 import { Group } from '../../groups/store/models';
+import { Translate } from '../../common';
 
 export interface UserGroupsProps {
   groups: Group[];
@@ -48,7 +49,7 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
   render() {
     const { groups } = this.props;
     return (
-      <Box title="User Groups">
+      <Box title={() => <Translate text="users.labels.USER_GROUPS" />}>
         <form
           onSubmit={this.handleSubmit}
           ref={(elem: any) => {
@@ -60,7 +61,9 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
             onChange={this.handleChange}
             defaultValue={this.state.selectedGroupId.toString()}
           >
-            <option value="0">Choose a group...</option>
+            <option value="0">
+              <Translate text="groups.labels.CHOOSE_A_GROUP" />
+            </option>
             {groups.map(group => (
               <option key={group.id} value={group.id}>
                 {group.name}
@@ -68,7 +71,9 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
             ))}
           </select>
 
-          <Button type="submit">Save</Button>
+          <Button type="submit">
+            <Translate text="common.labels.SAVE" />
+          </Button>
         </form>
       </Box>
     );

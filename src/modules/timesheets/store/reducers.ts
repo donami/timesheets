@@ -182,6 +182,12 @@ const generatorReducer = (state = generatorInitialState, action: any) => {
         generated: null,
       };
 
+    case types.TIMESHEETS_CANCEL_TEMPLATES:
+      return {
+        ...state,
+        generated: null,
+      };
+
     default:
       return state;
   }

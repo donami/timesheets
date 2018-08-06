@@ -7,7 +7,7 @@ export interface TimesheetItem {
   status: TimesheetStatus;
   dateApproved?: string;
   dates?: any[];
-  owner: User;
+  owner: User | number;
 }
 
 export enum ReportType {
