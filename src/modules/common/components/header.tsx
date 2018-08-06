@@ -39,17 +39,8 @@ class Header extends React.Component<HeaderProps> {
 
     return (
       <Container>
-        <LogoContainer>
-          <Link to="/">
-            <Logo
-              src="https://staticeu.zerochaos.com/StaticContent/assets/images/ZeroChaosLogoHorizontal.svg"
-              alt="Logo"
-            />
-          </Link>
-        </LogoContainer>
-
         <RightNode className="right-node" containerHeight={containerHeight}>
-          <LanguageSelector />
+          {/* <LanguageSelector /> */}
 
           <StyledDropdown
             className="dropdown"
@@ -62,7 +53,6 @@ class Header extends React.Component<HeaderProps> {
             )}
           >
             <Avatar avatar={user.image} />
-            {`${user.firstname} ${user.lastname}`}
           </StyledDropdown>
         </RightNode>
       </Container>
@@ -76,14 +66,22 @@ const Container = styled.div`
   border-bottom: #ccc 1px solid;
 `;
 
-const LogoContainer = styled.div``;
-
 const StyledDropdown = styled(Dropdown)`
   line-height: normal;
   align-self: center;
 
   i {
     margin-right: 0.5em;
+  }
+
+  img {
+    max-height: 3em;
+    height: 3em;
+  }
+
+  .g-dropdown-menu {
+    left: -30px;
+    top: 120%;
   }
 `;
 
@@ -93,7 +91,7 @@ interface RightNodeProps {
 
 const RightNode = styled.div`
   position: absolute;
-  right: 20px;
+  right: 0;
   display: flex;
   justify-content: space-between;
 
@@ -103,14 +101,6 @@ const RightNode = styled.div`
   > div {
     margin: 0 20px;
   }
-`;
-
-const Logo = styled.img`
-  height: 50px;
-  position: absolute;
-  top: 50%;
-  left: 20px;
-  margin-top: -25px;
 `;
 
 const mapStateToProps = (state: any) => ({

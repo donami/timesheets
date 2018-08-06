@@ -27,7 +27,7 @@ class TimesheetTemplatesPage extends React.Component<
       <div>
         <PageHeader
           options={() => (
-            <Button to="/timesheet-templates/create" color="blue">
+            <Button to="/timesheet-templates/create" color="purple">
               <Translate text="timesheetTemplates.labels.NEW_TIMESHEET_TEMPLATE" />
             </Button>
           )}

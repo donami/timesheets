@@ -57,7 +57,9 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
               <BoxTitleWithBadge>
                 Timesheets waiting for approval
               </BoxTitleWithBadge>
-              <Badge color="blue">{timesheetsWaitingForApproval.length}</Badge>
+              <Badge color="purple">
+                {timesheetsWaitingForApproval.length}
+              </Badge>
             </div>
           )}
         >
@@ -73,7 +75,7 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
               <BoxTitleWithBadge>
                 Users attached to this project
               </BoxTitleWithBadge>
-              <Badge color="blue">{projectMembers.length}</Badge>
+              <Badge color="purple">{projectMembers.length}</Badge>
             </div>
           )}
         >

@@ -88,7 +88,7 @@ class Search extends Component<Props, State> {
 }
 
 const Container = styled.div`
-  background-color: #0385cd;
+  background-color: #9088d9;
   padding: 25px;
   color: #fff;
 

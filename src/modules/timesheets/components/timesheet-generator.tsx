@@ -143,7 +143,7 @@ class TimesheetGenerator extends React.Component<Props> {
                   </select>
                 </div>
 
-                <Button type="submit" color="blue">
+                <Button type="submit" color="purple">
                   <Translate text="common.labels.GENERATE" />
                 </Button>
               </form>

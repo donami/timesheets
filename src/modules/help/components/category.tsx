@@ -41,12 +41,12 @@ const Container = styled(Link)`
   h3 {
     font-weight: 300;
     text-transform: uppercase;
-    color: #2ab4c0;
+    color: #7d45fc;
   }
 
   i,
   svg {
-    color: #2ab4c0;
+    color: #7d45fc;
   }
 
   img {

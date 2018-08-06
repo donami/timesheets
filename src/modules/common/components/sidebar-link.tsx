@@ -16,7 +16,7 @@ const SidebarLink: React.SFC<Props> = ({ icon, label, to, roles }) => {
     <li>
       <Link to={to}>
         <i className={icon} />
-        {label}
+        <span>{label}</span>
       </Link>
     </li>
   );

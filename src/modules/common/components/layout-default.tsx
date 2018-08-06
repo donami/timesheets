@@ -11,16 +11,16 @@ class LayoutDefault extends React.Component {
 
     return (
       <React.Fragment>
-        <HeaderContainer className="header-container">
-          <Header containerHeight={headerHeight} />
-        </HeaderContainer>
-
         <Wrapper className="wrapper">
           <SideBarContainer className="sidebar-container">
             <Sidebar />
           </SideBarContainer>
           <ContentContainer className="content-container">
-            <MainContentContainer>
+            <HeaderContainer className="header-container">
+              <Header containerHeight={headerHeight} />
+            </HeaderContainer>
+
+            <MainContentContainer className="main-content-container">
               <MainContent>{children}</MainContent>
             </MainContentContainer>
 
@@ -34,14 +34,15 @@ class LayoutDefault extends React.Component {
   }
 }
 
-const headerHeight = 80;
+const headerHeight = 60;
 const footerHeight = 60;
-const sidebarWidth = 150;
+const sidebarWidth = 200;
 
 const Wrapper = styled.div`
   display: flex;
-  min-height: calc(100% - ${headerHeight}px);
+  min-height: 100%;
   width: 100%;
+  background: #f8f9fd;
 `;
 
 const HeaderContainer = styled.div`
@@ -54,11 +55,11 @@ const ContentContainer = styled.div`
 `;
 
 const MainContentContainer = styled.div`
-  min-height: calc(100% - ${footerHeight}px);
+  min-height: calc(100% - ${footerHeight + headerHeight}px);
 `;
 
 const MainContent = styled.div`
-  padding: 10px;
+  padding: 20px;
 `;
 
 const SideBarContainer = styled.div`

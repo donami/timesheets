@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button } from 'genui';
-import { Link } from 'react-router-dom';
 
 import { Row, Column, Box } from '../../ui';
 import {
@@ -12,11 +11,14 @@ import { bindActionCreators } from 'redux';
 import { fetchTimesheets } from '../../timesheets/store/actions';
 import { fetchExpenses } from '../../expenses/store/actions';
 import { getExpenses } from '../../expenses/store/selectors';
-import { Translate } from '../../common';
+import { Translate, PageHeader } from '../../common';
+import { getAuthedUser } from '../../auth/store/selectors';
+import { User } from '../../users/store/models';
 
 type Props = {
   fetchTimesheets: () => any;
   fetchExpenses: () => any;
+  user: User;
 };
 
 class DashboardManagerPage extends React.Component<Props> {
@@ -26,8 +28,12 @@ class DashboardManagerPage extends React.Component<Props> {
   }
 
   render() {
+    const { user } = this.props;
+
     return (
       <div>
+        <PageHeader>Welcome {user.firstname}!</PageHeader>
+
         <Row>
           <Column sm={6}>
             <Box
@@ -70,6 +76,7 @@ class DashboardManagerPage extends React.Component<Props> {
 
 const mapStateToProps = (state: any) => ({
   expenseReports: getExpenses(state),
+  user: getAuthedUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

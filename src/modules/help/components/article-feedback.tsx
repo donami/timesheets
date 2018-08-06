@@ -108,7 +108,7 @@ const ResponseAction = withProps<
       responded &&
       responded === value &&
       css`
-        color: #ffc83d;
+        color: #7d45fc;
         transform: scale(1.48);
       `}
   }

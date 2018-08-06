@@ -33,4 +33,6 @@ const Options = styled.div`
 const Heading = styled.h1`
   margin: 0;
   padding: 0;
+  font-weight: 300;
+  text-transform: uppercase;
 `;

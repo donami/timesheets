@@ -6,6 +6,9 @@ import ReduxToastr from 'react-redux-toastr';
 import store from './store';
 import { Routing } from './modules/common';
 
+const baseFontColor = '#232c55';
+const baseLinkColor = '#763FFE';
+
 injectGlobal`
   html {
     height: 100%;
@@ -16,6 +19,10 @@ injectGlobal`
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
+    color: ${baseFontColor};
+  }
+  a {
+    color: ${baseLinkColor};
   }
   #root {
     height: 100%;

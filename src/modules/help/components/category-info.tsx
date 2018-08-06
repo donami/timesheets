@@ -15,7 +15,7 @@ const CategoryInfo: React.SFC<Props> = ({ category, articles }) => {
     <div>
       <Top>
         <Left>
-          <Icon name={category.icon} size="3x" color="green" />
+          <Icon name={category.icon} size="3x" />
         </Left>
 
         <Right>
@@ -40,8 +40,13 @@ const Top = styled.div`
     font-weight: 300;
     margin: 0;
     margin-bottom: 10px;
-    color: #21ba45;
+    color: #7d45fc;
     font-size: 1.4em;
+  }
+
+  i,
+  svg {
+    color: #7d45fc;
   }
 `;
 

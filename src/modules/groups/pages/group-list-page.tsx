@@ -41,7 +41,7 @@ class GroupListPage extends React.Component<Props> {
       <div>
         <PageHeader
           options={() => (
-            <Button to="/groups/add" color="blue">
+            <Button to="/groups/add" color="purple">
               <Translate text="groups.labels.NEW_GROUP" />
             </Button>
           )}

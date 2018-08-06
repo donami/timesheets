@@ -26,7 +26,7 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
       <div>
         <PageHeader
           options={() => (
-            <Button to="/projects/add" color="blue">
+            <Button to="/projects/add" color="purple">
               <Translate text="projects.labels.NEW_PROJECT" />
             </Button>
           )}

@@ -149,7 +149,7 @@ class Calendar extends React.Component<CalendarProps> {
             status !== TimesheetStatus.Approved && (
               <React.Fragment>
                 <Button
-                  color="blue"
+                  color="purple"
                   onClick={this.handleSaveAsDraft}
                   disabled={!editable}
                 >
