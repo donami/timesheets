@@ -148,6 +148,9 @@ const createTimesheets = (data: any): Promise<NormalizedResponse> =>
     data,
   });
 
+const clearNotifications = (): Promise<NormalizedResponse> =>
+  fetchApi('auth/clear-notifications', 'GET', userSchema);
+
 export default {
   fetchTimesheets,
   fetchTimesheetById,
@@ -168,4 +171,5 @@ export default {
   fetchTemplateById,
   createTimesheets,
   createTimesheetTemplate,
+  clearNotifications,
 };

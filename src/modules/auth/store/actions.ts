@@ -11,3 +11,7 @@ export const auth = (email: string, password: string) => ({
 export const logout = () => ({
   type: types.LOGOUT.REQUEST,
 });
+
+export const clearNotifications = () => ({
+  type: types.CLEAR_NOTIFICATIONS.REQUEST,
+});

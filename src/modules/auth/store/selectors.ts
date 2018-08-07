@@ -3,10 +3,13 @@ import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
 import { UserRole } from '../../users/store/models';
 import { getUserEntities } from '../../users/store/selectors';
+import { Notification } from './models';
 
 export const getAuthedUserId = (state: any) => state.auth.userId;
 
 export const getIsAuthed = (state: any) => state.auth.isAuthed;
+
+export const getNotificationEntities = (state: any) => state.auth.notifications;
 
 export const getAuthedUser = createSelector(
   getAuthedUserId,
@@ -41,4 +44,22 @@ export const getAuthedUserProjectsWhereAdmin = createSelector(
       );
     });
   }
+);
+
+export const getNotifications = createSelector(
+  getAuthedUser,
+  getNotificationEntities,
+  (user, notifications) => {
+    if (!user) {
+      return [];
+    }
+
+    return user.notifications.map((id: any) => notifications[id]);
+  }
+);
+
+export const getUnreadNotifications = createSelector(
+  getNotifications,
+  (notifications: Notification[]) =>
+    notifications.filter(notification => notification.unread)
 );

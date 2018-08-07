@@ -5,10 +5,26 @@ const initialState = {
   loading: false,
   isAuthed: false,
   userId: null,
+  notifications: {},
 };
 
 const authReducer = (state = initialState, action: any) => {
-  const newState = state;
+  let newState = state;
+
+  if (
+    action.payload &&
+    action.payload.result &&
+    action.payload.entities &&
+    action.payload.entities.notifications
+  ) {
+    newState = {
+      ...state,
+      notifications: {
+        ...state.notifications,
+        ...action.payload.entities.notifications,
+      },
+    };
+  }
 
   switch (action.type) {
     case types.AUTH.SUCCESS: {

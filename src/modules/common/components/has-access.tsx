@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { UserRole } from '../../auth/store/models';
 import { getAuthedUserRole } from '../../auth/store/selectors';
+import { UserRole } from '../../users/store/models';
 
 type Props = {
   userRole: UserRole;

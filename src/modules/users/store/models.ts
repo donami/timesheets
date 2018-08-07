@@ -12,6 +12,7 @@ export interface User {
   timesheets: TimesheetItem[];
   fullName: string;
   group: Group;
+  notifications: number[];
 }
 
 // TODO: UserRole also exists in auth module

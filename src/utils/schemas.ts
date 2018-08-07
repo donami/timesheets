@@ -68,6 +68,16 @@ export const questionCategorySchema = new schema.Entity(
   { idAttribute: 'id' }
 );
 
-userSchema.define({ timesheets: [timesheetSchema], group: groupSchema });
+export const notificationSchema = new schema.Entity(
+  'notifications',
+  {},
+  { idAttribute: 'id' }
+);
+
+userSchema.define({
+  timesheets: [timesheetSchema],
+  group: groupSchema,
+  notifications: [notificationSchema],
+});
 
 export { userSchema };

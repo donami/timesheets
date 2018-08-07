@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
-import { UserRole } from '../../auth/store/models';
+import { UserRole } from '../../users/store/models';
 import SidebarLink from './sidebar-link';
 
 class Sidebar extends React.Component {

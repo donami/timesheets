@@ -2,17 +2,28 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Dropdown } from 'genui';
+import { Dropdown, Icon } from 'genui';
 
 import LanguageSelector from './language-selector';
-import { getAuthedUser } from '../../auth/store/selectors';
+import {
+  getAuthedUser,
+  getUnreadNotifications,
+} from '../../auth/store/selectors';
 import { User } from '../../users/store/models';
 import Avatar from './avatar';
+import Popup from './popup';
+import Notifications from './notifications';
+import { bindActionCreators } from 'redux';
+import { clearNotifications } from '../../auth/store/actions';
+import { Notification } from '../../auth/store/models';
+import Attention from './attention';
 
-export interface HeaderProps {
+type Props = {
   containerHeight: number;
   user: User;
-}
+  unreadNotifications: Notification[];
+  clearNotifications: () => any;
+};
 
 type DropdownItem = {
   label: string;
@@ -33,14 +44,43 @@ const items: DropdownItem[] = [
   },
 ];
 
-class Header extends React.Component<HeaderProps> {
+class Header extends React.Component<Props> {
+  handleNotificationsClick = () => {
+    if (this.props.unreadNotifications.length > 0) {
+      this.props.clearNotifications();
+    }
+  };
+
   render() {
-    const { containerHeight, user } = this.props;
+    const { containerHeight, user, unreadNotifications } = this.props;
 
     return (
       <Container>
         <RightNode className="right-node" containerHeight={containerHeight}>
           {/* <LanguageSelector /> */}
+
+          <HeaderAction>
+            <Popup
+              trigger={
+                <div
+                  style={{ position: 'relative' }}
+                  onClick={this.handleNotificationsClick}
+                >
+                  {unreadNotifications.length > 0 && <Attention />}
+                  <Icon
+                    name="far fa-bell"
+                    style={{
+                      fontSize: '1.4em',
+                      color: unreadNotifications.length > 0 ? 'red' : '#dbdeed',
+                      lineHeight: '60px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                </div>
+              }
+              content={<Notifications />}
+            />
+          </HeaderAction>
 
           <StyledDropdown
             className="dropdown"
@@ -59,11 +99,16 @@ class Header extends React.Component<HeaderProps> {
     );
   }
 }
-
 const Container = styled.div`
   position: relative;
   height: 100%;
-  border-bottom: #ccc 1px solid;
+  border-bottom: #edeef3 1px solid;
+`;
+
+const HeaderAction = styled.div`
+  border-right: 1px solid #edeef3;
+  border-left: 1px solid #edeef3;
+  padding: 0 20px;
 `;
 
 const StyledDropdown = styled(Dropdown)`
@@ -105,6 +150,18 @@ const RightNode = styled.div`
 
 const mapStateToProps = (state: any) => ({
   user: getAuthedUser(state),
+  unreadNotifications: getUnreadNotifications(state),
 });
 
-export default connect(mapStateToProps)(Header);
+const mapDispatchToProps = (dispatch: any) =>
+  bindActionCreators(
+    {
+      clearNotifications,
+    },
+    dispatch
+  );
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Header);

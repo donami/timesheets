@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { TimesheetItem, TimesheetStatus } from './models';
-import { isSameOrBeforeMonth, monthIsInPast } from '../../../utils/calendar';
+import { monthIsInPast } from '../../../utils/calendar';
 
 const getTimesheetState = (state: any) => state.timesheets.timesheets;
 

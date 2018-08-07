@@ -38,8 +38,22 @@ function* redirectToAuthPage(action: any) {
   yield put(push('/auth'));
 }
 
+function* clearNotifications(action: any) {
+  try {
+    const response = yield call(Api.clearNotifications);
+
+    yield put({
+      payload: { ...response },
+      type: types.CLEAR_NOTIFICATIONS.SUCCESS,
+    });
+  } catch (e) {
+    yield put({ type: types.CLEAR_NOTIFICATIONS.FAILURE, message: e.message });
+  }
+}
+
 export default all([
   takeEvery(types.AUTH.REQUEST, auth),
   takeEvery(types.LOGOUT.REQUEST, logout),
+  takeEvery(types.CLEAR_NOTIFICATIONS.REQUEST, clearNotifications),
   takeEvery(types.LOGOUT.SUCCESS, redirectToAuthPage),
 ]);
