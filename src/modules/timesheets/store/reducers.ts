@@ -1,5 +1,6 @@
 import types from './types';
 import { combineReducers } from 'redux';
+import { ConflictResolve } from './models';
 
 interface TimesheetReducer {
   ids: number[];
@@ -187,6 +188,37 @@ const generatorReducer = (state = generatorInitialState, action: any) => {
         ...state,
         generated: null,
       };
+
+    case types.RESOLVE_TIMESHEET_CONFLICT.SUCCESS:
+      if (
+        action.payload.resolve === ConflictResolve.DISCARD_OLD ||
+        state.generated === null
+      ) {
+        return state;
+      }
+
+      const index = state.generated.timesheets
+        .map(timesheet => timesheet.month)
+        .indexOf(action.payload.periodStart);
+
+      if (index === -1) {
+        return state;
+      }
+
+      return {
+        ...state,
+        generated: {
+          ...state.generated,
+          timesheets: [
+            ...state.generated.timesheets.slice(0, index),
+            ...state.generated.timesheets.slice(index + 1),
+          ],
+        },
+      };
+
+    case 'SELECT_USER': {
+      return generatorInitialState;
+    }
 
     default:
       return state;

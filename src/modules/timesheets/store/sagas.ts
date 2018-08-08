@@ -8,6 +8,7 @@ import {
   monthsBetween,
   generateCalendarFromTemplate,
 } from '../../../utils/calendar';
+import { ConflictResolve } from './models';
 
 function* fetchTimesheets(action: any) {
   yield put({ type: types.FETCH_TIMESHEETS_REQUEST });
@@ -142,6 +143,27 @@ function* selectTemplate(action: any) {
   }
 }
 
+function* removeTimesheet(action: any) {
+  try {
+    const response = yield call(
+      Api.removeTimesheet,
+      action.payload.timesheetId
+    );
+
+    yield put({
+      type: types.REMOVE_TIMESHEET.SUCCESS,
+      payload: {
+        ...response,
+      },
+    });
+  } catch (e) {
+    yield put({
+      type: types.REMOVE_TIMESHEET.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 function* generateTimesheets(action: any) {
   try {
     const months = monthsBetween(action.payload.from, action.payload.to);
@@ -197,6 +219,30 @@ function* confirmTemplates(action: any) {
   }
 }
 
+function* resolveTimesheetConflict(action: any) {
+  const { payload } = action;
+
+  if (payload.resolve === ConflictResolve.DISCARD_NEW) {
+  }
+
+  if (payload.resolve === ConflictResolve.DISCARD_OLD) {
+    // TODO: api call to remove old timesheet
+    yield put({
+      type: types.REMOVE_TIMESHEET.REQUEST,
+      payload: {
+        timesheetId: action.payload.timesheetId,
+      },
+    });
+  }
+
+  yield put({
+    type: types.RESOLVE_TIMESHEET_CONFLICT.SUCCESS,
+    payload: {
+      ...payload,
+    },
+  });
+}
+
 function* createTimesheetTemplate(action: any) {
   try {
     const response = yield call(
@@ -230,10 +276,12 @@ export default all([
   takeLatest(types.FETCH_TIMESHEETS, fetchTimesheets),
   takeEvery(types.FETCH_TIMESHEET_BY_ID, fetchTimesheetById),
   takeEvery(types.UPDATE_TIMESHEET.REQUEST, updateTimesheet),
+  takeEvery(types.REMOVE_TIMESHEET.REQUEST, removeTimesheet),
   takeEvery(types.FETCH_TIMESHEET_TEMPLATES.REQUEST, fetchTemplates),
   takeEvery(types.SELECT_TEMPLATE.REQUEST, selectTemplate),
   takeEvery(types.SELECT_TEMPLATE.SUCCESS, fetchTemplateById),
   takeEvery(types.TIMESHEETS_GENERATE.REQUEST, generateTimesheets),
   takeEvery(types.TIMESHEETS_CONFIRM.REQUEST, confirmTemplates),
+  takeEvery(types.RESOLVE_TIMESHEET_CONFLICT.REQUEST, resolveTimesheetConflict),
   takeEvery(types.CREATE_TIMESHEET_TEMPLATE.REQUEST, createTimesheetTemplate),
 ]);

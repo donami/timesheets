@@ -1,5 +1,9 @@
 import types from './types';
-import { TimesheetItem, TimesheetTemplateItem } from './models';
+import {
+  TimesheetItem,
+  TimesheetTemplateItem,
+  ConflictResolve,
+} from './models';
 
 export const fetchTimesheets = () => ({
   type: types.FETCH_TIMESHEETS,
@@ -72,8 +76,28 @@ export const confirmTemplates = (templates: any) => ({
   },
 });
 
+export const removeTimesheet = (timesheetId: number) => ({
+  type: types.REMOVE_TIMESHEET.REQUEST,
+  payload: {
+    timesheetId,
+  },
+});
+
 export const cancelTemplates = (templates: any) => ({
   type: types.TIMESHEETS_CANCEL_TEMPLATES,
+});
+
+export const resolveTimesheetConflict = (
+  timesheetId: number,
+  periodStart: string,
+  resolve: ConflictResolve
+) => ({
+  type: types.RESOLVE_TIMESHEET_CONFLICT.REQUEST,
+  payload: {
+    timesheetId,
+    periodStart,
+    resolve,
+  },
 });
 
 export const createTimesheetTemplate = (

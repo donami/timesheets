@@ -80,7 +80,11 @@ class UserViewPage extends React.Component<Props> {
                 <Translate text="timesheet.labels.GENERATE_NEW_TIMESHEETS" />
               )}
             >
-              <TimesheetGenerator userId={user.id} projects={projects} />
+              <TimesheetGenerator
+                userId={user.id}
+                projects={projects}
+                previousTimesheets={timesheets}
+              />
             </Box>
           </Column>
           <Column sm={6}>

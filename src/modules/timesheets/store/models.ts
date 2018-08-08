@@ -55,3 +55,8 @@ export enum TimesheetStatus {
   WaitingForApproval = 'WAITING_FOR_APPROVAL',
   NeedsRevisement = 'NEEDS_REVISEMENT',
 }
+
+export enum ConflictResolve {
+  DISCARD_NEW = 'DISCARD_NEW',
+  DISCARD_OLD = 'DISCARD_OLD',
+}

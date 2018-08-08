@@ -4,12 +4,13 @@ import * as toastr from '../../../services/toastr';
 import groupTypes from '../../groups/store/types';
 import { fetchLogs } from '../../logs/store/actions';
 import { getIsAuthed } from '../../auth/store/selectors';
+import { fetchUsers } from '../../users/store/actions';
 
 function* fetchAll(action: any) {
   const isAuthed = yield select(getIsAuthed);
 
   if (isAuthed) {
-    yield put(fetchLogs());
+    yield all([put(fetchLogs()), put(fetchUsers())]);
   }
 }
 

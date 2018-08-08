@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button } from 'genui';
+import { Button, List, Icon } from 'genui';
 
 import { getGeneratedTimesheets } from '../store/selectors';
 import { getSelectedUserGroupTemplate } from '../../users/store/selectors';
@@ -9,15 +9,28 @@ import {
   generateTimesheets,
   confirmTemplates,
   cancelTemplates,
+  resolveTimesheetConflict,
 } from '../store/actions';
-import { TimesheetTemplateItem } from '../store/models';
+import {
+  TimesheetTemplateItem,
+  TimesheetItem,
+  ConflictResolve,
+} from '../store/models';
 import { Project } from '../../projects/store/models';
 import { listOfMonthsFromToday } from '../../../utils/calendar';
 import { Translate } from '../../common';
+import styled from '../../../styled/styled-components';
+import { Row, Column } from '../../ui';
 
 type Props = {
   template: TimesheetTemplateItem;
   generated: any;
+  previousTimesheets: TimesheetItem[];
+  resolveTimesheetConflict: (
+    timesheetId: number,
+    periodStart: string,
+    resolve: ConflictResolve
+  ) => any;
   confirmTemplates: (timesheets: any) => any;
   cancelTemplates: () => any;
   generateTimesheets: (
@@ -55,8 +68,16 @@ class TimesheetGenerator extends React.Component<Props> {
     this.props.cancelTemplates();
   };
 
+  handleResolveConflict = (
+    timesheetId: number,
+    periodStart: string,
+    resolve: ConflictResolve
+  ) => {
+    this.props.resolveTimesheetConflict(timesheetId, periodStart, resolve);
+  };
+
   render() {
-    const { template, generated, projects } = this.props;
+    const { template, generated, projects, previousTimesheets } = this.props;
 
     const pastMonths = listOfMonthsFromToday(
       6,
@@ -68,6 +89,8 @@ class TimesheetGenerator extends React.Component<Props> {
       { future: true, includeCurrent: true },
       'YYYY-MM-DD'
     );
+
+    let conflictingDates = false;
 
     return (
       <React.Fragment>
@@ -86,12 +109,70 @@ class TimesheetGenerator extends React.Component<Props> {
                     <Translate text="timesheet.labels.GENERATED_TIMESHEETS" />
                   </h4>
 
-                  {generated.timesheets.map((month: any, index: any) => (
-                    <div key={index}>{month.month}</div>
-                  ))}
+                  <List divided>
+                    {generated.timesheets.map((month: any, index: any) => {
+                      const hasConflict = previousTimesheets.find(
+                        item => item.periodStart === month.month
+                      );
+
+                      if (hasConflict) {
+                        conflictingDates = true;
+                      }
+
+                      return (
+                        <List.Item key={index}>
+                          {hasConflict && (
+                            <Conflict>
+                              <Icon
+                                name="fas fa-exclamation-triangle"
+                                title="Date Conflict"
+                              />
+                              <span
+                                onClick={() =>
+                                  this.handleResolveConflict(
+                                    hasConflict.id,
+                                    month.month,
+                                    ConflictResolve.DISCARD_OLD
+                                  )
+                                }
+                              >
+                                Keep New,
+                              </span>
+                              <span
+                                onClick={() =>
+                                  this.handleResolveConflict(
+                                    hasConflict.id,
+                                    month.month,
+                                    ConflictResolve.DISCARD_NEW
+                                  )
+                                }
+                              >
+                                Keep Old
+                              </span>
+                            </Conflict>
+                          )}
+                          {month.month}
+                        </List.Item>
+                      );
+                    })}
+                  </List>
 
                   <div>
-                    <Button color="green" onClick={this.handleConfirmTemplates}>
+                    {conflictingDates && (
+                      <div>
+                        <h4>Conflicting Dates</h4>
+                        <p>
+                          There are already one or more timesheets with the
+                          generated date. Please resolve conflicts by either
+                          keeping the newly generated timesheet, or discard it.
+                        </p>
+                      </div>
+                    )}
+                    <Button
+                      color="green"
+                      onClick={this.handleConfirmTemplates}
+                      disabled={conflictingDates}
+                    >
                       <Translate text="common.labels.CONFIRM" />
                     </Button>
                     <Button onClick={this.handleCancelTemplates}>
@@ -102,33 +183,38 @@ class TimesheetGenerator extends React.Component<Props> {
               )}
 
             {!generated && (
-              <form
+              <GenerateForm
                 onSubmit={this.handleGenerateTimesheets}
-                ref={form => {
+                innerRef={form => {
                   this.generateForm = form;
                 }}
               >
-                <label>
-                  <Translate text="common.labels.FROM" />:
-                </label>
-                <select name="from">
-                  {pastMonths.map((month: string, index: number) => (
-                    <option key={index} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
-
-                <label>
-                  <Translate text="common.labels.TO" />:
-                </label>
-                <select name="to">
-                  {futureMonths.map((month: string, index: number) => (
-                    <option key={index} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
+                <Row>
+                  <Column sm={6}>
+                    <label>
+                      <Translate text="common.labels.FROM" />:
+                    </label>
+                    <select name="from">
+                      {pastMonths.map((month: string, index: number) => (
+                        <option key={index} value={month}>
+                          {month}
+                        </option>
+                      ))}
+                    </select>
+                  </Column>
+                  <Column sm={6}>
+                    <label>
+                      <Translate text="common.labels.TO" />:
+                    </label>
+                    <select name="to">
+                      {futureMonths.map((month: string, index: number) => (
+                        <option key={index} value={month}>
+                          {month}
+                        </option>
+                      ))}
+                    </select>
+                  </Column>
+                </Row>
 
                 <div>
                   <label>
@@ -146,7 +232,7 @@ class TimesheetGenerator extends React.Component<Props> {
                 <Button type="submit" color="purple">
                   <Translate text="common.labels.GENERATE" />
                 </Button>
-              </form>
+              </GenerateForm>
             )}
           </React.Fragment>
         )}
@@ -172,6 +258,7 @@ const mapDispatchToProps = (dispatch: any) =>
       generateTimesheets,
       confirmTemplates,
       cancelTemplates,
+      resolveTimesheetConflict,
     },
     dispatch
   );
@@ -180,3 +267,35 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(TimesheetGenerator);
+
+const GenerateForm = styled.form`
+  label {
+    display: block;
+    font-weight: bold;
+  }
+
+  input,
+  select {
+    margin-bottom: 10px;
+    padding: 5px;
+  }
+`;
+
+const Conflict = styled.div`
+  float: right;
+
+  i,
+  svg {
+    margin-right: 5px;
+    color: #ff7987;
+  }
+
+  span {
+    margin-right: 5px;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;

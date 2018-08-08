@@ -3,6 +3,7 @@ import { getSelectedGroup } from '../../groups/store/selectors';
 import {
   getUserEntities,
   getSelectedUserId,
+  getUsers,
 } from '../../users/store/selectors';
 import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
@@ -32,13 +33,15 @@ export const getTimesheetsForAuthedUser = createSelector(
 // Get the members of the selected group
 export const getSelectedGroupMembers = createSelector(
   getSelectedGroup,
-  getUserEntities,
-  (group, users) => {
+  getUsers,
+  (group, users: User[]) => {
     if (!group || !users) {
       return [];
     }
 
-    return group.members.map((userId: number) => users[userId as number]);
+    return users.filter(user => {
+      return user.group === group.id;
+    });
   }
 );
 

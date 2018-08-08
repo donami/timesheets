@@ -148,6 +148,9 @@ const createTimesheets = (data: any): Promise<NormalizedResponse> =>
     data,
   });
 
+const removeTimesheet = (timesheetId: number): Promise<NormalizedResponse> =>
+  fetchApi(`timesheets/${timesheetId}`, 'DELETE', timesheetSchema);
+
 const clearNotifications = (): Promise<NormalizedResponse> =>
   fetchApi('auth/clear-notifications', 'GET', userSchema);
 
@@ -163,6 +166,7 @@ export default {
   verifyToken,
   updateUser,
   createUser,
+  removeTimesheet,
   fetchProjects,
   fetchProjectById,
   updateProject,

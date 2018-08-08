@@ -4,6 +4,7 @@ import { Button } from 'genui';
 import { Box } from '../../ui';
 import { Group } from '../../groups/store/models';
 import { Translate } from '../../common';
+import styled from '../../../styled/styled-components';
 
 export interface UserGroupsProps {
   groups: Group[];
@@ -50,9 +51,9 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
     const { groups } = this.props;
     return (
       <Box title={() => <Translate text="users.labels.USER_GROUPS" />}>
-        <form
+        <Form
           onSubmit={this.handleSubmit}
-          ref={(elem: any) => {
+          innerRef={(elem: any) => {
             this.formElem = elem;
           }}
         >
@@ -71,13 +72,24 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
             ))}
           </select>
 
-          <Button type="submit">
-            <Translate text="common.labels.SAVE" />
-          </Button>
-        </form>
+          <ButtonContainer>
+            <Button type="submit">
+              <Translate text="common.labels.SAVE" />
+            </Button>
+          </ButtonContainer>
+        </Form>
       </Box>
     );
   }
 }
 
 export default UserGroups;
+
+const Form = styled.form`
+  display: flex;
+`;
+
+const ButtonContainer = styled.div`
+  width: 100%;
+  text-align: right;
+`;
