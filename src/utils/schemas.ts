@@ -23,6 +23,8 @@ export const groupSchema = new schema.Entity(
   { idAttribute: 'id' }
 );
 
+export const logSchema = new schema.Entity('logs', {}, { idAttribute: 'id' });
+
 export const timesheetSchema: any = new schema.Entity(
   'timesheets',
   {

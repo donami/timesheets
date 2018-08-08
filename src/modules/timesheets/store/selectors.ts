@@ -6,7 +6,7 @@ const getTimesheetState = (state: any) => state.timesheets.timesheets;
 
 const getTimesheetIds = createSelector(getTimesheetState, state => state.ids);
 
-const getSelectedTimesheetId = createSelector(
+export const getSelectedTimesheetId = createSelector(
   getTimesheetState,
   state => state.selected
 );

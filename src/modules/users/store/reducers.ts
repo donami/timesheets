@@ -50,7 +50,7 @@ const userReducer = (state = initialState, action: any) => {
 
   switch (action.type) {
     case types.FETCH_USER_BY_ID_REQUEST:
-    case types.FETCH_USERS_REQUEST:
+    case types.FETCH_USERS.REQUEST:
       return {
         ...newState,
         loading: true,
@@ -58,7 +58,7 @@ const userReducer = (state = initialState, action: any) => {
       };
 
     case types.FETCH_USER_BY_ID_SUCCESS:
-    case types.FETCH_USERS_SUCCESS:
+    case types.FETCH_USERS.SUCCESS:
       return {
         ...newState,
         loading: false,
@@ -66,7 +66,7 @@ const userReducer = (state = initialState, action: any) => {
       };
 
     case types.FETCH_USER_BY_ID_FAILURE:
-    case types.FETCH_USERS_FAILURE:
+    case types.FETCH_USERS.FAILURE:
       return {
         ...newState,
         loading: false,

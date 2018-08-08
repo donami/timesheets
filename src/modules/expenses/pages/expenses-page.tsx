@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Box } from 'genui';
 
 import { fetchExpenses } from '../store/actions';
 import { ExpenseReport } from '../store/models';
 import { getExpenses } from '../store/selectors';
 import { ExpenseReportList } from '../components';
+import { Box } from '../../ui';
+import { PageHeader } from '../../common';
 
 export interface ExpensesPageProps {
   fetchExpenses: () => any;
@@ -22,9 +23,12 @@ class ExpensesPage extends React.Component<ExpensesPageProps> {
     const { expenseReports } = this.props;
 
     return (
-      <Box title="Expenses">
-        <ExpenseReportList expenseReports={expenseReports} />
-      </Box>
+      <div>
+        <PageHeader>Expense Reports</PageHeader>
+        <Box title="Expenses">
+          <ExpenseReportList expenseReports={expenseReports} />
+        </Box>
+      </div>
     );
   }
 }

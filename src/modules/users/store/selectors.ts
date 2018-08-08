@@ -1,11 +1,14 @@
 import { createSelector } from 'reselect';
 
-import { getGroups, getGroupEntities } from '../../groups/store/selectors';
+import { getGroupEntities } from '../../groups/store/selectors';
 import { getTemplateEntities } from '../../timesheets/store/selectors';
 
 export const getUserEntities = (state: any) => state.users.byId;
 const getUserIds = (state: any) => state.users.ids;
 export const getSelectedUserId = (state: any) => state.users.selected;
+
+export const getUsersLoaded = (state: any) => state.users.loaded;
+export const getUsersLoading = (state: any) => state.users.loading;
 
 export const getUsers = createSelector(
   getUserEntities,

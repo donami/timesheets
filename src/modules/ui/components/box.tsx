@@ -20,9 +20,10 @@ class Box extends React.Component<Props> {
 }
 
 const StyledBox = styled.div`
-  border: #ccc 1px solid;
+  border: #eee 1px solid;
   margin-bottom: 20px;
   background: #fff;
+  font-weight: 300;
 `;
 
 const BoxTitle = styled.div`

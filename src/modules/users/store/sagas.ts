@@ -1,23 +1,33 @@
-import { call, put, takeEvery, all } from 'redux-saga/effects';
+import { call, put, takeEvery, all, select } from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 
 import Api from '../../../services/api';
 import types from './types';
 import * as toastr from '../../../services/toastr';
 import * as projectActions from '../../projects/store/actions';
+import { getUsersLoaded, getUsersLoading } from './selectors';
 
 function* fetchUsers(action: any) {
-  yield put({ type: types.FETCH_USERS_REQUEST });
-
   try {
     const response = yield call(Api.fetchUsers);
     yield put({
       payload: { ...response },
-      type: types.FETCH_USERS_SUCCESS,
+      type: types.FETCH_USERS.SUCCESS,
     });
   } catch (e) {
-    yield put({ type: types.FETCH_USERS_FAILURE, message: e.message });
+    yield put({ type: types.FETCH_USERS.FAILURE, message: e.message });
   }
+}
+
+function* fetchUsersIfNeeded() {
+  const loaded = yield select(getUsersLoaded);
+  const loading = yield select(getUsersLoading);
+
+  if (loaded || loading) {
+    return;
+  }
+
+  yield put({ type: types.FETCH_USERS.REQUEST });
 }
 
 function* fetchUserById(action: any) {
@@ -119,8 +129,9 @@ function* createUser(action: any) {
 }
 
 export default all([
+  takeEvery(types.FETCH_USERS_IF_NEEDED, fetchUsersIfNeeded),
   takeEvery(types.SELECT_USER, selectUser),
-  takeEvery(types.FETCH_USERS, fetchUsers),
+  takeEvery(types.FETCH_USERS.REQUEST, fetchUsers),
   takeEvery(types.FETCH_USER_BY_ID, fetchUserById),
   takeEvery(types.UPDATE_USER.REQUEST, updateUser),
   takeEvery(types.CREATE_USER.REQUEST, createUser),

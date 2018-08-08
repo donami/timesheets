@@ -3,6 +3,7 @@ import { push } from 'connected-react-router';
 
 import Api from '../../../services/api';
 import types from './types';
+import * as toastr from '../../../services/toastr';
 
 function* auth(action: any) {
   try {
@@ -18,7 +19,15 @@ function* auth(action: any) {
       type: types.AUTH.SUCCESS,
     });
   } catch (e) {
-    yield put({ type: types.AUTH.FAILURE, message: e.message });
+    yield all([
+      put(
+        toastr.error({
+          title: 'Unable to login!',
+          message: e.message,
+        })
+      ),
+      put({ type: types.AUTH.FAILURE, message: e.message }),
+    ]);
   }
 }
 
@@ -51,9 +60,14 @@ function* clearNotifications(action: any) {
   }
 }
 
+function* fetchAll(action: any) {
+  yield put({ type: 'FETCH_ALL' });
+}
+
 export default all([
   takeEvery(types.AUTH.REQUEST, auth),
   takeEvery(types.LOGOUT.REQUEST, logout),
   takeEvery(types.CLEAR_NOTIFICATIONS.REQUEST, clearNotifications),
   takeEvery(types.LOGOUT.SUCCESS, redirectToAuthPage),
+  takeEvery(types.AUTH.SUCCESS, fetchAll),
 ]);

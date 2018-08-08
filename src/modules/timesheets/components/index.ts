@@ -4,6 +4,7 @@ export { default as TimesheetInfo } from './timesheet-info';
 export { default as TemplateInfo } from './template-info';
 export { default as TimesheetTemplateList } from './timesheet-template-list';
 export { default as TimesheetGenerator } from './timesheet-generator';
+export { default as TimesheetLogs } from './timesheet-logs';
 export { default as TimesheetTemplateForm } from './timesheet-template-form';
 export {
   default as TimesheetsReadyForReview,

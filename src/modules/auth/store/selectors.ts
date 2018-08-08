@@ -54,7 +54,14 @@ export const getNotifications = createSelector(
       return [];
     }
 
-    return user.notifications.map((id: any) => notifications[id]);
+    return user.notifications
+      .map((id: any) => notifications[id])
+      .sort((notification: Notification, other: Notification) => {
+        return (
+          new Date(other.createdAt).getTime() -
+          new Date(notification.createdAt).getTime()
+        );
+      });
   }
 );
 

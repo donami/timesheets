@@ -3,14 +3,16 @@ import React from 'react';
 import styled from '../../../styled/styled-components';
 
 type Props = {
-  options?: Function;
+  options?: any;
 };
 
 const PageHeader: React.SFC<Props> = ({ options, children }) => {
   return (
     <Container className="page-header">
       {options && (
-        <Options className="page-header-options">{options()}</Options>
+        <Options className="page-header-options">
+          {typeof options === 'function' ? options() : options}
+        </Options>
       )}
       <Heading>{children}</Heading>
     </Container>

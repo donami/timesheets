@@ -2,7 +2,11 @@ import types from './types';
 import { User } from './models';
 
 export const fetchUsers = () => ({
-  type: types.FETCH_USERS,
+  type: types.FETCH_USERS.REQUEST,
+});
+
+export const fetchUsersIfNeeded = () => ({
+  type: types.FETCH_USERS_IF_NEEDED,
 });
 
 export const selectUser = (userId: number) => ({

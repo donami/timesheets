@@ -13,6 +13,7 @@ export { default as Flag } from './flag';
 export { default as BackButton } from './back-button';
 export { default as PageHeader } from './page-header';
 export { default as Popup } from './popup';
+export { default as ToggleView } from './toggle-view';
 export { default as Feed } from './feed';
 export { default as Notifications } from './notifications';
 export { default as Attention } from './attention';

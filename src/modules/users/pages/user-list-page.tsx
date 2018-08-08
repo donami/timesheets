@@ -5,19 +5,19 @@ import { bindActionCreators } from 'redux';
 import { Button } from 'genui';
 
 import { getUsers } from '../store/selectors';
-import { fetchUsers } from '../store/actions';
+import { fetchUsersIfNeeded } from '../store/actions';
 import { User } from '../store/models';
 import { UserList } from '../components';
 import { PageHeader, Translate } from '../../common';
 
 export interface UserListPageProps {
-  fetchUsers: () => any;
+  fetchUsersIfNeeded: () => any;
   users: User[];
 }
 
 class UserListPage extends React.Component<UserListPageProps> {
   componentWillMount() {
-    this.props.fetchUsers();
+    this.props.fetchUsersIfNeeded();
   }
 
   render() {
@@ -47,7 +47,7 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
-      fetchUsers,
+      fetchUsersIfNeeded,
     },
     dispatch
   );

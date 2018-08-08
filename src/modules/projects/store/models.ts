@@ -13,4 +13,6 @@ export interface Project {
   members: ProjectMember[];
   timesheets: TimesheetItem[] | number[];
   groups: Group[];
+  createdAt: string;
+  updatedAt: string;
 }

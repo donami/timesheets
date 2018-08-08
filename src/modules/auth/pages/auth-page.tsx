@@ -26,10 +26,14 @@ class AuthPage extends React.Component<AuthPageProps> {
     return (
       <Page className="page">
         <Container className="container">
+          <div style={{ textAlign: 'center', marginTop: 100 }}>
+            <img src="/logo_sidebar.png" alt="" style={{ maxWidth: 200 }} />
+          </div>
+
           <Content className="content">
-            <Logo className="logo">
+            {/* <Logo className="logo">
               <img src="/logo.png" alt="Logo" />
-            </Logo>
+            </Logo> */}
 
             <Title>Sign in to Timesheets</Title>
 
@@ -42,7 +46,45 @@ class AuthPage extends React.Component<AuthPageProps> {
 }
 
 const Page = styled.div`
-  background: #c36e4d;
+  background: rgba(167, 112, 255, 1);
+  background: -moz-linear-gradient(
+    top,
+    rgba(167, 112, 255, 1) 0%,
+    rgba(133, 71, 255, 1) 50%,
+    rgba(117, 62, 254, 1) 100%
+  );
+  background: -webkit-gradient(
+    left top,
+    left bottom,
+    color-stop(0%, rgba(167, 112, 255, 1)),
+    color-stop(50%, rgba(133, 71, 255, 1)),
+    color-stop(100%, rgba(117, 62, 254, 1))
+  );
+  background: -webkit-linear-gradient(
+    top,
+    rgba(167, 112, 255, 1) 0%,
+    rgba(133, 71, 255, 1) 50%,
+    rgba(117, 62, 254, 1) 100%
+  );
+  background: -o-linear-gradient(
+    top,
+    rgba(167, 112, 255, 1) 0%,
+    rgba(133, 71, 255, 1) 50%,
+    rgba(117, 62, 254, 1) 100%
+  );
+  background: -ms-linear-gradient(
+    top,
+    rgba(167, 112, 255, 1) 0%,
+    rgba(133, 71, 255, 1) 50%,
+    rgba(117, 62, 254, 1) 100%
+  );
+  background: linear-gradient(
+    to bottom,
+    rgba(167, 112, 255, 1) 0%,
+    rgba(133, 71, 255, 1) 50%,
+    rgba(117, 62, 254, 1) 100%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a770ff', endColorstr='#753efe', GradientType=0 );
   height: 100%;
 `;
 
@@ -63,7 +105,7 @@ const Logo = styled.div`
 `;
 
 const Title = styled.h3`
-  margin: 30px 0;
+  // margin: 30px 0;
   text-transform: uppercase;
 `;
 

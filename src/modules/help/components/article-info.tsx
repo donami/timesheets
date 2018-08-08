@@ -36,6 +36,7 @@ class ArticleInfo extends React.Component<Props> {
 const Container = styled.div`
   border: #ccc 1px solid;
   padding: 20px;
+  background-color: #fff;
 
   h2 {
     font-weight: 300;

@@ -4,6 +4,7 @@ import { Button } from 'genui';
 
 import { isSameMonthAs } from '../../../utils/calendar';
 import { TimesheetStatus } from '../store/models';
+import { parseDate } from '../../../utils/helpers';
 
 export interface CalendarProps {
   onSubmit?: Function;
@@ -86,7 +87,7 @@ class Calendar extends React.Component<CalendarProps> {
             {isSameMonthAs(date.date, this.props.startOfMonth) && (
               <React.Fragment>
                 <div>
-                  <strong>{date.date}</strong>
+                  <strong>{parseDate(date.date, 'Do')}</strong>
                 </div>
                 <input
                   type="number"
@@ -122,6 +123,19 @@ class Calendar extends React.Component<CalendarProps> {
 
     return (
       <div>
+        <WeekItem>
+          {[
+            'Monday',
+            'Tueday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
+            'Units',
+          ].map((day, index) => <HeaderItem key={index}>{day}</HeaderItem>)}
+        </WeekItem>
+
         <div>
           {dates.map((date, index) => (
             <React.Fragment key={index}>
@@ -190,6 +204,7 @@ const DateItem = styled.div`
   border-right: 1px solid #ccc;
   text-align: center;
   height: 50px;
+  background: #fff;
 
   div {
     margin-bottom: 10px;
@@ -197,6 +212,17 @@ const DateItem = styled.div`
 
   input {
     width: 40px;
+  }
+`;
+
+const HeaderItem = styled.div`
+  width: 100%;
+  padding: 10px 5px;
+  background: #fff;
+  text-align: center;
+
+  &:last-of-type {
+    border-right: 1px solid #ccc;
   }
 `;
 

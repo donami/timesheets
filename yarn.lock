@@ -85,6 +85,12 @@
     "@types/history" "*"
     "@types/react" "*"
 
+"@types/react-transition-group@^2.0.13":
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-2.0.13.tgz#7769fb61eb71d64d087a713956f086a42c3ee171"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^16.3.16":
   version "16.3.16"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.3.16.tgz#78fc44a90b45701f50c8a7008f733680ba51fc86"
@@ -2964,7 +2970,7 @@ gauge@~2.7.3:
     wide-align "^1.1.0"
 
 "genui@file:.yalc/genui":
-  version "0.1.0-e574f79a"
+  version "0.1.0-1820e9f9"
   dependencies:
     autoprefixer "7.1.6"
     babel-jest "^22.1.0"

@@ -31,6 +31,7 @@ const Container = styled(Link)`
   display: block;
   color: inherit;
   text-decoration: none;
+  background-color: #fff;
 
   h3 {
     font-weight: 300;

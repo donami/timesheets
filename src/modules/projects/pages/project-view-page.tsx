@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Badge } from 'genui';
 
 import { selectProject, fetchProjectById } from '../store/actions';
-import { ProjectInfo, ProjectMemberList } from '../components';
+import { ProjectCard, ProjectMemberList } from '../components';
 import {
   getSelectedProject,
   getSelectedProjectTimesheets,
@@ -13,7 +13,7 @@ import {
 import { Project, ProjectMember } from '../store/models';
 import { TimesheetItem, TimesheetStatus } from '../../timesheets/store/models';
 import { TimesheetList } from '../../timesheets';
-import { Box } from '../../ui';
+import { Box, Row, Column } from '../../ui';
 import styled from '../../../styled/styled-components';
 
 export interface ProjectViewPageProps {
@@ -45,28 +45,33 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
 
     return (
       <div>
-        <ProjectInfo project={project} />
+        <Row>
+          <Column sm={3}>
+            <ProjectCard project={project} />
+          </Column>
+          <Column sm={9}>
+            <Box
+              title={() => (
+                <div>
+                  <BoxTitleWithBadge>
+                    Timesheets waiting for approval
+                  </BoxTitleWithBadge>
+                  <Badge color="purple">
+                    {timesheetsWaitingForApproval.length}
+                  </Badge>
+                </div>
+              )}
+            >
+              <TimesheetList
+                noTimesheetsText="No timesheets are waiting for approval"
+                timesheets={timesheetsWaitingForApproval}
+              />
+            </Box>
+          </Column>
+        </Row>
 
         <Box title="All timesheets">
           <TimesheetList timesheets={timesheets} />
-        </Box>
-
-        <Box
-          title={() => (
-            <div>
-              <BoxTitleWithBadge>
-                Timesheets waiting for approval
-              </BoxTitleWithBadge>
-              <Badge color="purple">
-                {timesheetsWaitingForApproval.length}
-              </Badge>
-            </div>
-          )}
-        >
-          <TimesheetList
-            noTimesheetsText="No timesheets are waiting for approval"
-            timesheets={timesheetsWaitingForApproval}
-          />
         </Box>
 
         <Box

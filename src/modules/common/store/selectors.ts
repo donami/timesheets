@@ -10,6 +10,7 @@ import {
   getTimesheetsWaitingForApproval,
   getTimesheets,
   getSelectedTimesheet,
+  getSelectedTimesheetId,
 } from '../../timesheets/store/selectors';
 import {
   getAuthedUserProjectsWhereAdmin,
@@ -17,6 +18,8 @@ import {
 } from '../../auth/store/selectors';
 import { TimesheetItem } from '../../timesheets/store/models';
 import { User } from '../../users/store/models';
+import { getLogs } from '../../logs/store/selectors';
+import { Log } from '../../logs/store/models';
 
 // Get timesheets assigned to the authed user
 export const getTimesheetsForAuthedUser = createSelector(
@@ -125,6 +128,21 @@ export const getProjectOfSelectedTimesheet = createSelector(
       }
       return false;
     });
+  }
+);
+
+export const getLogsOfSelectedTimesheet = createSelector(
+  getSelectedTimesheetId,
+  getLogs,
+  (timesheetId, logs: Log[]) => {
+    if (!timesheetId || !logs) {
+      return [];
+    }
+    return logs.filter(
+      log =>
+        log.reference.kind === 'Timesheet' &&
+        log.reference.item.id === timesheetId
+    );
   }
 );
 

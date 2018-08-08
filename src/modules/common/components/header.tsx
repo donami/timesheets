@@ -17,6 +17,7 @@ import { bindActionCreators } from 'redux';
 import { clearNotifications } from '../../auth/store/actions';
 import { Notification } from '../../auth/store/models';
 import Attention from './attention';
+import { withProps } from '../../../styled/styled-components';
 
 type Props = {
   containerHeight: number;
@@ -39,7 +40,7 @@ const items: DropdownItem[] = [
   },
   {
     label: 'Sign out',
-    icon: 'fas fa-sign-out-alt',
+    icon: 'fas fa-power-off',
     to: '/logout',
   },
 ];
@@ -62,21 +63,10 @@ class Header extends React.Component<Props> {
           <HeaderAction>
             <Popup
               trigger={
-                <div
-                  style={{ position: 'relative' }}
-                  onClick={this.handleNotificationsClick}
-                >
+                <TriggerAction onClick={this.handleNotificationsClick}>
                   {unreadNotifications.length > 0 && <Attention />}
-                  <Icon
-                    name="far fa-bell"
-                    style={{
-                      fontSize: '1.4em',
-                      color: unreadNotifications.length > 0 ? 'red' : '#dbdeed',
-                      lineHeight: '60px',
-                      cursor: 'pointer',
-                    }}
-                  />
-                </div>
+                  <Icon name="far fa-bell" />
+                </TriggerAction>
               }
               content={<Notifications />}
             />
@@ -109,6 +99,23 @@ const HeaderAction = styled.div`
   border-right: 1px solid #edeef3;
   border-left: 1px solid #edeef3;
   padding: 0 20px;
+`;
+
+const TriggerAction = styled.div`
+  position: relative;
+
+  i {
+    font-size: 1.4em;
+    color: #dbdeed;
+    line-height: 60px;
+    cursor: pointer;
+  }
+
+  &:hover {
+    i {
+      color: #59efb0;
+    }
+  }
 `;
 
 const StyledDropdown = styled(Dropdown)`

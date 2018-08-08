@@ -9,6 +9,7 @@ import users from '../modules/users/store';
 import projects from '../modules/projects/store';
 import groups from '../modules/groups/store';
 import help from '../modules/help/store';
+import logs from '../modules/logs/store';
 
 export default combineReducers({
   common,
@@ -19,5 +20,6 @@ export default combineReducers({
   projects,
   groups,
   help,
+  logs,
   toastr: toastrReducer,
 });
