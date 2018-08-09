@@ -1,7 +1,10 @@
 import React from 'react';
 import { Field, Input, Button } from 'genui';
+import * as moment from 'moment';
+
 import { ReportType } from '../store/models';
 import { capitalize } from '../../../utils/helpers';
+import styled from '../../../styled/styled-components';
 
 type Props = {
   onSubmit: (data: State) => any;
@@ -10,7 +13,12 @@ type Props = {
 type State = Readonly<{
   name: string;
   hoursDays: {
-    [key: string]: number;
+    [key: string]: {
+      inTime: string;
+      outTime: string;
+      break: number;
+      totalHours: number;
+    };
   };
   reportType: ReportType;
   shiftStartTime: string;
@@ -22,13 +30,48 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
   readonly state: State = {
     name: '',
     hoursDays: {
-      monday: 8,
-      tuesday: 8,
-      wednesday: 8,
-      thursday: 8,
-      friday: 8,
-      saturday: 8,
-      sunday: 8,
+      monday: {
+        inTime: '9:00',
+        outTime: '17:00',
+        break: 60,
+        totalHours: 7,
+      },
+      tuesday: {
+        inTime: '9:00',
+        outTime: '17:00',
+        break: 60,
+        totalHours: 7,
+      },
+      wednesday: {
+        inTime: '9:00',
+        outTime: '17:00',
+        break: 60,
+        totalHours: 7,
+      },
+      thursday: {
+        inTime: '9:00',
+        outTime: '17:00',
+        break: 60,
+        totalHours: 7,
+      },
+      friday: {
+        inTime: '9:00',
+        outTime: '17:00',
+        break: 60,
+        totalHours: 7,
+      },
+      saturday: {
+        inTime: '9:00',
+        outTime: '17:00',
+        break: 60,
+        totalHours: 7,
+      },
+      sunday: {
+        inTime: '9:00',
+        outTime: '17:00',
+        break: 60,
+        totalHours: 7,
+      },
     },
     reportType: ReportType.StartEnd,
     shiftStartTime: '8:00',
@@ -49,19 +92,50 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     });
   };
 
-  handleHoursDayChange = (e: React.FormEvent<HTMLInputElement>) => {
+  handleNewHoursDayChange = (e: React.FormEvent<HTMLInputElement>) => {
     const {
       name,
       value,
     }: { name: keyof State; value: string; type: string } = e.target as any;
 
+    const [day, property] = name.split('.');
+
+    const inTime =
+      property === 'inTime' ? value : this.state.hoursDays[day].inTime;
+    const outTime =
+      property === 'outTime' ? value : this.state.hoursDays[day].outTime;
+    const breakInMinutes =
+      property === 'break' ? +value : this.state.hoursDays[day].break;
+
+    const totalHours = this.calcTotalHoursPerDay(
+      inTime,
+      outTime,
+      breakInMinutes
+    );
+
     this.setState({
       ...this.state,
       hoursDays: {
         ...this.state.hoursDays,
-        [name]: +value,
+        [day]: {
+          ...this.state.hoursDays[day],
+          totalHours,
+          [property]: property === 'break' ? +value : value,
+        },
       },
     });
+  };
+
+  calcTotalHoursPerDay = (
+    inTimeString: string,
+    outTimeString: string,
+    breakInMinutes: number
+  ) => {
+    const inTime = moment(inTimeString, 'H:mm');
+    const outTime = moment(outTimeString, 'H:mm');
+    const timeOff = moment.duration(breakInMinutes, 'minutes').asHours();
+
+    return outTime.diff(inTime, 'hours', true) - timeOff;
   };
 
   handleSubmit = (e: any) => {
@@ -99,16 +173,40 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
         <h3>Work hours per individual day</h3>
 
         {Object.keys(hoursDays).map(day => (
-          <Field key={day}>
+          <DayField key={day}>
             <label>{capitalize(day)} *</label>
-            <Input
-              placeholder="8"
-              type="number"
-              name={day}
-              value={hoursDays[day]}
-              onChange={this.handleHoursDayChange}
-            />
-          </Field>
+
+            <div style={{ display: 'flex' }}>
+              <div>
+                <label>IN Time</label>
+                <Input
+                  placeholder="8"
+                  name={`${day}.inTime`}
+                  value={hoursDays[day].inTime}
+                  onChange={this.handleNewHoursDayChange}
+                />
+              </div>
+              <div>
+                <label>OUT Time</label>
+                <Input
+                  placeholder="8"
+                  name={`${day}.outTime`}
+                  value={hoursDays[day].outTime}
+                  onChange={this.handleNewHoursDayChange}
+                />
+              </div>
+              <div>
+                <label>Break (mins)</label>
+                <Input
+                  placeholder="8"
+                  type="number"
+                  name={`${day}.break`}
+                  value={hoursDays[day].break}
+                  onChange={this.handleNewHoursDayChange}
+                />
+              </div>
+            </div>
+          </DayField>
         ))}
 
         <Button type="submit" color="green">
@@ -120,3 +218,13 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
 }
 
 export default TimesheetTemplateForm;
+
+const DayField = styled.div`
+  margin-bottom: 20px;
+  display: flex;
+
+  > div,
+  > label {
+    flex: 1;
+  }
+`;

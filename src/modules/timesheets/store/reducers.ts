@@ -116,21 +116,21 @@ const timesheetTemplatesReducer = (
   }
 
   switch (action.type) {
-    case types.FETCH_TIMESHEETS_REQUEST:
+    case types.FETCH_TIMESHEET_TEMPLATES.REQUEST:
       return {
         ...newState,
         loading: true,
         loaded: false,
       };
 
-    case types.FETCH_TIMESHEETS_SUCCESS:
+    case types.FETCH_TIMESHEET_TEMPLATES.SUCCESS:
       return {
         ...newState,
         loading: false,
         loaded: true,
       };
 
-    case types.FETCH_TIMESHEETS_FAILURE:
+    case types.FETCH_TIMESHEET_TEMPLATES.FAILURE:
       return {
         ...newState,
         loading: false,

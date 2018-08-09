@@ -21,6 +21,13 @@ export interface DayType {
   holiday?: boolean;
 }
 
+export type ExpectedHoursDayType = {
+  inTime: string;
+  outTime: string;
+  totalHours: number;
+  break: number;
+};
+
 export interface TimesheetTemplateItem {
   id: number;
   name: string;
@@ -38,13 +45,13 @@ export interface TimesheetTemplateItem {
     sunday: DayType;
   };
   hoursDays: {
-    monday: number;
-    tuesday: number;
-    wednesday: number;
-    thursday: number;
-    friday: number;
-    saturday: number;
-    sunday: number;
+    monday: ExpectedHoursDayType;
+    tuesday: ExpectedHoursDayType;
+    wednesday: ExpectedHoursDayType;
+    thursday: ExpectedHoursDayType;
+    friday: ExpectedHoursDayType;
+    saturday: ExpectedHoursDayType;
+    sunday: ExpectedHoursDayType;
   };
 }
 

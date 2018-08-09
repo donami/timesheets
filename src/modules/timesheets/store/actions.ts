@@ -13,6 +13,10 @@ export const fetchTimesheetTemplates = () => ({
   type: types.FETCH_TIMESHEET_TEMPLATES.REQUEST,
 });
 
+export const fetchTimesheetTemplatesIfNeeded = () => ({
+  type: types.FETCH_TIMESHEET_TEMPLATES_IF_NEEDED,
+});
+
 export const selectTimesheet = (timesheetId: number) => ({
   type: types.SELECT_TIMESHEET,
   payload: {

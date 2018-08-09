@@ -1,4 +1,11 @@
-import { call, put, takeEvery, all, takeLatest } from 'redux-saga/effects';
+import {
+  call,
+  put,
+  takeEvery,
+  all,
+  takeLatest,
+  select,
+} from 'redux-saga/effects';
 import { push } from 'connected-react-router';
 
 import * as toastr from '../../../services/toastr';
@@ -9,6 +16,7 @@ import {
   generateCalendarFromTemplate,
 } from '../../../utils/calendar';
 import { ConflictResolve } from './models';
+import { getTemplatesLoaded, getTemplatesLoading } from './selectors';
 
 function* fetchTimesheets(action: any) {
   yield put({ type: types.FETCH_TIMESHEETS_REQUEST });
@@ -91,6 +99,19 @@ function* updateTimesheet(action: any) {
       message: e.message,
     });
   }
+}
+
+function* fetchTemplatesIfNeeded(action: any) {
+  const loaded = yield select(getTemplatesLoaded);
+  const loading = yield select(getTemplatesLoading);
+
+  if (loaded || loading) {
+    return;
+  }
+
+  yield put({
+    type: types.FETCH_TIMESHEET_TEMPLATES.REQUEST,
+  });
 }
 
 function* fetchTemplates(action: any) {
@@ -278,6 +299,7 @@ export default all([
   takeEvery(types.UPDATE_TIMESHEET.REQUEST, updateTimesheet),
   takeEvery(types.REMOVE_TIMESHEET.REQUEST, removeTimesheet),
   takeEvery(types.FETCH_TIMESHEET_TEMPLATES.REQUEST, fetchTemplates),
+  takeEvery(types.FETCH_TIMESHEET_TEMPLATES_IF_NEEDED, fetchTemplatesIfNeeded),
   takeEvery(types.SELECT_TEMPLATE.REQUEST, selectTemplate),
   takeEvery(types.SELECT_TEMPLATE.SUCCESS, fetchTemplateById),
   takeEvery(types.TIMESHEETS_GENERATE.REQUEST, generateTimesheets),

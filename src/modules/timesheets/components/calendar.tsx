@@ -49,7 +49,7 @@ class Calendar extends React.Component<CalendarProps> {
       if (!date.expected) {
         return acc;
       }
-      return acc + date.expected;
+      return acc + date.expected.totalHours;
     }, 0);
   }
 
@@ -100,7 +100,7 @@ class Calendar extends React.Component<CalendarProps> {
                     this.handleHoursChange(event, weekIndex, index)
                   }
                 />
-                <span> / {date.expected}</span>
+                <span> / {date.expected.totalHours}</span>
               </React.Fragment>
             )}
           </DateItem>

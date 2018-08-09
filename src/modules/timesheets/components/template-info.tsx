@@ -26,8 +26,9 @@ const TemplateInfo: React.SFC<Props> = ({ template }) => (
           {Object.keys(template.hoursDays).map(day => (
             <List.Item key={day}>
               {' '}
-              <strong>{capitalize(day)}:</strong> {template.hoursDays[day]} hour
-              {template.hoursDays[day] > 1 && 's'}
+              <strong>{capitalize(day)}:</strong>{' '}
+              {template.hoursDays[day].totalHours} hour
+              {template.hoursDays[day].totalHours > 1 && 's'}
             </List.Item>
           ))}
         </List>

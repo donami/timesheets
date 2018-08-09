@@ -45,6 +45,16 @@ export const getSelectedTimesheet = createSelector(
 /* Template Selectors */
 const getTemplateState = (state: any) => state.timesheets.templates;
 
+export const getTemplatesLoaded = createSelector(
+  getTemplateState,
+  state => state.loaded
+);
+
+export const getTemplatesLoading = createSelector(
+  getTemplateState,
+  state => state.loading
+);
+
 export const getTemplateEntities = createSelector(
   getTemplateState,
   state => state.byId

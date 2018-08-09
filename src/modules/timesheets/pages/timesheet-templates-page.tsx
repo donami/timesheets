@@ -4,20 +4,20 @@ import { bindActionCreators } from 'redux';
 import { Button } from 'genui';
 
 import { TimesheetTemplateList } from '../components';
-import { fetchTimesheetTemplates } from '../store/actions';
+import { fetchTimesheetTemplatesIfNeeded } from '../store/actions';
 import { timesheetSelectors } from '../store';
 import { PageHeader, Translate } from '../../common';
 
 export interface TimesheetTemplatesPageProps {
   templates: any;
-  fetchTimesheetTemplates: () => any;
+  fetchTimesheetTemplatesIfNeeded: () => any;
 }
 
 class TimesheetTemplatesPage extends React.Component<
   TimesheetTemplatesPageProps
 > {
   componentWillMount() {
-    this.props.fetchTimesheetTemplates();
+    this.props.fetchTimesheetTemplatesIfNeeded();
   }
 
   render() {
@@ -47,7 +47,7 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
-      fetchTimesheetTemplates,
+      fetchTimesheetTemplatesIfNeeded,
     },
     dispatch
   );
