@@ -2,7 +2,35 @@ import * as moment from 'moment';
 
 const DEFAULT_FORMAT = 'YYYY-MM-DD';
 
+type TimeUnits = 'minutes' | 'hours' | 'seconds';
+
 export const asMonth = (date: string): string => moment(date).format('MMMM');
+
+export const toDuration = (time: number, unit: TimeUnits, as: TimeUnits) => {
+  const duration = moment.duration(time, unit);
+
+  switch (as) {
+    case 'minutes':
+      return duration.asMinutes();
+    case 'seconds':
+      return duration.asSeconds();
+    case 'hours':
+    default:
+      return duration.asHours();
+  }
+};
+
+export const timeDiff = (
+  time: string,
+  other: string,
+  inFormat: string,
+  unit: TimeUnits
+) => {
+  const parsedTime = moment(time, inFormat);
+  const parsedOther = moment(other, inFormat);
+
+  return parsedOther.diff(parsedTime, unit, true);
+};
 
 export const isSameMonthAs = (dateString: string, otherDateString: string) => {
   const date = moment(dateString);

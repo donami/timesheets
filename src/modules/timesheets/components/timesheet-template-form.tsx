@@ -1,10 +1,10 @@
 import React from 'react';
 import { Field, Input, Button } from 'genui';
-import * as moment from 'moment';
 
 import { ReportType } from '../store/models';
 import { capitalize } from '../../../utils/helpers';
 import styled from '../../../styled/styled-components';
+import { toDuration, timeDiff } from '../../../utils/calendar';
 
 type Props = {
   onSubmit: (data: State) => any;
@@ -131,11 +131,10 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     outTimeString: string,
     breakInMinutes: number
   ) => {
-    const inTime = moment(inTimeString, 'H:mm');
-    const outTime = moment(outTimeString, 'H:mm');
-    const timeOff = moment.duration(breakInMinutes, 'minutes').asHours();
+    const breakInHours = toDuration(breakInMinutes, 'minutes', 'hours');
+    const diff = timeDiff(inTimeString, outTimeString, 'H:mm', 'hours');
 
-    return outTime.diff(inTime, 'hours', true) - timeOff;
+    return diff - breakInHours;
   };
 
   handleSubmit = (e: any) => {
