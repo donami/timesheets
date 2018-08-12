@@ -55,14 +55,14 @@ class Sidebar extends React.Component {
           <SidebarLink
             roles={[UserRole.Manager, UserRole.Admin]}
             to="/groups"
-            icon="fas fa-users"
+            icon="fas fa-user-tag"
             label="Groups"
           />
 
           <SidebarLink
             roles={[UserRole.Manager, UserRole.Admin]}
             to="/timesheet-templates"
-            icon="fas fa-users"
+            icon="fas fa-book"
             label="Templates"
           />
 

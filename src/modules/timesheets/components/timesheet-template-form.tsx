@@ -172,7 +172,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
         <h3>Work hours per individual day</h3>
 
         {Object.keys(hoursDays).map(day => (
-          <DayField key={day}>
+          <DayField key={day} className="day-field">
             <label>{capitalize(day)} *</label>
 
             <div style={{ display: 'flex' }}>
@@ -225,5 +225,9 @@ const DayField = styled.div`
   > div,
   > label {
     flex: 1;
+  }
+
+  > label {
+    align-self: center;
   }
 `;

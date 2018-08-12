@@ -31,7 +31,7 @@ const ProjectCard: React.SFC<Props> = ({ project }) =>
         </InfoItem>
         <InfoItem>
           <Icon name="fas fa-calendar" />{' '}
-          {`Created on: ${parseDate(project.createdAt, 'D MMM, YYYY')}`}
+          {`Created: ${parseDate(project.createdAt, 'D MMM, YYYY')}`}
         </InfoItem>
         <InfoItem>
           <Icon name="fas fa-briefcase" /> Groups: {project.groups.length}

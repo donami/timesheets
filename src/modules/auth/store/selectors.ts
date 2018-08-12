@@ -4,6 +4,7 @@ import { Project } from '../../projects/store/models';
 import { UserRole } from '../../users/store/models';
 import { getUserEntities } from '../../users/store/selectors';
 import { Notification } from './models';
+import { sortByRecentCreatedDates } from '../../../utils/helpers';
 
 export const getAuthedUserId = (state: any) => state.auth.userId;
 
@@ -56,12 +57,7 @@ export const getNotifications = createSelector(
 
     return user.notifications
       .map((id: any) => notifications[id])
-      .sort((notification: Notification, other: Notification) => {
-        return (
-          new Date(other.createdAt).getTime() -
-          new Date(notification.createdAt).getTime()
-        );
-      });
+      .sort(sortByRecentCreatedDates);
   }
 );
 

@@ -14,7 +14,10 @@ class Notifications extends Component<Props> {
   getSummaryText = (type: NotificationType) => {
     switch (type) {
       case NotificationType.TIMESHEET_APPROVED:
-        return 'Your timesheet was approved';
+        return 'Your timesheet was approved.';
+
+      case NotificationType.TIMESHEET_NEEDS_REVISEMENT:
+        return 'Your timesheet was declined and needs to be submitted again once corrected.';
 
       default:
         return '_UNKNOWN_NOTIFICATION_TYPE_';

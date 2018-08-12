@@ -144,7 +144,7 @@ export const getLogsOfSelectedTimesheet = createSelector(
     return logs.filter(
       log =>
         log.reference.kind === 'Timesheet' &&
-        log.reference.item.id === timesheetId
+        (log.reference.item && log.reference.item.id) === timesheetId
     );
   }
 );

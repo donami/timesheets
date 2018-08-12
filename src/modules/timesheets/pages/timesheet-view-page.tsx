@@ -135,15 +135,19 @@ class TimesheetViewPage extends React.Component<Props, State> {
       <div>
         <PageHeader
           options={
-            <HeaderOption
-              title="View Timesheet Log"
-              onClick={() => this.setState({ logView: !logView })}
-              active={logView}
-            >
-              <Icon
-                name={logView ? 'fas fa-times fa-fw' : 'fas fa-calendar fa-fw'}
-              />
-            </HeaderOption>
+            isAdmin ? (
+              <HeaderOption
+                title="View Timesheet Log"
+                onClick={() => this.setState({ logView: !logView })}
+                active={logView}
+              >
+                <Icon
+                  name={
+                    logView ? 'fas fa-times fa-fw' : 'fas fa-calendar fa-fw'
+                  }
+                />
+              </HeaderOption>
+            ) : null
           }
         >
           {logView ? 'View Timesheet Log' : 'View Timesheet'}

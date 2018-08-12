@@ -21,6 +21,14 @@ const Container = styled.div`
   margin: 0;
   background: 0 0;
   border-top: none;
+
+  border-bottom: #eee 1px solid;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
 `;
 
 export default FeedItem;

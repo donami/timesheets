@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { Log } from '../../logs/store/models';
 import { getLogsOfSelectedTimesheet } from '../../common/store/selectors';
-import { parseDate } from '../../../utils/helpers';
+import { parseDate, sortByRecentCreatedDates } from '../../../utils/helpers';
 import styled from '../../../styled/styled-components';
 
 type Props = {
@@ -21,7 +21,7 @@ class TimesheetLogs extends React.Component<Props> {
 
     return (
       <List>
-        {logs.map(log => (
+        {logs.sort(sortByRecentCreatedDates).map(log => (
           <List.Item key={log.id}>
             <LogDate>{parseDate(log.createdAt, 'YYYY-MM-DD HH:mm')}:</LogDate>
             {log.message}

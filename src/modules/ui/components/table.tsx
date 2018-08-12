@@ -1,74 +1,22 @@
-// import * as React from 'react';
-// import styled from 'styled-components';
-// import * as _ from 'lodash';
+import React, { Component } from 'react';
 
-// export type TableItem = {
-//   [key: string]: any;
-// };
+import styled from '../../../styled/styled-components';
 
-// export interface TableProps {
-//   headings: string[];
-//   items: TableItem[];
-// }
+type TableItem = {
+  [key: string]: any;
+};
 
-// class Table extends React.Component<TableProps> {
-//   render() {
-//     const { headings, items } = this.props;
+type Props = {
+  headings: string[];
+  items: TableItem[];
+};
 
-//     return (
-//       <StyledTable>
-//         <thead>
-//           <tr>{headings.map(heading => <th key={heading}>{heading}</th>)}</tr>
-//         </thead>
-//         <tbody>
-//           {items.map((item, index) => {
-//             return (
-//               <tr key={index}>
-//                 {headings.map((heading, index) => {
-//                   const headingKey = _.camelCase(heading);
+class Table extends Component<Props> {
+  render() {
+    return <Container>{this.props.children}</Container>;
+  }
+}
 
-//                   if (!item[headingKey]) {
-//                     console.warn(
-//                       'Missing item property mapped in table component.'
-//                     );
-//                   }
+const Container: any = styled(Table)``;
 
-//                   let cellContent = item[headingKey];
-
-//                   if (typeof item[headingKey] === 'function') {
-//                     cellContent = item[headingKey](item);
-
-//                     return <td key={index}>{item[headingKey](item)}</td>;
-//                   }
-
-//                   return <td key={index}>{cellContent || ''}</td>;
-//                 })}
-//               </tr>
-//             );
-//           })}
-//         </tbody>
-//       </StyledTable>
-//     );
-//   }
-// }
-
-// const StyledTable = styled.table`
-//   border: #ccc 1px solid;
-//   margin-bottom: 20px;
-//   width: 100%;
-//   border-radius: 0.3rem;
-//   text-align: left;
-//   border-collapse: collapse;
-
-//   th,
-//   td {
-//     padding: 0.8em;
-//   }
-
-//   th {
-//     background: #f9fafb;
-//     border-bottom: 1px solid #ccc;
-//   }
-// `;
-
-// export default Table;
+export default Table;

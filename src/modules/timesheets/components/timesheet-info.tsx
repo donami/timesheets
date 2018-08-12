@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import { Box } from '../../ui';
 import { TimesheetItem } from '../store/models';
-import { asMonth } from '../../../utils/calendar';
 import { Translate } from '../../common';
 import { Project } from '../../projects/store/models';
 import { parseDate } from '../../../utils/helpers';

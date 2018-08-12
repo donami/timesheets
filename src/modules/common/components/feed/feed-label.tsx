@@ -33,7 +33,7 @@ const Container = styled.div`
   width: 2.5em;
   height: auto;
   -ms-flex-item-align: stretch;
-  align-self: stretch;
+  align-self: center;
   text-align: left;
 
   img {
