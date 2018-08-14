@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'genui';
+import { Button, Icon } from 'genui';
 
 import { Row, Column, Box } from '../../ui';
 import {
@@ -50,6 +50,7 @@ class DashboardManagerPage extends React.Component<Props> {
             >
               <div style={{ textAlign: 'center' }}>
                 <Button to="/help/manage">
+                  <Icon name="fas fa-cog" />
                   <Translate text={`help.labels.MANAGE_HELP_PAGES`} />
                 </Button>
               </div>

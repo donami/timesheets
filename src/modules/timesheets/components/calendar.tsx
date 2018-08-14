@@ -94,7 +94,7 @@ class Calendar extends React.Component<Props, State> {
     };
 
     const breakInHours = toDuration(data.break, 'minutes', 'hours');
-    const workHours = timeDiff(data.inTime, data.outTime, 'H:mm', 'hours');
+    const workHours = timeDiff(data.inTime, data.outTime, 'HH:mm', 'hours');
 
     const dates = [...this.state.dates];
     const date = { ...this.state.dates[weekIndex][dayIndex] };
@@ -105,9 +105,26 @@ class Calendar extends React.Component<Props, State> {
     this.setState({ dates });
   };
 
+  getDisplayDates = (date: any) => {
+    const data: {
+      inTime: string;
+      outTime: string;
+      break: number;
+      totalHours: number;
+    } = date.reported || date.expected;
+    return (
+      <div>
+        {data.inTime} - {data.outTime} <br />
+        {data.break || '0'}m break <br />
+        {data.totalHours || '0'}h
+      </div>
+    );
+  };
+
   renderWeek(dates: any[], weekIndex: number) {
     const weeklyTotalHours = this.calcWeeklyHours(dates);
     const weeklyExpectedHours = this.calcWeeklyExpectedHours(dates);
+    const { editable } = this.props;
 
     return (
       <WeekItem>
@@ -149,6 +166,8 @@ class Calendar extends React.Component<Props, State> {
                         <Field>
                           <label>Start Time</label>
                           <Input
+                            disabled={!editable}
+                            type="time"
                             defaultValue={
                               date.reported
                                 ? date.reported.inTime
@@ -160,6 +179,8 @@ class Calendar extends React.Component<Props, State> {
                         <Field>
                           <label>End Time:</label>
                           <Input
+                            disabled={!editable}
+                            type="time"
                             defaultValue={
                               date.reported
                                 ? date.reported.outTime
@@ -171,6 +192,7 @@ class Calendar extends React.Component<Props, State> {
                         <Field>
                           <label>Break (minutes):</label>
                           <Input
+                            disabled={!editable}
                             defaultValue={
                               date.reported
                                 ? date.reported.break
@@ -182,6 +204,7 @@ class Calendar extends React.Component<Props, State> {
                         <Field>
                           <label>Message:</label>
                           <Input
+                            disabled={!editable}
                             name="message"
                             defaultValue={
                               date.reported ? date.reported.message : ''
@@ -190,15 +213,17 @@ class Calendar extends React.Component<Props, State> {
                         </Field>
 
                         <Modal.Actions>
-                          {this.props.isAdmin ? (
+                          {this.props.isAdmin || !editable ? (
                             <Button type="button">Close</Button>
                           ) : (
-                            <>
-                              <Button type="submit" color="green">
+                            [
+                              <Button type="submit" color="green" key="submit">
                                 Save
-                              </Button>
-                              <Button type="button">Cancel</Button>
-                            </>
+                              </Button>,
+                              <Button type="button" key="cancel">
+                                Cancel
+                              </Button>,
+                            ]
                           )}
                         </Modal.Actions>
                       </form>
@@ -207,11 +232,7 @@ class Calendar extends React.Component<Props, State> {
                 </DateItemTop>
 
                 <DateItemContent className="date-item-content">
-                  <div>
-                    {date.expected.inTime} - {date.expected.outTime} <br />
-                    {date.expected.break}m break <br />
-                    {date.expected.totalHours}h
-                  </div>
+                  {this.getDisplayDates(date)}
                 </DateItemContent>
               </React.Fragment>
             )}
@@ -251,7 +272,9 @@ class Calendar extends React.Component<Props, State> {
             'Saturday',
             'Sunday',
             'Hours',
-          ].map((day, index) => <HeaderItem key={index}>{day}</HeaderItem>)}
+          ].map((day, index) => (
+            <HeaderItem key={index}>{day}</HeaderItem>
+          ))}
         </WeekItem>
 
         <div>

@@ -17,7 +17,6 @@ import { bindActionCreators } from 'redux';
 import { clearNotifications } from '../../auth/store/actions';
 import { Notification } from '../../auth/store/models';
 import Attention from './attention';
-import { withProps } from '../../../styled/styled-components';
 
 type Props = {
   containerHeight: number;

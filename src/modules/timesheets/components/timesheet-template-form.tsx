@@ -31,50 +31,50 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     name: '',
     hoursDays: {
       monday: {
-        inTime: '9:00',
+        inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
       },
       tuesday: {
-        inTime: '9:00',
+        inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
       },
       wednesday: {
-        inTime: '9:00',
+        inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
       },
       thursday: {
-        inTime: '9:00',
+        inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
       },
       friday: {
-        inTime: '9:00',
+        inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
       },
       saturday: {
-        inTime: '9:00',
+        inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
       },
       sunday: {
-        inTime: '9:00',
+        inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
       },
     },
     reportType: ReportType.StartEnd,
-    shiftStartTime: '8:00',
+    shiftStartTime: '08:00',
     shiftEndTime: '17:00',
     workHoursPerDay: 8,
   };
@@ -132,7 +132,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     breakInMinutes: number
   ) => {
     const breakInHours = toDuration(breakInMinutes, 'minutes', 'hours');
-    const diff = timeDiff(inTimeString, outTimeString, 'H:mm', 'hours');
+    const diff = timeDiff(inTimeString, outTimeString, 'HH:mm', 'hours');
 
     return diff - breakInHours;
   };
@@ -169,17 +169,18 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
           />
         </Field>
 
-        <h3>Work hours per individual day</h3>
+        <FieldLabels>Work hours per individual day</FieldLabels>
 
         {Object.keys(hoursDays).map(day => (
           <DayField key={day} className="day-field">
             <label>{capitalize(day)} *</label>
 
-            <div style={{ display: 'flex' }}>
+            <DayFieldInputs>
               <div>
                 <label>IN Time</label>
                 <Input
                   placeholder="8"
+                  type="time"
                   name={`${day}.inTime`}
                   value={hoursDays[day].inTime}
                   onChange={this.handleNewHoursDayChange}
@@ -189,6 +190,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
                 <label>OUT Time</label>
                 <Input
                   placeholder="8"
+                  type="time"
                   name={`${day}.outTime`}
                   value={hoursDays[day].outTime}
                   onChange={this.handleNewHoursDayChange}
@@ -204,7 +206,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
                   onChange={this.handleNewHoursDayChange}
                 />
               </div>
-            </div>
+            </DayFieldInputs>
           </DayField>
         ))}
 
@@ -230,4 +232,22 @@ const DayField = styled.div`
   > label {
     align-self: center;
   }
+`;
+
+const DayFieldInputs = styled.div`
+  display: flex;
+  label {
+    display: block;
+  }
+
+  > div {
+    margin: 0 10px;
+  }
+`;
+const FieldLabels = styled.h3`
+  text-transform: uppercase;
+  font-weight: 300;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: #eee 1px solid;
 `;
