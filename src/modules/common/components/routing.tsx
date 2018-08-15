@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { ConnectedRouter } from 'connected-react-router';
 
@@ -25,7 +25,7 @@ import {
 import { GroupViewPage, GroupListPage, GroupAddPage } from '../../groups';
 import textManager from '../../../services/text-manager';
 import { history } from '../../../store';
-import { NotFoundPage } from '../pages';
+import { NotFoundPage, Wizard } from '../pages';
 import { UserRole } from '../../users/store/models';
 import {
   HelpPage,
@@ -66,6 +66,11 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute exact path="/" component={DashboardPage} />
             <Route path="/auth" component={AuthPage} />
             <Route path="/logout" component={LogoutPage} />
+            <Route path="/setup-wizard/step/:step" component={Wizard} />
+            <Route
+              path="/setup-wizard"
+              render={() => <Redirect to="/setup-wizard/step/1" />}
+            />
             <ProtectedRoute
               path="/help/manage/add-category"
               component={CategoryAddPage}

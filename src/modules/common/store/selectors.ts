@@ -1,11 +1,17 @@
 import { createSelector } from 'reselect';
-import { getSelectedGroup } from '../../groups/store/selectors';
+import {
+  getSelectedGroup,
+  getGroupEntities,
+} from '../../groups/store/selectors';
 import {
   getUserEntities,
   getSelectedUserId,
   getUsers,
 } from '../../users/store/selectors';
-import { getProjects } from '../../projects/store/selectors';
+import {
+  getProjects,
+  getSelectedProject,
+} from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
 import {
   getTimesheetsWaitingForApproval,
@@ -21,6 +27,7 @@ import { TimesheetItem } from '../../timesheets/store/models';
 import { User } from '../../users/store/models';
 import { getLogs } from '../../logs/store/selectors';
 import { Log } from '../../logs/store/models';
+import { Group } from '../../groups/store/models';
 
 // Get timesheets assigned to the authed user
 export const getTimesheetsForAuthedUser = createSelector(
@@ -146,6 +153,20 @@ export const getLogsOfSelectedTimesheet = createSelector(
         log.reference.kind === 'Timesheet' &&
         (log.reference.item && log.reference.item.id) === timesheetId
     );
+  }
+);
+
+export const getSelectedProjectGroups = createSelector(
+  getSelectedProject,
+  getGroupEntities,
+  (project, groupsById) => {
+    if (!project || !groupsById) {
+      return [];
+    }
+
+    return project.groups
+      .map((groupId: number) => groupsById[groupId])
+      .filter((group: Group) => group);
   }
 );
 

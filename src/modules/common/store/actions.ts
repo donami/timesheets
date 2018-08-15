@@ -6,3 +6,12 @@ export const selectLanguage = (language: string) => ({
     language,
   },
 });
+
+export const setup = (data: any) => ({
+  type: types.SETUP.REQUEST,
+  payload: data,
+});
+
+export const checkConfiguration = () => ({
+  type: types.CHECK_CONFIGURATION.REQUEST,
+});

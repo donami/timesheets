@@ -75,6 +75,12 @@ export const fetchApi = (
 const fetchTimesheets = (): Promise<NormalizedResponse> =>
   fetchApi('timesheets', 'GET', [timesheetSchema]);
 
+const setup = (data: any): Promise<NormalizedResponse> =>
+  fetchApi('setup', 'POST', null, data);
+
+const isConfigured = (): Promise<NormalizedResponse> =>
+  fetchApi('is-configured', 'GET');
+
 const fetchTimesheetTemplates = (): Promise<NormalizedResponse> =>
   fetchApi('timesheet-templates', 'GET', [timesheetTemplateSchema]);
 
@@ -176,4 +182,6 @@ export default {
   createTimesheets,
   createTimesheetTemplate,
   clearNotifications,
+  setup,
+  isConfigured,
 };

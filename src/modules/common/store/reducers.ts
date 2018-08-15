@@ -3,6 +3,8 @@ import types from './types';
 const initialState = {
   language: 'en',
   initialized: false,
+  checkedConfiguration: false,
+  isConfigured: undefined,
 };
 
 export default (state = initialState, action: any) => {
@@ -11,6 +13,22 @@ export default (state = initialState, action: any) => {
       return {
         ...state,
         language: action.payload.language,
+      };
+    }
+
+    case types.CHECK_CONFIGURATION.SUCCESS: {
+      return {
+        ...state,
+        checkedConfiguration: true,
+        isConfigured: action.payload.configured,
+      };
+    }
+
+    case types.CHECK_CONFIGURATION.FAILURE: {
+      return {
+        ...state,
+        checkedConfiguration: false,
+        isConfigured: undefined,
       };
     }
 

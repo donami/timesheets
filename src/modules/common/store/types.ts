@@ -1,5 +1,11 @@
+import { createRequestTypes } from '../../../store/utils';
+
 const SELECT_LANGUAGE = 'SELECT_LANGUAGE';
+const SETUP = createRequestTypes('SETUP');
+const CHECK_CONFIGURATION = createRequestTypes('CHECK_CONFIGURATION');
 
 export default {
   SELECT_LANGUAGE,
+  SETUP,
+  CHECK_CONFIGURATION,
 };

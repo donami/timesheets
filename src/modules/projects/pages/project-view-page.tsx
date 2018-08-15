@@ -4,7 +4,11 @@ import { bindActionCreators } from 'redux';
 import { Badge } from 'genui';
 
 import { selectProject, fetchProjectById } from '../store/actions';
-import { ProjectCard, ProjectMemberList } from '../components';
+import {
+  ProjectCard,
+  ProjectMemberList,
+  ProjectGroupsList,
+} from '../components';
 import {
   getSelectedProject,
   getSelectedProjectTimesheets,
@@ -15,6 +19,8 @@ import { TimesheetItem, TimesheetStatus } from '../../timesheets/store/models';
 import { TimesheetList } from '../../timesheets';
 import { Box, Row, Column } from '../../ui';
 import styled from '../../../styled/styled-components';
+import { Group } from '../../groups/store/models';
+import { getSelectedProjectGroups } from '../../common/store/selectors';
 
 export interface ProjectViewPageProps {
   match: any;
@@ -22,6 +28,7 @@ export interface ProjectViewPageProps {
   selectProject: (projectId: number) => any;
   fetchProjectById: (projectId: number) => any;
   project: Project;
+  groups: Group[];
   projectMembers: ProjectMember[];
 }
 
@@ -36,7 +43,7 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
   }
 
   render() {
-    const { project, timesheets, projectMembers } = this.props;
+    const { project, timesheets, projectMembers, groups } = this.props;
 
     const timesheetsWaitingForApproval = timesheets.filter(
       (timesheet: TimesheetItem) =>
@@ -89,6 +96,22 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
             members={projectMembers}
           />
         </Box>
+
+        <Box
+          title={() => (
+            <div>
+              <BoxTitleWithBadge>
+                Groups attached to this project
+              </BoxTitleWithBadge>
+              <Badge color="purple">{groups.length || 0}</Badge>
+            </div>
+          )}
+        >
+          <ProjectGroupsList
+            noGroupsText="No groups are attached to this project"
+            groups={groups}
+          />
+        </Box>
       </div>
     );
   }
@@ -98,6 +121,7 @@ const mapStateToProps = (state: any) => ({
   project: getSelectedProject(state),
   projectMembers: getSelectedProjectMembers(state),
   timesheets: getSelectedProjectTimesheets(state),
+  groups: getSelectedProjectGroups(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>
