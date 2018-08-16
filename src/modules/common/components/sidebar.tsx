@@ -11,7 +11,7 @@ class Sidebar extends React.Component {
       <Container>
         <LogoContainer>
           <Link to="/">
-            <img src="/logo_sidebar.png" alt="" />
+            <img src="/logo.png" alt="Logo" />
           </Link>
         </LogoContainer>
         <ul>

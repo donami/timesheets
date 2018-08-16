@@ -27,7 +27,7 @@ class AuthPage extends React.Component<AuthPageProps> {
       <Page className="page">
         <Container className="container">
           <div style={{ textAlign: 'center', marginTop: 100 }}>
-            <img src="/logo_sidebar.png" alt="" style={{ maxWidth: 200 }} />
+            <img src="/logo.png" alt="Logo" style={{ maxWidth: 200 }} />
           </div>
 
           <Content className="content">
