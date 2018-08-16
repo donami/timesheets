@@ -29,6 +29,11 @@ class Notifications extends Component<Props> {
 
     return (
       <Feed>
+        {notifications.length === 0 && (
+          <Feed.Item>
+            <Feed.Content>You have no new notifications.</Feed.Content>
+          </Feed.Item>
+        )}
         {notifications.map(notification => (
           <Feed.Item key={notification.id}>
             <Feed.Label icon={notification.icon} image={notification.image} />

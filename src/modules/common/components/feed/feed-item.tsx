@@ -28,6 +28,8 @@ const Container = styled.div`
 
   &:last-of-type {
     border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
 `;
 

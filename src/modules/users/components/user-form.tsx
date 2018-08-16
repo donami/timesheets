@@ -124,6 +124,7 @@ class UserForm extends React.Component<Props, State> {
           <Input
             placeholder="Password"
             name="password"
+            type="password"
             value={password}
             onChange={this.handleChange}
           />
