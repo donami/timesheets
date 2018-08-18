@@ -8,6 +8,7 @@ import { createUser } from '../store/actions';
 import { Project } from '../../projects/store/models';
 import { fetchProjects } from '../../projects/store/actions';
 import { getAuthedUserProjectsWhereAdmin } from '../../auth/store/selectors';
+import { PageHeader } from '../../common';
 
 type Props = {
   createUser: (user: UserFormData) => any;
@@ -38,9 +39,7 @@ class UserAddPage extends React.Component<Props> {
 
     return (
       <div>
-        <Heading as="h1" dividing="true">
-          Add new user
-        </Heading>
+        <PageHeader>Add new user</PageHeader>
         <UserForm onSubmit={this.handleAdd} projects={projects} />
       </div>
     );

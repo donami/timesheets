@@ -18,3 +18,5 @@ export { default as Feed } from './feed';
 export { default as Modal } from './modal';
 export { default as Notifications } from './notifications';
 export { default as Attention } from './attention';
+export { Form } from './form';
+export { Select } from './select';

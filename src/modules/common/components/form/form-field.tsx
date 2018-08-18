@@ -28,7 +28,7 @@ type Props = {
   validate: (component: any) => boolean;
   updateFormValidStatus: () => any;
   label?: string;
-  validations?: string[];
+  validations?: { [key: string]: any };
   name: string;
 };
 type State = {
@@ -53,9 +53,16 @@ class FormField extends React.Component<Props, State> {
   }
 
   setValue = (e: any) => {
-    this.setState({ value: e.target.value, dirty: true }, () =>
-      this.props.validate(this)
-    );
+    let value;
+    if (e.target && typeof e.target.value !== 'undefined') {
+      value = e.target.value;
+    } else if (typeof e === 'string') {
+      value = e;
+    }
+
+    if (typeof value !== 'undefined') {
+      this.setState({ value, dirty: true }, () => this.props.validate(this));
+    }
   };
 
   getValue = () => this.state.value;
@@ -72,9 +79,12 @@ class FormField extends React.Component<Props, State> {
       updateFormValidStatus,
       attachToForm,
       label,
+      validations,
       ...rest
     } = this.props;
     const { isValid, errors, dirty } = this.state;
+
+    const isRequired = (validations && validations.isRequired) || false;
 
     const hasErrors = dirty && Object.keys(errors).length > 0;
 
@@ -82,7 +92,7 @@ class FormField extends React.Component<Props, State> {
       <Container hasErrors={hasErrors}>
         <Field>
           <>
-            {label && <label>{label}</label>}
+            {label && <label>{`${label} ${isRequired ? '*' : ''}`}</label>}
 
             {hasErrors && (
               <Errors>

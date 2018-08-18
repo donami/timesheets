@@ -1,23 +1,10 @@
 import React from 'react';
-import { Input, Button, Select } from 'genui';
+import { Input, Button } from 'genui';
 import { toastr } from 'react-redux-toastr';
 
+import { Select } from '../../common/components';
 import { Project } from '../../projects/store/models';
 import { Form } from '../../common/components/form';
-
-// const toSelectItem = (projects: Project[]): SelectItem[] => {
-//   return projects.map(project => {
-//     return {
-//       label: project.name,
-//       value: project.id,
-//     };
-//   });
-// };
-
-// type SelectItem = {
-//   label: string;
-//   value: number;
-// };
 
 type Props = {
   onSubmit: (data: any) => any;
@@ -31,18 +18,18 @@ class UserForm extends React.Component<Props> {
       projects: [+model.project],
     };
 
-    if (
-      !data.projects.length ||
-      model.project === '0' ||
-      model.project === ''
-    ) {
-      // You need to assign the user to at least one project.
-      toastr.error(
-        'Oops..',
-        'You need to assign the user to at least one project.'
-      );
-      return;
-    }
+    // if (
+    //   !data.projects.length ||
+    //   model.project === '0' ||
+    //   model.project === ''
+    // ) {
+    //   // You need to assign the user to at least one project.
+    //   toastr.error(
+    //     'Oops..',
+    //     'You need to assign the user to at least one project.'
+    //   );
+    //   return;
+    // }
 
     // if (
     //   !firstname.length ||
@@ -60,10 +47,6 @@ class UserForm extends React.Component<Props> {
     this.props.onSubmit(data);
   };
 
-  // handleSelectChange = (selected: SelectItem[]) => {
-  //   this.setState({ projects: selected.map(item => item.value) });
-  // };
-
   render() {
     const { projects } = this.props;
 
@@ -74,7 +57,7 @@ class UserForm extends React.Component<Props> {
             <Form.Field
               name="email"
               label="Email"
-              validations={{ isEmail: true }}
+              validations={{ isEmail: true, isRequired: true }}
             >
               <Input placeholder="john@email.com" />
             </Form.Field>
@@ -111,23 +94,18 @@ class UserForm extends React.Component<Props> {
               <Input placeholder="Password again..." type="password" />
             </Form.Field>
 
-            <Form.Field name="project" label="Assign to project">
-              <select>
-                <option value="0">Select project</option>
-                {projects.map(project => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-
-              {/* <Select
-                name="user-project-select"
-                id="user-project-select"
-                placeholder="Projects"
-                items={toSelectItem(projects)}
-                onChange={this.handleSelectChange}
-              /> */}
+            <Form.Field
+              name="project"
+              label="Assign to project"
+              validations={{ isRequired: true }}
+            >
+              <Select
+                options={projects.map(project => ({
+                  value: project.id,
+                  label: project.name,
+                }))}
+                placeholder="Select Project"
+              />
             </Form.Field>
 
             <Button type="submit" disabled={!formState.isValid} color="green">
