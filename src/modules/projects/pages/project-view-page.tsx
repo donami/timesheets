@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Badge } from 'genui';
 
-import { selectProject, fetchProjectById } from '../store/actions';
+import { selectProject } from '../store/actions';
 import {
   ProjectCard,
   ProjectMemberList,
@@ -13,6 +13,7 @@ import {
   getSelectedProject,
   getSelectedProjectTimesheets,
   getSelectedProjectMembers,
+  getSelectedProjectId,
 } from '../store/selectors';
 import { Project, ProjectMember } from '../store/models';
 import { TimesheetItem, TimesheetStatus } from '../../timesheets/store/models';
@@ -26,7 +27,7 @@ export interface ProjectViewPageProps {
   match: any;
   timesheets: TimesheetItem[];
   selectProject: (projectId: number) => any;
-  fetchProjectById: (projectId: number) => any;
+  projectId: number;
   project: Project;
   groups: Group[];
   projectMembers: ProjectMember[];
@@ -34,11 +35,10 @@ export interface ProjectViewPageProps {
 
 class ProjectViewPage extends React.Component<ProjectViewPageProps> {
   componentWillMount() {
-    const { match, selectProject, fetchProjectById } = this.props;
+    const { match, selectProject, projectId } = this.props;
 
-    if (match && match.params.id) {
+    if (match && match.params.id && +match.params.id !== projectId) {
       selectProject(+match.params.id);
-      fetchProjectById(+match.params.id);
     }
   }
 
@@ -119,6 +119,7 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
 
 const mapStateToProps = (state: any) => ({
   project: getSelectedProject(state),
+  projectId: getSelectedProjectId(state),
   projectMembers: getSelectedProjectMembers(state),
   timesheets: getSelectedProjectTimesheets(state),
   groups: getSelectedProjectGroups(state),
@@ -128,7 +129,6 @@ const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       selectProject,
-      fetchProjectById,
     },
     dispatch
   );

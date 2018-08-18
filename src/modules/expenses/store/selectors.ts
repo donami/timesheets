@@ -1,9 +1,10 @@
 import { createSelector } from 'reselect';
 
-// const getTimesheetState = (state: any) => state.timesheets;
 const getExpenseEntities = (state: any) => state.expenses.byId;
 const getExpenseIds = (state: any) => state.expenses.ids;
 const getSelectedId = (state: any) => state.expenses.selected;
+
+export const getExpensesLoading = (state: any) => state.expenses.loading;
 
 export const getExpenses = createSelector(
   getExpenseEntities,

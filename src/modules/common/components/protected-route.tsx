@@ -5,10 +5,12 @@ import { connect } from 'react-redux';
 import { LayoutDefault, HasAccess } from '../components';
 import { getIsAuthed } from '../../auth/store/selectors';
 import { UserRole } from '../../users/store/models';
-import { getIsInitialized } from '../store/selectors';
+import { getIsInitialized, getAppIsLoading } from '../store/selectors';
+import { Loader } from '../../ui';
 
 export interface ProtectedRouteProps {
   component: any;
+  appIsLoading: boolean;
   isAuthed: boolean;
   exact?: boolean;
   initialized: boolean;
@@ -21,12 +23,13 @@ const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
   roles,
   isAuthed,
   initialized,
+  appIsLoading,
   ...rest
 }) => {
   if (!initialized) {
-    // TODO: return spinning loader
-    return <div>Loading</div>;
+    return <Loader />;
   }
+
   return (
     <Route
       {...rest}
@@ -35,7 +38,7 @@ const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
           <LayoutDefault>
             {roles ? (
               <HasAccess roles={roles}>
-                <Component {...props} />
+                <Component isLoading={appIsLoading} {...props} />
               </HasAccess>
             ) : (
               <Component {...props} />
@@ -52,6 +55,7 @@ const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
 const mapStateToProps = (state: any) => ({
   isAuthed: getIsAuthed(state),
   initialized: getIsInitialized(state),
+  appIsLoading: getAppIsLoading(state),
 });
 
 export default connect(mapStateToProps)(ProtectedRoute);

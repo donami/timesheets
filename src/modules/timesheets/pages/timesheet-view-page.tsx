@@ -6,12 +6,11 @@ import { TransitionGroup, Transition } from 'react-transition-group';
 
 import { Calendar, TimesheetInfo, TimesheetLogs } from '../components';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
+import { selectTimesheet, updateTimesheet } from '../store/actions';
 import {
-  selectTimesheet,
-  fetchTimesheetById,
-  updateTimesheet,
-} from '../store/actions';
-import { getSelectedTimesheet } from '../store/selectors';
+  getSelectedTimesheet,
+  getSelectedTimesheetId,
+} from '../store/selectors';
 import {
   getTimesheetsInProjectsWhereAdmin,
   getProjectOfSelectedTimesheet,
@@ -25,9 +24,9 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 type Props = {
   match: any;
   timesheet: TimesheetItem;
+  timesheetId: number;
   selectTimesheet: (timesheetId: number) => any;
   updateTimesheet: (timesheetId: number, timesheet: TimesheetItem) => any;
-  fetchTimesheetById: (timesheetId: number) => any;
   fetchProjects: () => any;
   timesheetsWhereAdmin: TimesheetItem[];
   project: Project;
@@ -61,18 +60,12 @@ class TimesheetViewPage extends React.Component<Props, State> {
   readonly state = initialState;
 
   componentWillMount() {
-    const {
-      match,
-      selectTimesheet,
-      fetchTimesheetById,
-      fetchProjects,
-    } = this.props;
+    const { match, selectTimesheet, fetchProjects, timesheetId } = this.props;
 
     fetchProjects();
 
-    if (match && match.params.id) {
+    if (match && match.params.id && +match.params.id !== timesheetId) {
       selectTimesheet(+match.params.id);
-      fetchTimesheetById(+match.params.id);
     }
   }
 
@@ -201,6 +194,7 @@ class TimesheetViewPage extends React.Component<Props, State> {
 
 const mapStateToProps = (state: any) => ({
   timesheet: getSelectedTimesheet(state),
+  timesheetId: getSelectedTimesheetId(state),
   timesheetsWhereAdmin: getTimesheetsInProjectsWhereAdmin(state),
   project: getProjectOfSelectedTimesheet(state),
 });
@@ -209,7 +203,6 @@ const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       selectTimesheet,
-      fetchTimesheetById,
       updateTimesheet,
       fetchProjects,
     },

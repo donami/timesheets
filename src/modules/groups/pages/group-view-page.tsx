@@ -3,25 +3,24 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Button, List } from 'genui';
 
-import { selectGroup, fetchGroupById, removeGroup } from '../store/actions';
+import { selectGroup, removeGroup } from '../store/actions';
 import { GroupInfo, GroupMemberList } from '../components';
 import {
   getSelectedGroup,
   getSelectedGroupTimesheetTemplate,
+  getSelectedGroupId,
 } from '../store/selectors';
 import { Group } from '../store/models';
 import { getSelectedGroupMembers } from '../../common/store/selectors';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
 import { Box, Row, Column } from '../../ui';
 import { capitalize } from '../../../utils/helpers';
-// import { Box } from '../../ui';
-// import { User } from '../../users/store/models';
 
 export interface GroupViewPageProps {
   match: any;
   removeGroup: (groupId: number) => any;
   selectGroup: (groupId: number) => any;
-  fetchGroupById: (groupId: number) => any;
+  groupId: number;
   template: TimesheetTemplateItem | null;
   group: Group;
   groupMembers: any;
@@ -29,11 +28,10 @@ export interface GroupViewPageProps {
 
 class GroupViewPage extends React.Component<GroupViewPageProps> {
   componentWillMount() {
-    const { match, selectGroup, fetchGroupById } = this.props;
+    const { match, selectGroup, groupId } = this.props;
 
-    if (match && match.params.id) {
+    if (match && match.params.id && +match.params.id !== groupId) {
       selectGroup(+match.params.id);
-      fetchGroupById(+match.params.id);
     }
   }
 
@@ -101,13 +99,13 @@ const mapStateToProps = (state: any) => ({
   group: getSelectedGroup(state),
   template: getSelectedGroupTimesheetTemplate(state),
   groupMembers: getSelectedGroupMembers(state),
+  groupId: getSelectedGroupId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       selectGroup,
-      fetchGroupById,
       removeGroup,
     },
     dispatch

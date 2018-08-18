@@ -1,4 +1,4 @@
-import { call, put, takeEvery, all, select } from 'redux-saga/effects';
+import { call, put, all, select, takeLatest } from 'redux-saga/effects';
 
 import * as Api from '../api';
 import types from './types';
@@ -218,13 +218,13 @@ function* loadGroupAddPage(action: any) {
 }
 
 export default all([
-  takeEvery(types.SELECT_GROUP, selectGroupFunction),
-  takeEvery(types.FETCH_GROUPS, fetchGroups),
-  takeEvery(types.FETCH_GROUP_BY_ID, fetchGroupById),
-  takeEvery(types.UPDATE_GROUP.REQUEST, updateGroup),
-  takeEvery(types.UPDATE_GROUP_MEMBER.REQUEST, updateGroupMember),
-  takeEvery(types.CREATE_GROUP.REQUEST, createGroup),
-  takeEvery(types.REMOVE_GROUP.REQUEST, removeGroup),
-  takeEvery(types.LOAD_GROUP_LIST_PAGE.REQUEST, loadGroupListPage),
-  takeEvery(types.LOAD_GROUP_ADD_PAGE.REQUEST, loadGroupAddPage),
+  takeLatest(types.SELECT_GROUP, selectGroupFunction),
+  takeLatest(types.FETCH_GROUPS, fetchGroups),
+  takeLatest(types.FETCH_GROUP_BY_ID, fetchGroupById),
+  takeLatest(types.UPDATE_GROUP.REQUEST, updateGroup),
+  takeLatest(types.UPDATE_GROUP_MEMBER.REQUEST, updateGroupMember),
+  takeLatest(types.CREATE_GROUP.REQUEST, createGroup),
+  takeLatest(types.REMOVE_GROUP.REQUEST, removeGroup),
+  takeLatest(types.LOAD_GROUP_LIST_PAGE.REQUEST, loadGroupListPage),
+  takeLatest(types.LOAD_GROUP_ADD_PAGE.REQUEST, loadGroupAddPage),
 ]);

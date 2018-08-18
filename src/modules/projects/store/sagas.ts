@@ -51,12 +51,14 @@ function* fetchProjectById(action: any) {
 }
 
 function* selectProjectFunction(action: any) {
-  yield put({
-    type: types.FETCH_PROJECT_BY_ID,
-    payload: {
-      projectId: action.payload.projectId,
-    },
-  });
+  // yield put({
+  //   type: types.FETCH_PROJECT_BY_ID,
+  //   payload: {
+  //     projectId: action.payload.projectId,
+  //   },
+  // });
+
+  yield call(fetchProjectById, action);
 
   try {
     yield put({

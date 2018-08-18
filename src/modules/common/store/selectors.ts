@@ -2,15 +2,18 @@ import { createSelector } from 'reselect';
 import {
   getSelectedGroup,
   getGroupEntities,
+  getGroupsLoading,
 } from '../../groups/store/selectors';
 import {
   getUserEntities,
   getSelectedUserId,
   getUsers,
+  getUsersLoading,
 } from '../../users/store/selectors';
 import {
   getProjects,
   getSelectedProject,
+  getProjectsLoading,
 } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
 import {
@@ -18,6 +21,7 @@ import {
   getTimesheets,
   getSelectedTimesheet,
   getSelectedTimesheetId,
+  getTimesheetsLoading,
 } from '../../timesheets/store/selectors';
 import {
   getAuthedUserProjectsWhereAdmin,
@@ -25,9 +29,14 @@ import {
 } from '../../auth/store/selectors';
 import { TimesheetItem } from '../../timesheets/store/models';
 import { User } from '../../users/store/models';
-import { getLogs } from '../../logs/store/selectors';
+import { getLogs, getLogsLoading } from '../../logs/store/selectors';
 import { Log } from '../../logs/store/models';
 import { Group } from '../../groups/store/models';
+import { getExpensesLoading } from '../../expenses/store/selectors';
+import {
+  getCategoriesLoading,
+  getArticlesLoading,
+} from '../../help/store/selectors';
 
 // Get timesheets assigned to the authed user
 export const getTimesheetsForAuthedUser = createSelector(
@@ -171,3 +180,37 @@ export const getSelectedProjectGroups = createSelector(
 );
 
 export const getCurrentLocation = (state: any) => state.router.location;
+
+export const getAppIsLoading = createSelector(
+  getGroupsLoading,
+  getUsersLoading,
+  getProjectsLoading,
+  getExpensesLoading,
+  getCategoriesLoading,
+  getArticlesLoading,
+  getLogsLoading,
+  getTimesheetsLoading,
+  (
+    groupsLoading,
+    usersLoading,
+    projectsLoading,
+    expensesLoading,
+    categoriesLoading,
+    articlesLoading,
+    logsLoading,
+    timesheetsLoading
+  ) => {
+    const appIsLoading = [
+      groupsLoading,
+      usersLoading,
+      projectsLoading,
+      expensesLoading,
+      categoriesLoading,
+      articlesLoading,
+      logsLoading,
+      timesheetsLoading,
+    ].some(loading => loading);
+
+    return appIsLoading;
+  }
+);

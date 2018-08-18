@@ -9,7 +9,11 @@ export const getGroupEntities = createSelector(
   state => state.byId
 );
 export const getGroupIds = createSelector(getDataState, state => state.ids);
-export const getSelectedId = createSelector(
+export const getGroupsLoading = createSelector(
+  getDataState,
+  state => state.loading
+);
+export const getSelectedGroupId = createSelector(
   getDataState,
   state => state.selected
 );
@@ -26,7 +30,7 @@ export const getGroups = createSelector(
 
 export const getSelectedGroup = createSelector(
   getGroupEntities,
-  getSelectedId,
+  getSelectedGroupId,
   (entities, id) => {
     return entities[id];
   }

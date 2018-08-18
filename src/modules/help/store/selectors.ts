@@ -48,6 +48,11 @@ export const getCategoriesLoading = createSelector(
   state => state.loading
 );
 
+export const getArticlesLoading = createSelector(
+  getArticleState,
+  state => state.loading
+);
+
 export const getSelectedArticle = createSelector(
   getSelectedArticleId,
   getArticleEntities,

@@ -38,6 +38,7 @@ import {
   ArticleEditPage,
 } from '../../help';
 import categoryEditPage from '../../help/pages/category-edit-page';
+import withLoading from './with-loading';
 
 type Props = {
   initialize: () => any;
@@ -63,7 +64,11 @@ class Routing extends React.Component<Props> {
       <TextManagerContext.Provider value={this.textManager}>
         <ConnectedRouter history={history}>
           <Switch>
-            <ProtectedRoute exact path="/" component={DashboardPage} />
+            <ProtectedRoute
+              exact
+              path="/"
+              component={withLoading(DashboardPage)}
+            />
             <Route path="/auth" component={AuthPage} />
             <Route path="/logout" component={LogoutPage} />
             <Route path="/setup-wizard/step/:step" component={Wizard} />
@@ -73,106 +78,121 @@ class Routing extends React.Component<Props> {
             />
             <ProtectedRoute
               path="/help/manage/add-category"
-              component={CategoryAddPage}
+              component={withLoading(CategoryAddPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/help/manage/edit-category/:id"
-              component={categoryEditPage}
+              component={withLoading(categoryEditPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/help/manage/add-article"
-              component={ArticleAddPage}
+              component={withLoading(ArticleAddPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/help/manage/edit-article/:id"
-              component={ArticleEditPage}
+              component={withLoading(ArticleEditPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/help/manage"
-              component={ManageHelpPage}
+              component={withLoading(ManageHelpPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute path="/help/search" component={SearchPage} />
             <ProtectedRoute
               path="/help/category/:id"
-              component={CategoryViewPage}
+              component={withLoading(CategoryViewPage)}
             />
-            <ProtectedRoute path="/help/:id" component={ArticleViewPage} />
-            <ProtectedRoute path="/help" component={HelpPage} />
+            <ProtectedRoute
+              path="/help/:id"
+              component={withLoading(ArticleViewPage)}
+            />
+            <ProtectedRoute path="/help" component={withLoading(HelpPage)} />
             <ProtectedRoute
               path="/timesheet/:id"
-              component={TimesheetViewPage}
+              component={withLoading(TimesheetViewPage)}
             />
-            <ProtectedRoute path="/timesheets" component={TimesheetsPage} />
+            <ProtectedRoute
+              path="/timesheets"
+              component={withLoading(TimesheetsPage)}
+            />
             <ProtectedRoute
               path="/expense-report/:id"
-              component={ExpenseReportPage}
+              component={withLoading(ExpenseReportPage)}
             />
-            <ProtectedRoute path="/expense-reports" component={ExpensesPage} />
-            <ProtectedRoute path="/profile" component={ProfilePage} />
-            <ProtectedRoute path="/user/:id" component={UserViewPage} />
+            <ProtectedRoute
+              path="/expense-reports"
+              component={withLoading(ExpensesPage)}
+            />
+            <ProtectedRoute
+              path="/profile"
+              component={withLoading(ProfilePage)}
+            />
+            <ProtectedRoute
+              path="/user/:id"
+              component={withLoading(UserViewPage)}
+            />
             <ProtectedRoute
               path="/users/add"
-              component={UserAddPage}
+              component={withLoading(UserAddPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/projects/add"
-              component={ProjectAddPage}
+              component={withLoading(ProjectAddPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/groups/add"
-              component={GroupAddPage}
+              component={withLoading(GroupAddPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/users"
-              component={UserListPage}
+              component={withLoading(UserListPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/manage-timesheets"
-              component={ManageTimesheets}
+              component={withLoading(ManageTimesheets)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/timesheet-template/:id"
-              component={TemplateViewPage}
+              component={withLoading(TemplateViewPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/timesheet-templates/create"
-              component={TimesheetTemplateCreatePage}
+              component={withLoading(TimesheetTemplateCreatePage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/timesheet-templates"
-              component={TimesheetTemplatesPage}
+              component={withLoading(TimesheetTemplatesPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/project/:id"
-              component={ProjectViewPage}
+              component={withLoading(ProjectViewPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/projects"
-              component={ProjectListPage}
+              component={withLoading(ProjectListPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/group/:id"
-              component={GroupViewPage}
+              component={withLoading(GroupViewPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/groups"
-              component={GroupListPage}
+              component={withLoading(GroupListPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <Route path="*" component={NotFoundPage} />

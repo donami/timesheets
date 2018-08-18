@@ -6,7 +6,7 @@ import { TimesheetItem } from '../../timesheets/store/models';
 
 const getProjectEntities = (state: any) => state.projects.byId;
 const getProjectIds = (state: any) => state.projects.ids;
-const getSelectedId = (state: any) => state.projects.selected;
+export const getSelectedProjectId = (state: any) => state.projects.selected;
 export const getProjectsLoaded = (state: any) => state.projects.loaded;
 export const getProjectsLoading = (state: any) => state.projects.loading;
 
@@ -18,7 +18,7 @@ export const getProjects = createSelector(
 
 export const getSelectedProject = createSelector(
   getProjectEntities,
-  getSelectedId,
+  getSelectedProjectId,
   (entities, id) => {
     return entities[id];
   }

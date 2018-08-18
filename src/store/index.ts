@@ -12,8 +12,10 @@ import Api from '../services/api';
 const loggerMiddleware = createLogger();
 export const history = createHistory();
 
+const monitor = window['__SAGA_MONITOR_EXTENSION__'];
+
 // create the saga middleware
-const sagaMiddleware = createSagaMiddleware();
+const sagaMiddleware = createSagaMiddleware({ sagaMonitor: monitor });
 
 const initialState = {};
 
