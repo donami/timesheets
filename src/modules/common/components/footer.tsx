@@ -9,7 +9,7 @@ class Footer extends React.Component<FooterProps> {
   render() {
     return (
       <Container {...this.props}>
-        All Rights Reserved, Copyright © TimeSheets 2018
+        All Rights Reserved, Copyright © Timefly 2018
       </Container>
     );
   }

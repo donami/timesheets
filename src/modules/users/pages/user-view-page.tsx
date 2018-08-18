@@ -116,10 +116,14 @@ class UserViewPage extends React.Component<Props> {
         </PageHeader>
 
         {disabled && (
-          <Message negative>
-            <Message.Header>Disabled</Message.Header>
-            <p>This user has been disabled</p>
-          </Message>
+          <Row>
+            <Column xs={12}>
+              <Message negative>
+                <Message.Header>User Disabled</Message.Header>
+                <p>This user has been disabled</p>
+              </Message>
+            </Column>
+          </Row>
         )}
 
         <Row>
