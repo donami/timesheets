@@ -12,6 +12,7 @@ export interface User {
   timesheets: TimesheetItem[];
   fullName: string;
   group: Group;
+  disabled: boolean;
   notifications: number[];
 }
 

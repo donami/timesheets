@@ -11,6 +11,8 @@ const SELECT_USER_SUCCESS = 'SELECT_USER_SUCCESS';
 const SELECT_USER_FAILURE = 'SELECT_USER_FAILURE';
 const UPDATE_USER = createRequestTypes('UPDATE_USER');
 const CREATE_USER = createRequestTypes('CREATE_USER');
+const DISABLE_USER = createRequestTypes('DISABLE_USER');
+const ENABLE_USER = createRequestTypes('ENABLE_USER');
 const LOAD_USER_PAGE = 'LOAD_USER_PAGE';
 
 export default {
@@ -26,4 +28,6 @@ export default {
   UPDATE_USER,
   CREATE_USER,
   LOAD_USER_PAGE,
+  DISABLE_USER,
+  ENABLE_USER,
 };

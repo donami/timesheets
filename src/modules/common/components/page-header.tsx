@@ -22,7 +22,7 @@ const PageHeader: React.SFC<Props> = ({ options, children }) => {
 export default PageHeader;
 
 const Container = styled.div`
-  overflow: hidden;
+  // overflow: hidden;
   margin-bottom: 20px;
   border-bottom: #ccc 1px solid;
   line-height: 60px;

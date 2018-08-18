@@ -16,6 +16,20 @@ export const selectUser = (userId: number) => ({
   },
 });
 
+export const disableUser = (userId: number) => ({
+  type: types.DISABLE_USER.REQUEST,
+  payload: {
+    userId,
+  },
+});
+
+export const enableUser = (userId: number) => ({
+  type: types.ENABLE_USER.REQUEST,
+  payload: {
+    userId,
+  },
+});
+
 export const fetchUserById = (userId: number) => ({
   type: types.FETCH_USER_BY_ID,
   payload: {

@@ -129,6 +129,12 @@ const createProject = (
 const updateUser = (userId: number, user: User): Promise<NormalizedResponse> =>
   fetchApi(`users/${userId}`, 'PUT', userSchema, { ...user });
 
+const disableUser = (userId: number): Promise<NormalizedResponse> =>
+  fetchApi(`users/${userId}/disable`, 'PUT', userSchema);
+
+const enableUser = (userId: number): Promise<NormalizedResponse> =>
+  fetchApi(`users/${userId}/enable`, 'PUT', userSchema);
+
 const createUser = (user: Partial<User>): Promise<NormalizedResponse> =>
   fetchApi(`users`, 'POST', userSchema, { ...user });
 
@@ -172,6 +178,8 @@ export default {
   verifyToken,
   updateUser,
   createUser,
+  disableUser,
+  enableUser,
   removeTimesheet,
   fetchProjects,
   fetchProjectById,

@@ -22,6 +22,13 @@ export const getSelectedUser = createSelector(
   (entities, id) => entities[id]
 );
 
+export const getSelectedUserDisabled = createSelector(getSelectedUser, user => {
+  if (!user) {
+    return false;
+  }
+  return user.disabled;
+});
+
 export const getSelectedUserGroup = createSelector(
   getSelectedUser,
   getGroupEntities,

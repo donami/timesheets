@@ -103,6 +103,38 @@ function* updateUser(action: any) {
   }
 }
 
+function* disableUser(action: any) {
+  try {
+    const response = yield call(Api.disableUser, action.payload.userId);
+
+    yield put({
+      payload: { ...response },
+      type: types.DISABLE_USER.SUCCESS,
+    });
+  } catch (e) {
+    yield put({
+      type: types.DISABLE_USER.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
+function* enableUser(action: any) {
+  try {
+    const response = yield call(Api.enableUser, action.payload.userId);
+
+    yield put({
+      payload: { ...response },
+      type: types.ENABLE_USER.SUCCESS,
+    });
+  } catch (e) {
+    yield put({
+      type: types.ENABLE_USER.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 function* createUser(action: any) {
   try {
     const response = yield call(Api.createUser, action.payload.user);
@@ -135,4 +167,6 @@ export default all([
   takeEvery(types.FETCH_USER_BY_ID, fetchUserById),
   takeEvery(types.UPDATE_USER.REQUEST, updateUser),
   takeEvery(types.CREATE_USER.REQUEST, createUser),
+  takeEvery(types.DISABLE_USER.REQUEST, disableUser),
+  takeEvery(types.ENABLE_USER.REQUEST, enableUser),
 ]);

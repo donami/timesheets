@@ -1,5 +1,3 @@
-import mergeWith from 'lodash/mergeWith';
-
 import types from './types';
 
 interface UserReducer {
@@ -31,20 +29,10 @@ const userReducer = (state = initialState, action: any) => {
     newState = {
       ...state,
       ids: [...new Set([...state.ids].concat(ids))],
-      byId: mergeWith(
-        state.byId,
-        action.payload.entities.users,
-        (objValue, srcValue) => {
-          if (!objValue) {
-            return srcValue;
-          }
-
-          if (srcValue.timesheets === null && objValue.timesheets !== null) {
-            return objValue;
-          }
-          return srcValue;
-        }
-      ),
+      byId: {
+        ...state.byId,
+        ...action.payload.entities.users,
+      },
     };
   }
 
