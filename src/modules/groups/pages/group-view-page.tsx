@@ -61,14 +61,21 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
               <Column sm={6}>
                 <h3>Hours per day</h3>
                 <List divided>
-                  {Object.keys(template.hoursDays).map(day => (
-                    <List.Item key={day}>
-                      {' '}
-                      <strong>{capitalize(day)}:</strong>{' '}
-                      {template.hoursDays[day]} hour
-                      {template.hoursDays[day] > 1 && 's'}
-                    </List.Item>
-                  ))}
+                  {Object.keys(template.hoursDays).map((day, index) => {
+                    const totalHours =
+                      (template.hoursDays &&
+                        template.hoursDays[day] &&
+                        template.hoursDays[day].totalHours) ||
+                      0;
+
+                    return (
+                      <List.Item key={index}>
+                        {' '}
+                        <strong>{capitalize(day)}:</strong> {totalHours} hour
+                        {totalHours > 1 && 's'}
+                      </List.Item>
+                    );
+                  })}
                 </List>
               </Column>
             </Row>
