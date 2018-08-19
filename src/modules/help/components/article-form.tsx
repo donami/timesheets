@@ -1,8 +1,8 @@
 import React from 'react';
-import { Field, Input, Button } from 'genui';
+import { Input, Button } from 'genui';
 import { QuestionCategory, QuestionArticle } from '../store/models';
 import { UserRole } from '../../users/store/models';
-import { BackButton } from '../../common';
+import { BackButton, Form, Select } from '../../common';
 
 type Props = {
   onSubmit: (data: State, categoryId: number) => any;
@@ -55,34 +55,17 @@ class ArticleForm extends React.Component<Props, State> {
     });
   }
 
-  handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    const {
-      name,
-      value,
-    }: { name: keyof State; value: string } = e.target as any;
+  handleSubmit = (model: any) => {
+    const data = {
+      ...model,
+      categoryId: +model.categoryId,
+    };
 
-    this.setState({
-      ...this.state,
-      [name]: value,
-    });
-  };
-
-  handleCategoryChange = (e: any) => {
-    const { value }: { value: string } = e.target as any;
-
-    this.setState({
-      categoryId: +value,
-    });
-  };
-
-  handleSubmit = (e: any) => {
-    e.preventDefault();
-
-    if (this.state.categoryId === 0) {
-      return;
+    if (this.props.article && this.props.article.id) {
+      data.id = this.props.article.id;
     }
 
-    this.props.onSubmit(this.state, this.state.categoryId);
+    this.props.onSubmit(data, data.categoryId);
   };
 
   render() {
@@ -92,59 +75,59 @@ class ArticleForm extends React.Component<Props, State> {
     const editing = Boolean(article);
 
     return (
-      <form onSubmit={this.handleSubmit}>
-        <Field>
-          <label>Title *</label>
-          <Input
-            placeholder="Title of the article"
-            name="title"
-            value={title}
-            onChange={this.handleChange}
-          />
-        </Field>
+      <Form onValidSubmit={this.handleSubmit}>
+        {formState => (
+          <>
+            <Form.Field
+              name="title"
+              label="Title"
+              defaultValue={title}
+              validations={{ isRequired: true }}
+            >
+              <Input placeholder="Title of the article" />
+            </Form.Field>
 
-        <Field>
-          <label>Teaser *</label>
-          <Input
-            placeholder="Article teaser"
-            name="teaser"
-            value={teaser}
-            onChange={this.handleChange}
-          />
-        </Field>
+            <Form.Field
+              name="teaser"
+              label="Teaser"
+              defaultValue={teaser}
+              validations={{ isRequired: true }}
+            >
+              <Input placeholder="Article teaser" />
+            </Form.Field>
 
-        <Field>
-          <label>Body *</label>
-          <Input
-            placeholder="Article body"
-            name="body"
-            value={body}
-            onChange={this.handleChange}
-          />
-        </Field>
+            <Form.Field
+              name="body"
+              label="Body"
+              defaultValue={body}
+              validations={{ isRequired: true }}
+            >
+              <Input placeholder="Article body" />
+            </Form.Field>
 
-        <Field>
-          <label>Category *</label>
-          <select
-            name="categoryId"
-            onChange={this.handleCategoryChange}
-            value={categoryId.toString()}
-          >
-            <option value="0">Select Category</option>
-            {categories.map(category => (
-              <option key={category.id.toString()} value={category.id}>
-                {category.title}
-              </option>
-            ))}
-          </select>
-        </Field>
+            <Form.Field
+              name="categoryId"
+              label="Category"
+              defaultValue={categoryId.toString()}
+              validations={{ isRequired: true }}
+            >
+              <Select
+                options={categories.map(category => ({
+                  value: category.id,
+                  label: category.title,
+                }))}
+                placeholder="Select Project"
+              />
+            </Form.Field>
 
-        <Button type="submit" color="green">
-          {editing ? 'Save' : 'Add'}
-        </Button>
+            <Button type="submit" color="green" disabled={!formState.isValid}>
+              {editing ? 'Save' : 'Add'}
+            </Button>
 
-        <BackButton>Cancel</BackButton>
-      </form>
+            <BackButton>Cancel</BackButton>
+          </>
+        )}
+      </Form>
     );
   }
 }

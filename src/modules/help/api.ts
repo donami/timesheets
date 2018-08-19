@@ -6,7 +6,7 @@ import {
 } from '../../utils/schemas';
 
 export const removeArticle = (articleId: number): Promise<NormalizedResponse> =>
-  fetchApi(`question-articles/${articleId}`, 'DELETE');
+  fetchApi(`question-articles/${articleId}`, 'DELETE', questionArticleSchema);
 
 export const fetchArticleById = (
   articleId: number
@@ -33,7 +33,7 @@ export const updateArticle = (
   article: QuestionArticle,
   categoryId: number
 ): Promise<NormalizedResponse> =>
-  fetchApi(`question-articles/${articleId}`, 'PUT', questionCategorySchema, {
+  fetchApi(`question-articles/${articleId}`, 'PUT', [questionCategorySchema], {
     ...article,
     categoryId,
   });

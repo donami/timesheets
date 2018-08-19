@@ -55,10 +55,12 @@ export const fetchApi = (
       }
 
       if (responseJson.data) {
+        const { data, count, totalCount, ...other } = responseJson;
         const result: any = {
-          ...normalize(responseJson.data, schema),
-          count: responseJson.count,
-          totalCount: responseJson.totalCount,
+          ...normalize(data, schema),
+          count,
+          totalCount,
+          ...other,
         };
 
         if (responseJson.token) {

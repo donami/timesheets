@@ -1,101 +1,83 @@
 import React from 'react';
-import { Field, Input, Button } from 'genui';
+import { Input, Button } from 'genui';
 import { QuestionCategory } from '../store/models';
-import { BackButton } from '../../common';
+import { BackButton, Form } from '../../common';
+
+type FormData = {
+  id?: number;
+  title: string;
+  icon: string;
+};
 
 type Props = {
-  onSubmit: (data: State) => any;
+  onSubmit: (data: FormData) => any;
   category?: QuestionCategory;
 };
 
 type State = Readonly<{
-  id?: number;
-  title: string;
-  icon: string;
+  category?: QuestionCategory;
 }>;
 
 class CategoryForm extends React.Component<Props, State> {
   readonly state: State = {
-    title: '',
-    icon: '',
+    category: undefined,
   };
 
   componentWillMount() {
-    const { category } = this.props;
-
-    if (category) {
-      this.setInitialValues(category);
-    }
+    this.setState({ category: this.props.category });
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { category } = nextProps;
+    this.setState({ category: nextProps.category });
+  }
 
-    if (category) {
-      this.setInitialValues(category);
+  handleSubmit = (model: any) => {
+    const data = {
+      ...model,
+    };
+
+    if (this.props.category && this.props.category.id) {
+      data.id = this.props.category.id;
     }
-  }
 
-  setInitialValues(category: QuestionCategory) {
-    this.setState({
-      id: category.id,
-      title: category.title,
-      icon: category.icon,
-    });
-  }
-
-  handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    const {
-      name,
-      value,
-    }: { name: keyof State; value: string } = e.target as any;
-
-    this.setState({
-      ...this.state,
-      [name]: value,
-    });
-  };
-
-  handleSubmit = (e: any) => {
-    e.preventDefault();
-
-    this.props.onSubmit(this.state);
+    this.props.onSubmit(data);
   };
 
   render() {
-    const { category } = this.props;
-    const { title, icon } = this.state;
+    const { category } = this.state;
 
     const editing = Boolean(category);
 
     return (
-      <form onSubmit={this.handleSubmit}>
-        <Field>
-          <label>Name *</label>
-          <Input
-            placeholder="Name of the category"
-            name="title"
-            value={title}
-            onChange={this.handleChange}
-          />
-        </Field>
+      <Form onValidSubmit={this.handleSubmit}>
+        {formState => (
+          <>
+            <Form.Field
+              name="title"
+              label="Name"
+              defaultValue={(category && category.title) || ''}
+              validations={{ isRequired: true }}
+            >
+              <Input placeholder="Name of the category" />
+            </Form.Field>
 
-        <Field>
-          <label>Icon *</label>
-          <Input
-            placeholder="fas fa-user"
-            name="icon"
-            value={icon}
-            onChange={this.handleChange}
-          />
-        </Field>
+            <Form.Field
+              name="icon"
+              label="Icon"
+              defaultValue={(category && category.icon) || ''}
+              validations={{ isRequired: true }}
+            >
+              <Input placeholder="fas fa-user" />
+            </Form.Field>
 
-        <Button type="submit" color="green">
-          {editing ? 'Save' : 'Add'}
-        </Button>
+            <Button type="submit" color="green" disabled={!formState.isValid}>
+              {editing ? 'Save' : 'Add'}
+            </Button>
 
-        <BackButton>Cancel</BackButton>
-      </form>
+            <BackButton>Cancel</BackButton>
+          </>
+        )}
+      </Form>
     );
   }
 }

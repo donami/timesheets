@@ -26,15 +26,11 @@ class AuthPage extends React.Component<AuthPageProps> {
     return (
       <Page className="page">
         <Container className="container">
-          <div style={{ textAlign: 'center', marginTop: 100 }}>
+          <LogoContainer className="logo-container">
             <img src="/logo.png" alt="Logo" style={{ maxWidth: 200 }} />
-          </div>
+          </LogoContainer>
 
           <Content className="content">
-            {/* <Logo className="logo">
-              <img src="/logo.png" alt="Logo" />
-            </Logo> */}
-
             <Title>Sign in to Timesheets</Title>
 
             <AuthForm onSubmit={this.handleAuth} />
@@ -100,7 +96,7 @@ const Content = styled.div`
   text-align: center;
 `;
 
-const Logo = styled.div`
+const LogoContainer = styled.div`
   text-align: center;
 `;
 

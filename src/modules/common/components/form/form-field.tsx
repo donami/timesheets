@@ -30,6 +30,7 @@ type Props = {
   label?: string;
   validations?: { [key: string]: any };
   name: string;
+  defaultValue?: string;
 };
 type State = {
   isValid: boolean;
@@ -50,6 +51,19 @@ class FormField extends React.Component<Props, State> {
 
   componentWillMount() {
     this.props.attachToForm(this);
+
+    if (this.props.defaultValue) {
+      this.setValue({ value: this.props.defaultValue });
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (
+      nextProps.defaultValue &&
+      (this.props.defaultValue !== nextProps.defaultValue || !this.state.dirty)
+    ) {
+      this.setValue(nextProps.defaultValue);
+    }
   }
 
   setValue = (e: any) => {
@@ -80,6 +94,7 @@ class FormField extends React.Component<Props, State> {
       attachToForm,
       label,
       validations,
+      defaultValue,
       ...rest
     } = this.props;
     const { isValid, errors, dirty } = this.state;
@@ -106,6 +121,7 @@ class FormField extends React.Component<Props, State> {
               React.cloneElement(children as any, {
                 name,
                 onChange: this.setValue,
+                value: this.state.value,
                 ...rest,
               })}
           </>

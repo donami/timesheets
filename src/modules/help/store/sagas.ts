@@ -3,6 +3,7 @@ import { push, goBack } from 'connected-react-router';
 
 import types from './types';
 import * as Api from '../api';
+import * as toastr from '../../../services/toastr';
 import { getCategoriesLoaded, getCategoriesLoading } from './selectors';
 import { getCurrentLocation } from '../../common/store/selectors';
 
@@ -80,8 +81,31 @@ function* removeCategory(action: any) {
       type: types.REMOVE_QUESTION_CATEGORY.SUCCESS,
     });
   } catch (e) {
+    yield all([
+      put({
+        type: types.REMOVE_QUESTION_CATEGORY.FAILURE,
+        message: e.message,
+      }),
+      put(
+        toastr.error({
+          title: 'Unable to remove category!',
+          message: e.message,
+        })
+      ),
+    ]);
+  }
+}
+
+function* removeArticle(action: any) {
+  try {
+    const response = yield call(Api.removeArticle, action.payload.articleId);
     yield put({
-      type: types.REMOVE_QUESTION_CATEGORY.FAILURE,
+      payload: { ...response },
+      type: types.REMOVE_QUESTION_ARTICLE.SUCCESS,
+    });
+  } catch (e) {
+    yield put({
+      type: types.REMOVE_QUESTION_ARTICLE.FAILURE,
       message: e.message,
     });
   }
@@ -238,6 +262,7 @@ export default all([
   takeLatest(types.CREATE_QUESTION_CATEGORY.REQUEST, createCategory),
   takeLatest(types.UPDATE_QUESTION_CATEGORY.REQUEST, updateCategory),
   takeLatest(types.REMOVE_QUESTION_CATEGORY.REQUEST, removeCategory),
+  takeLatest(types.REMOVE_QUESTION_ARTICLE.REQUEST, removeArticle),
   takeLatest(types.SELECT_QUESTION_ARTICLE.REQUEST, selectArticle),
   takeLatest(types.FETCH_QUESTION_CATEGORY_BY_ID.REQUEST, fetchCategoryById),
   takeLatest(types.SEARCH_QUESTION_ARTICLES.REQUEST, searchArticles),

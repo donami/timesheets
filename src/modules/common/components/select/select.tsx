@@ -9,6 +9,7 @@ type Props = {
   name?: string;
   onChange?: any;
   placeholder?: string;
+  value?: string;
 };
 
 type State = Readonly<{
@@ -22,6 +23,30 @@ class Select extends Component<Props, State> {
   readonly state = initialState;
 
   selectElem: HTMLSelectElement | null;
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.value) {
+      const item = nextProps.options.find(option => {
+        if (!nextProps.value) {
+          return false;
+        }
+        return option.value.toString() === nextProps.value.toString();
+      });
+
+      if (!item) {
+        return;
+      }
+
+      if (!this.state.selected || this.state.selected.value !== item.value) {
+        this.setState({ selected: item });
+        this.props.onChange && this.props.onChange(item.value.toString());
+
+        if (this.selectElem) {
+          this.selectElem.value = item.value.toString();
+        }
+      }
+    }
+  }
 
   selectItem = (item: SelectItem) => {
     this.setState({ selected: item, open: false });
@@ -62,7 +87,6 @@ class Select extends Component<Props, State> {
           ref={element => {
             this.selectElem = element;
           }}
-          onChange={() => console.log('changed')}
         >
           {options.map(option => (
             <option key={option.value} value={option.value}>
