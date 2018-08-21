@@ -8,12 +8,14 @@ import { getIsAuthed } from '../../auth/store/selectors';
 import { fetchUsers } from '../../users/store/actions';
 import types from './types';
 import { push } from 'connected-react-router';
+import { fetchTimesheets } from '../../timesheets/store/actions';
+import { fetchProjects } from '../../projects/store/actions';
 
 function* fetchAll(action: any) {
   const isAuthed = yield select(getIsAuthed);
 
   if (isAuthed) {
-    yield all([put(fetchLogs()), put(fetchUsers())]);
+    yield all([put(fetchLogs()), put(fetchUsers()), put(fetchProjects())]);
   }
 }
 
