@@ -19,7 +19,16 @@ type ItemOption = {
   to?: string;
 };
 
-type FilterType = any;
+type FilterType = {
+  label: string;
+  placeholder: string;
+  property: string;
+  filterAs: (item: any, filterState: any) => boolean;
+  options: {
+    label: string;
+    value: any;
+  }[];
+};
 
 type Props = {
   items: any;
@@ -61,7 +70,7 @@ class TableBuilder extends Component<Props, State> {
 
   filterItems = () => {
     const { items, filters } = this.props;
-    const { filter, sortBy, sortOrder } = this.state;
+    const { sortBy, sortOrder } = this.state;
 
     if (!filters) {
       return;

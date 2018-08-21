@@ -2,12 +2,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Icon, StatusColor } from 'genui';
 
-import { TimesheetsReadyForReview } from '../components';
 import { Translate, PageHeader, Select } from '../../common';
 import { Table } from '../../ui';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
 import { getTimesheets } from '../store/selectors';
-import TableFilter from '../../ui/components/table/table-filter';
 import { Link } from 'react-router-dom';
 import { parseDate } from '../../../utils/helpers';
 import TableBuilder from '../../ui/components/table/table-builder';
@@ -170,8 +168,6 @@ class ManageTimesheets extends React.Component<Props> {
             </>
           )}
         />
-
-        {/* <TimesheetsReadyForReview />*/}
       </div>
     );
   }
