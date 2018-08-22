@@ -69,6 +69,17 @@ const timesheetsReducer = (state = initialState, action: any) => {
         selected: action.payload.timesheetId,
       };
 
+    case types.REMOVE_TIMESHEET.SUCCESS:
+      const index = newState.ids.indexOf(action.payload.result);
+
+      return {
+        ...newState,
+        ids: [
+          ...newState.ids.slice(0, index),
+          ...newState.ids.slice(index + 1),
+        ],
+      };
+
     default:
       return newState;
   }

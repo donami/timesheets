@@ -12,9 +12,12 @@ import TableBuilder from '../../ui/components/table/table-builder';
 import { getUserEntities } from '../../users/store/selectors';
 import { User } from '../../users/store/models';
 import { getStatusColor } from '../utils';
+import { bindActionCreators } from 'redux';
+import { removeTimesheet } from '../store/actions';
 
 type Props = {
   timesheets: TimesheetItem[];
+  removeTimesheet(timesheetId: number): any;
   usersById: { [key: number]: User };
 };
 
@@ -32,7 +35,7 @@ class ManageTimesheets extends React.Component<Props> {
   readonly state = initialState;
 
   handleRemoveTimesheet = (timesheetId: number) => {
-    // TODO: implement
+    this.props.removeTimesheet(timesheetId);
   };
 
   render() {
@@ -159,7 +162,10 @@ class ManageTimesheets extends React.Component<Props> {
   }
 }
 
-export default connect((state: any) => ({
-  timesheets: getTimesheets(state),
-  usersById: getUserEntities(state),
-}))(ManageTimesheets);
+export default connect(
+  (state: any) => ({
+    timesheets: getTimesheets(state),
+    usersById: getUserEntities(state),
+  }),
+  (dispatch: any) => bindActionCreators({ removeTimesheet }, dispatch)
+)(ManageTimesheets);

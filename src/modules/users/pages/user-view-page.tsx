@@ -282,6 +282,11 @@ const UserCard = styled.div`
 
   a {
     color: #9ea1a8;
+    text-decoration: none;
+
+    &:hover {
+      color: #763ffe;
+    }
   }
 
   margin-bottom: 20px;
@@ -320,7 +325,6 @@ const UserNavigationLink = withProps<{ active: boolean }, HTMLLIElement>(
     opacity: 0.8;
 
     &:hover {
-      // color: #763ffe;
       background-color: #f8fafb;
       border-left: 3px solid #763ffe;
       opacity: 1;
@@ -334,9 +338,6 @@ const UserNavigationLink = withProps<{ active: boolean }, HTMLLIElement>(
     ${({ active }) =>
       active &&
       css`
-        // color: #763ffe;
-        // background-color: #f8fafb;
-        // border-left: 3px solid #0b7bff;
         opacity: 1;
       `}
   }

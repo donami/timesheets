@@ -171,17 +171,33 @@ function* removeTimesheet(action: any) {
       action.payload.timesheetId
     );
 
-    yield put({
-      type: types.REMOVE_TIMESHEET.SUCCESS,
-      payload: {
-        ...response,
-      },
-    });
+    yield all([
+      put({
+        type: types.REMOVE_TIMESHEET.SUCCESS,
+        payload: {
+          ...response,
+        },
+      }),
+      put(
+        toastr.success({
+          title: 'Timesheet removed!',
+          message: 'The timesheet was removed.',
+        })
+      ),
+    ]);
   } catch (e) {
-    yield put({
-      type: types.REMOVE_TIMESHEET.FAILURE,
-      message: e.message,
-    });
+    yield all([
+      put({
+        type: types.REMOVE_TIMESHEET.FAILURE,
+        message: e.message,
+      }),
+      put(
+        toastr.error({
+          title: 'Oops!',
+          message: 'Unable to remove timesheet.',
+        })
+      ),
+    ]);
   }
 }
 
