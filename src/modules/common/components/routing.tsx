@@ -128,11 +128,11 @@ class Routing extends React.Component<Props> {
               component={withLoading(ExpensesPage)}
             />
             <ProtectedRoute
-              path="/profile"
+              path="/profile/:page?"
               component={withLoading(ProfilePage)}
             />
             <ProtectedRoute
-              path="/user/:id"
+              path="/user/:id/:page?"
               component={withLoading(UserViewPage)}
             />
             <ProtectedRoute

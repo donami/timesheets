@@ -9,39 +9,18 @@ import { getTimesheets } from '../store/selectors';
 import { Link } from 'react-router-dom';
 import { parseDate } from '../../../utils/helpers';
 import TableBuilder from '../../ui/components/table/table-builder';
+import { getUserEntities } from '../../users/store/selectors';
+import { User } from '../../users/store/models';
+import { getStatusColor } from '../utils';
 
 type Props = {
   timesheets: TimesheetItem[];
+  usersById: { [key: number]: User };
 };
 
 type State = Readonly<{}>;
 
 const initialState: State = {};
-
-const getStatusColor = (status: TimesheetStatus) => {
-  const statusColor: any = {};
-
-  switch (status) {
-    case TimesheetStatus.Approved:
-      statusColor.positive = true;
-      break;
-
-    case TimesheetStatus.NeedsRevisement:
-      statusColor.negative = true;
-      break;
-
-    case TimesheetStatus.WaitingForApproval:
-      statusColor.info = true;
-      break;
-
-    case TimesheetStatus.InProgress:
-    case TimesheetStatus.InProgressSaved:
-    default:
-      break;
-  }
-
-  return statusColor;
-};
 
 const getUniqueMonths = (timesheets: TimesheetItem[]) => {
   const months = timesheets.map(timesheet => timesheet.periodStart);
@@ -57,6 +36,7 @@ class ManageTimesheets extends React.Component<Props> {
   };
 
   render() {
+    const { usersById, timesheets } = this.props;
     const uniqueMonths = getUniqueMonths(this.props.timesheets);
 
     return (
@@ -67,7 +47,7 @@ class ManageTimesheets extends React.Component<Props> {
 
         <TableBuilder
           selectable
-          items={this.props.timesheets}
+          items={timesheets}
           filters={[
             {
               label: 'Status',
@@ -118,7 +98,6 @@ class ManageTimesheets extends React.Component<Props> {
             {
               label: 'View timesheet',
               icon: 'fas fa-eye',
-              // onClick: () => {},
               to: `/timesheet/${item.id}`,
             },
           ]}
@@ -127,6 +106,7 @@ class ManageTimesheets extends React.Component<Props> {
               <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
               <Table.HeaderCell sortableBy="status">Status</Table.HeaderCell>
               <Table.HeaderCell>Month</Table.HeaderCell>
+              <Table.HeaderCell>User</Table.HeaderCell>
               <Table.HeaderCell length="5%" />
               <Table.HeaderCell length="5%" />
               <Table.HeaderCell length="5%" />
@@ -146,6 +126,12 @@ class ManageTimesheets extends React.Component<Props> {
               </Table.Cell>
               <Table.Cell>
                 {parseDate(item.periodStart, 'MMM, YYYY')}
+              </Table.Cell>
+              <Table.Cell>
+                <Link to={`/user/${item.owner}`}>
+                  {(usersById[item.owner] && usersById[item.owner].fullName) ||
+                    item.owner}
+                </Link>
               </Table.Cell>
               <Table.Cell
                 option={{
@@ -173,6 +159,7 @@ class ManageTimesheets extends React.Component<Props> {
   }
 }
 
-export default connect((state: any) => ({ timesheets: getTimesheets(state) }))(
-  ManageTimesheets
-);
+export default connect((state: any) => ({
+  timesheets: getTimesheets(state),
+  usersById: getUserEntities(state),
+}))(ManageTimesheets);

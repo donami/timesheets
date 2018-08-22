@@ -4,15 +4,19 @@ import styled from '../../../styled/styled-components';
 
 type Props = {
   title: string | Function;
+  actions?: any;
 };
 
 class Box extends React.Component<Props> {
   render() {
-    const { title, children } = this.props;
+    const { title, children, actions } = this.props;
 
     return (
       <StyledBox>
-        <BoxTitle>{typeof title === 'function' ? title() : title}</BoxTitle>
+        <BoxTitle>
+          {actions && <Actions>{actions}</Actions>}
+          {typeof title === 'function' ? title() : title}
+        </BoxTitle>
         <BoxContent>{children}</BoxContent>
       </StyledBox>
     );
@@ -35,6 +39,11 @@ const BoxTitle = styled.div`
 
 const BoxContent = styled.div`
   padding: 10px;
+`;
+
+const Actions = styled.div`
+  float: right;
+  opacity: 0.5;
 `;
 
 export default Box;

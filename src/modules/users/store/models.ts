@@ -11,6 +11,7 @@ export interface User {
   image: string;
   timesheets: TimesheetItem[];
   fullName: string;
+  gender: string;
   group: Group;
   disabled: boolean;
   notifications: number[];

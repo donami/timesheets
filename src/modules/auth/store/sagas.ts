@@ -60,6 +60,39 @@ function* clearNotifications(action: any) {
   }
 }
 
+function* updateProfile(action: any) {
+  try {
+    const response = yield call(
+      Api.updateUser,
+      action.payload.data.id,
+      action.payload.data
+    );
+
+    yield all([
+      put({
+        payload: { ...response },
+        type: types.UPDATE_PROFILE.SUCCESS,
+      }),
+      put(
+        toastr.success({
+          title: 'Updated!',
+          message: 'Your profile was updated.',
+        })
+      ),
+    ]);
+  } catch (e) {
+    yield all([
+      put({ type: types.UPDATE_PROFILE.FAILURE, message: e.message }),
+      put(
+        toastr.error({
+          title: 'Oops!',
+          message: e.message,
+        })
+      ),
+    ]);
+  }
+}
+
 function* fetchAll(action: any) {
   yield put({ type: 'FETCH_ALL' });
 }
@@ -70,4 +103,5 @@ export default all([
   takeEvery(types.CLEAR_NOTIFICATIONS.REQUEST, clearNotifications),
   takeEvery(types.LOGOUT.SUCCESS, redirectToAuthPage),
   takeEvery(types.AUTH.SUCCESS, fetchAll),
+  takeEvery(types.UPDATE_PROFILE.REQUEST, updateProfile),
 ]);

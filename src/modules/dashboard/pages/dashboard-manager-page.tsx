@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Link } from 'react-router-dom';
 import { Button, Icon } from 'genui';
 
 import { Row, Column, Box } from '../../ui';
@@ -7,7 +9,6 @@ import {
   TimesheetsReadyForReview,
   TimesheetsPastDueDate,
 } from '../../timesheets';
-import { bindActionCreators } from 'redux';
 import { fetchTimesheets } from '../../timesheets/store/actions';
 import { fetchExpenses } from '../../expenses/store/actions';
 import { getExpenses } from '../../expenses/store/selectors';
@@ -37,6 +38,11 @@ class DashboardManagerPage extends React.Component<Props> {
         <Row>
           <Column sm={6}>
             <Box
+              actions={
+                <Link to="/manage-timesheets">
+                  <Icon name="fas fa-external-link-alt" />
+                </Link>
+              }
               title={() => (
                 <Translate text="timesheet.labels.TIMESHEETS_READY_FOR_REVIEW" />
               )}
@@ -61,8 +67,15 @@ class DashboardManagerPage extends React.Component<Props> {
         <Row>
           <Column sm={6}>
             <Box
+              actions={
+                <Link to="/manage-timesheets">
+                  <Icon name="fas fa-external-link-alt" />
+                </Link>
+              }
               title={() => (
-                <Translate text="timesheet.labels.TIMESHEETS_PAST_DUE_DATE" />
+                <>
+                  <Translate text="timesheet.labels.TIMESHEETS_PAST_DUE_DATE" />
+                </>
               )}
             >
               <TimesheetsPastDueDate />

@@ -1,4 +1,4 @@
-import { TimesheetItem } from './store/models';
+import { TimesheetItem, TimesheetStatus } from './store/models';
 import { DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET } from '../../config/constants';
 import { isSameOrBeforeMonth } from '../../utils/calendar';
 
@@ -23,4 +23,33 @@ export const filterOutFutureTimesheets = (timesheet: TimesheetItem) => {
     return true;
   }
   return isSameOrBeforeMonth(timesheet.periodStart);
+};
+
+/**
+ * Get status color of timesheets used for StatusColor component
+ * @param status Props with status attributes
+ */
+export const getStatusColor = (status: TimesheetStatus) => {
+  const statusColor: any = {};
+
+  switch (status) {
+    case TimesheetStatus.Approved:
+      statusColor.positive = true;
+      break;
+
+    case TimesheetStatus.NeedsRevisement:
+      statusColor.negative = true;
+      break;
+
+    case TimesheetStatus.WaitingForApproval:
+      statusColor.info = true;
+      break;
+
+    case TimesheetStatus.InProgress:
+    case TimesheetStatus.InProgressSaved:
+    default:
+      break;
+  }
+
+  return statusColor;
 };

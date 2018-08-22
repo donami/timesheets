@@ -18,12 +18,16 @@ class UserList extends React.Component<UserListProps> {
     const tableItems = users.map(user => ({
       id: <Link to={`/user/${user.id}`}>{user.id}</Link>,
       email: user.email,
+      name: user.fullName,
       status: <StatusColor {...getStatusProps(user.disabled)} />,
     }));
 
     return (
       <div>
-        <Table headings={['ID', 'Email', 'Status']} items={tableItems} />
+        <Table
+          headings={['ID', 'Email', 'Name', 'Status']}
+          items={tableItems}
+        />
       </div>
     );
   }

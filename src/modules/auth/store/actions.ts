@@ -15,3 +15,10 @@ export const logout = () => ({
 export const clearNotifications = () => ({
   type: types.CLEAR_NOTIFICATIONS.REQUEST,
 });
+
+export const updateProfile = (data: any) => ({
+  type: types.UPDATE_PROFILE.REQUEST,
+  payload: {
+    data,
+  },
+});

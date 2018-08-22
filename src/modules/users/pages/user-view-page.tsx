@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, Dropdown, Message } from 'genui';
+import { Button, Dropdown, Message, Icon } from 'genui';
 
 import { selectUser, disableUser, enableUser } from '../store/actions';
 import { UserInfo, UserGroups } from '../components';
@@ -27,8 +27,8 @@ import {
 import { TimesheetGenerator, TimesheetList } from '../../timesheets';
 import { TimesheetItem } from '../../timesheets/store/models';
 import { PageHeader, Translate, Avatar } from '../../common';
-import styled from '../../../styled/styled-components';
-import { Link } from 'react-router-dom';
+import styled, { withProps, css } from '../../../styled/styled-components';
+import { Link, Switch, Route } from 'react-router-dom';
 
 type DropdownItem = {
   label: string;
@@ -72,7 +72,15 @@ class UserViewPage extends React.Component<Props> {
   };
 
   render() {
-    const { user, groups, projects, timesheets, group, disabled } = this.props;
+    const {
+      user,
+      groups,
+      projects,
+      timesheets,
+      group,
+      disabled,
+      match,
+    } = this.props;
 
     if (!user) {
       return null;
@@ -127,44 +135,90 @@ class UserViewPage extends React.Component<Props> {
         )}
 
         <Row>
-          <Column sm={6}>
-            <UserInfo user={user} />
-          </Column>
-          <Column sm={6}>
-            <UserGroups
-              groups={groups}
-              onSubmit={this.handleUpdateGroups}
-              initialSelectedGroup={group ? group.id : 0}
-            />
-          </Column>
-        </Row>
+          <Column sm={3} md={2}>
+            <UserLeftColumn>
+              <UserCard>
+                <Avatar view="lg" avatar={user.image} />
 
-        <Row>
-          <Column sm={6}>
-            <Box
-              title={() => (
-                <Translate text="timesheet.labels.GENERATE_NEW_TIMESHEETS" />
-              )}
-            >
-              <TimesheetGenerator
-                userId={user.id}
-                projects={projects}
-                previousTimesheets={timesheets}
-              />
-            </Box>
+                <h3>{user.fullName}</h3>
+                <Link to="/profile/edit">Edit Profile</Link>
+              </UserCard>
+
+              <UserNavigation>
+                <ul>
+                  <UserNavigationLink active={!match.params.page}>
+                    <Link to={`/user/${user.id}`}>
+                      <Icon name="fas fa-clock" fixedWidth />
+                      Timesheets
+                    </Link>
+                  </UserNavigationLink>
+                  <UserNavigationLink
+                    active={match.params.page === 'generator'}
+                  >
+                    <Link to={`/user/${user.id}/generator`}>
+                      <Icon name="fas fa-code-branch" fixedWidth />
+                      Generator
+                    </Link>
+                  </UserNavigationLink>
+                  <UserNavigationLink active={match.params.page === 'details'}>
+                    <Link to={`/user/${user.id}/details`}>
+                      <Icon name="fas fa-info-circle" fixedWidth />
+                      Details
+                    </Link>
+                  </UserNavigationLink>
+                </ul>
+              </UserNavigation>
+            </UserLeftColumn>
           </Column>
-          <Column sm={6}>
-            <Box
-              title={() => (
-                <Translate text="timesheet.labels.TIMESHEETS_FOR_USER" />
-              )}
-            >
-              <TimesheetList
-                timesheets={timesheets || []}
-                disableFilter={true}
-                noTimesheetsText="There is no generated timesheets for this user."
+
+          <Column sm={9} md={10}>
+            <Switch>
+              <Route
+                path={`/user/:id/generator`}
+                render={props => (
+                  <Box
+                    title={() => (
+                      <Translate text="timesheet.labels.GENERATE_NEW_TIMESHEETS" />
+                    )}
+                  >
+                    <TimesheetGenerator
+                      userId={user.id}
+                      projects={projects}
+                      previousTimesheets={timesheets}
+                    />
+                  </Box>
+                )}
               />
-            </Box>
+              <Route
+                path={`/user/:id/details`}
+                render={props => (
+                  <>
+                    <UserInfo user={user} />
+                    <UserGroups
+                      groups={groups}
+                      onSubmit={this.handleUpdateGroups}
+                      initialSelectedGroup={group ? group.id : 0}
+                    />
+                  </>
+                )}
+              />
+              <Route
+                path={`/user/:id`}
+                render={props => (
+                  <Box
+                    title={() => (
+                      <Translate text="timesheet.labels.TIMESHEETS_FOR_USER" />
+                    )}
+                  >
+                    <TimesheetList
+                      timesheets={timesheets || []}
+                      disableFilter={true}
+                      noTimesheetsText="There is no generated timesheets for this user."
+                    />
+                  </Box>
+                )}
+              />
+            </Switch>
           </Column>
         </Row>
       </div>
@@ -209,5 +263,81 @@ const StyledDropdown = styled(Dropdown)`
     i {
       margin-right: 0.5em;
     }
+  }
+`;
+
+const UserCard = styled.div`
+  text-align: center;
+  padding: 20px;
+
+  h3 {
+    font-size: 1.2em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  img {
+    max-width: 90px;
+  }
+
+  a {
+    color: #9ea1a8;
+  }
+
+  margin-bottom: 20px;
+`;
+
+const UserLeftColumn = styled.div`
+  background: #fff;
+
+  -webkit-box-shadow: 0px 7px 41px -21px rgba(125, 125, 125, 1);
+  -moz-box-shadow: 0px 7px 41px -21px rgba(125, 125, 125, 1);
+  box-shadow: 0px 7px 41px -21px rgba(125, 125, 125, 1);
+`;
+
+const UserNavigation = styled.div`
+  border-top: #e8e8e8 1px solid;
+  border-bottom: #e8e8e8 1px solid;
+  padding: 10px 0;
+  margin: 20px 0;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+`;
+
+const UserNavigationLink = withProps<{ active: boolean }, HTMLLIElement>(
+  styled.li
+)`
+  a {
+    color: inherit;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    padding: 10px;
+    display: block;
+    opacity: 0.8;
+
+    &:hover {
+      // color: #763ffe;
+      background-color: #f8fafb;
+      border-left: 3px solid #763ffe;
+      opacity: 1;
+    }
+
+    i {
+      width: 30px;
+      opacity: 0.5;
+    }
+
+    ${({ active }) =>
+      active &&
+      css`
+        // color: #763ffe;
+        // background-color: #f8fafb;
+        // border-left: 3px solid #0b7bff;
+        opacity: 1;
+      `}
   }
 `;

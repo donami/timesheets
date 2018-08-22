@@ -3,7 +3,7 @@ import { Button } from 'genui';
 
 import { Box } from '../../ui';
 import { Group } from '../../groups/store/models';
-import { Translate } from '../../common';
+import { Translate, Select } from '../../common';
 import styled from '../../../styled/styled-components';
 
 export interface UserGroupsProps {
@@ -29,11 +29,9 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
     }
   }
 
-  handleChange = (e: any) => {
-    const { value } = e.target;
-
+  handleChange = (value: number) => {
     this.setState({
-      selectedGroupId: +value,
+      selectedGroupId: value,
     });
   };
 
@@ -57,23 +55,17 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
             this.formElem = elem;
           }}
         >
-          <select
-            name="group"
+          <Select
+            options={groups.map(group => ({
+              value: group.id,
+              label: group.name,
+            }))}
+            value={this.state.selectedGroupId.toString()}
             onChange={this.handleChange}
-            defaultValue={this.state.selectedGroupId.toString()}
-          >
-            <option value="0">
-              <Translate text="groups.labels.CHOOSE_A_GROUP" />
-            </option>
-            {groups.map(group => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
+          />
 
           <ButtonContainer>
-            <Button type="submit">
+            <Button type="submit" disabled={this.state.selectedGroupId === 0}>
               <Translate text="common.labels.SAVE" />
             </Button>
           </ButtonContainer>

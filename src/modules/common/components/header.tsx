@@ -38,6 +38,11 @@ const items: DropdownItem[] = [
     to: '/profile',
   },
   {
+    label: 'Edit Profile',
+    icon: 'fas fa-cog',
+    to: '/profile/edit',
+  },
+  {
     label: 'Sign out',
     icon: 'fas fa-power-off',
     to: '/logout',
@@ -81,7 +86,7 @@ class Header extends React.Component<Props> {
               </Link>
             )}
           >
-            <Avatar avatar={user.image} />
+            <Avatar view="sm" avatar={user.image} />
           </StyledDropdown>
         </RightNode>
       </Container>
@@ -131,7 +136,7 @@ const StyledDropdown = styled(Dropdown)`
   }
 
   .g-dropdown-menu {
-    left: -30px;
+    left: -80px;
     top: 120%;
   }
 `;

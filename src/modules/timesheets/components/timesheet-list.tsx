@@ -1,12 +1,16 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'genui';
+import { Table, StatusColor } from 'genui';
 
 import { TimesheetItem } from '../store/models';
 import { dateFormat } from '../../../utils/calendar';
 import withDefaultProps from '../../common/components/with-default-props';
 import { Translate } from '../../common';
-import { sortByDate, filterOutFutureTimesheets } from '../utils';
+import {
+  sortByDate,
+  filterOutFutureTimesheets,
+  getStatusColor,
+} from '../utils';
 import { User } from '../../users/store/models';
 
 type Props = {
@@ -74,7 +78,15 @@ class TimesheetList extends React.Component<Props> {
       .map(timesheet => ({
         id: <Link to={`/timesheet/${timesheet.id}`}>{timesheet.id}</Link>,
         period: dateFormat(timesheet.periodStart, 'MMMM, YYYY'),
-        status: <Translate text={`timesheet.status.${timesheet.status}`} />,
+        status: (
+          <>
+            <StatusColor
+              style={{ marginRight: 5 }}
+              {...getStatusColor(timesheet.status)}
+            />
+            <Translate text={`timesheet.status.${timesheet.status}`} />
+          </>
+        ),
         user: includeUser ? this.getUserLink(timesheet) : null,
       }));
 
