@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Button, Dropdown, Message, Icon } from 'genui';
 
 import { selectUser, disableUser, enableUser } from '../store/actions';
-import { UserInfo, UserGroups } from '../components';
+import { UserInfo, UserGroups, EditUser } from '../components';
 import {
   getSelectedUser,
   getSelectedUserGroup,
@@ -141,7 +141,7 @@ class UserViewPage extends React.Component<Props> {
                 <Avatar view="lg" avatar={user.image} />
 
                 <h3>{user.fullName}</h3>
-                <Link to="/profile/edit">Edit Profile</Link>
+                <Link to={`/user/${user.id}/edit`}>Edit User</Link>
               </UserCard>
 
               <UserNavigation>
@@ -200,6 +200,12 @@ class UserViewPage extends React.Component<Props> {
                       initialSelectedGroup={group ? group.id : 0}
                     />
                   </>
+                )}
+              />
+              <Route
+                path={`/user/:id/edit`}
+                render={props => (
+                  <EditUser user={user} userProject={projects} />
                 )}
               />
               <Route

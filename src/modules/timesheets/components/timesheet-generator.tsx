@@ -18,7 +18,7 @@ import {
 } from '../store/models';
 import { Project } from '../../projects/store/models';
 import { listOfMonthsFromToday } from '../../../utils/calendar';
-import { Translate } from '../../common';
+import { Translate, Select, Form } from '../../common';
 import styled from '../../../styled/styled-components';
 import { Row, Column } from '../../ui';
 
@@ -45,16 +45,11 @@ type Props = {
 };
 
 class TimesheetGenerator extends React.Component<Props> {
-  generateForm: HTMLFormElement | null;
-
-  handleGenerateTimesheets = (e: any) => {
-    e.preventDefault();
-    const { from, to, project } = this.generateForm as any;
-
+  handleGenerateTimesheets = (model: any) => {
     this.props.generateTimesheets(
-      from.value,
-      to.value,
-      +project.value,
+      model.from,
+      model.to,
+      +model.project,
       this.props.userId,
       this.props.template
     );
@@ -97,8 +92,8 @@ class TimesheetGenerator extends React.Component<Props> {
         {template && (
           <React.Fragment>
             <h4>
-              <Translate text="timesheet.labels.GENERATE_TIMESHEETS_USING_TEMPLATE" />:
-              &nbsp;
+              <Translate text="timesheet.labels.GENERATE_TIMESHEETS_USING_TEMPLATE" />
+              : &nbsp;
               {template.name}
             </h4>
 
@@ -183,56 +178,61 @@ class TimesheetGenerator extends React.Component<Props> {
               )}
 
             {!generated && (
-              <GenerateForm
-                onSubmit={this.handleGenerateTimesheets}
-                innerRef={form => {
-                  this.generateForm = form;
-                }}
-              >
-                <Row>
-                  <Column sm={6}>
-                    <label>
-                      <Translate text="common.labels.FROM" />:
-                    </label>
-                    <select name="from">
-                      {pastMonths.map((month: string, index: number) => (
-                        <option key={index} value={month}>
-                          {month}
-                        </option>
-                      ))}
-                    </select>
-                  </Column>
-                  <Column sm={6}>
-                    <label>
-                      <Translate text="common.labels.TO" />:
-                    </label>
-                    <select name="to">
-                      {futureMonths.map((month: string, index: number) => (
-                        <option key={index} value={month}>
-                          {month}
-                        </option>
-                      ))}
-                    </select>
-                  </Column>
-                </Row>
+              <Form onValidSubmit={this.handleGenerateTimesheets}>
+                {formState => (
+                  <>
+                    <Form.Field
+                      name="from"
+                      label="From:"
+                      validations={{ isRequired: true }}
+                    >
+                      <Select
+                        placeholder="From"
+                        options={pastMonths.map((month: string) => ({
+                          value: month,
+                          label: month,
+                        }))}
+                      />
+                    </Form.Field>
 
-                <div>
-                  <label>
-                    <Translate text="projects.labels.PROJECT" />:
-                  </label>
-                  <select name="project">
-                    {projects.map(project => (
-                      <option value={project.id} key={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <Form.Field
+                      name="to"
+                      label="To:"
+                      validations={{ isRequired: true }}
+                    >
+                      <Select
+                        placeholder="To"
+                        options={futureMonths.map((month: string) => ({
+                          value: month,
+                          label: month,
+                        }))}
+                      />
+                    </Form.Field>
 
-                <Button type="submit" color="purple">
-                  <Translate text="common.labels.GENERATE" />
-                </Button>
-              </GenerateForm>
+                    <Form.Field
+                      name="project"
+                      label="Project:"
+                      validations={{ isRequired: true }}
+                    >
+                      <Select
+                        placeholder="Project"
+                        options={projects.map(project => ({
+                          value: project.id,
+                          label: project.name,
+                        }))}
+                      />
+                    </Form.Field>
+
+                    <Button
+                      type="submit"
+                      disabled={!formState.isValid}
+                      color="purple"
+                    >
+                      <Translate text="common.labels.GENERATE" />
+                    </Button>
+                  </>
+                )}
+              </Form>
             )}
           </React.Fragment>
         )}
@@ -267,19 +267,6 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(TimesheetGenerator);
-
-const GenerateForm = styled.form`
-  label {
-    display: block;
-    font-weight: bold;
-  }
-
-  input,
-  select {
-    margin-bottom: 10px;
-    padding: 5px;
-  }
-`;
 
 const Conflict = styled.div`
   float: right;

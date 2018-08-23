@@ -23,6 +23,15 @@ class Select extends Component<Props, State> {
   readonly state = initialState;
 
   selectElem: HTMLSelectElement | null;
+  node: HTMLElement | null;
+
+  componentWillMount() {
+    document.addEventListener('mousedown', this.handleClick, false);
+  }
+
+  componentWillUnmount() {
+    document.addEventListener('mousedown', this.handleClick, false);
+  }
 
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.value) {
@@ -48,6 +57,15 @@ class Select extends Component<Props, State> {
     }
   }
 
+  handleClick = (e: any) => {
+    // If click is inside node, return
+    if (!this.node || this.node.contains(e.target)) {
+      return;
+    }
+
+    this.setState({ open: false });
+  };
+
   selectItem = (item: SelectItem) => {
     this.setState({ selected: item, open: false });
 
@@ -66,6 +84,7 @@ class Select extends Component<Props, State> {
 
     return (
       <Container
+        innerRef={node => (this.node = node)}
         open={open}
         onClick={() => this.setState({ open: !open })}
         className="select-container"

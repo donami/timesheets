@@ -91,10 +91,18 @@ function* updateUser(action: any) {
       action.payload.user
     );
 
-    yield put({
-      payload: { ...response },
-      type: types.UPDATE_USER.SUCCESS,
-    });
+    yield all([
+      put({
+        payload: { ...response },
+        type: types.UPDATE_USER.SUCCESS,
+      }),
+      put(
+        toastr.success({
+          title: 'User was updated!',
+          message: 'User was successfully updated!',
+        })
+      ),
+    ]);
   } catch (e) {
     yield put({
       type: types.UPDATE_USER.FAILURE,

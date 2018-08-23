@@ -6,16 +6,34 @@ type Props = {
   content: any;
 };
 
-type State = {
+type State = Readonly<{
   open: boolean;
-};
+}>;
 
 const initialState: State = {
   open: false,
 };
 
 class Popup extends Component<Props, State> {
-  state = initialState;
+  readonly state = initialState;
+  node: HTMLElement | null;
+
+  componentWillMount() {
+    document.addEventListener('mousedown', this.handleClick, false);
+  }
+
+  componentWillUnmount() {
+    document.addEventListener('mousedown', this.handleClick, false);
+  }
+
+  handleClick = (e: any) => {
+    // If click is inside node, return
+    if (!this.node || this.node.contains(e.target)) {
+      return;
+    }
+
+    this.setState({ open: false });
+  };
 
   handleTriggerClick = () => {
     if (typeof this.props.trigger.props.onClick === 'function') {
@@ -28,16 +46,20 @@ class Popup extends Component<Props, State> {
   render() {
     const { open } = this.state;
     return (
-      <div style={{ position: 'relative' }}>
+      <Container innerRef={node => (this.node = node)} className="popup">
         {React.cloneElement(this.props.trigger, {
           onClick: this.handleTriggerClick,
         })}
 
         <Content open={open}>{open && <>{this.props.content}</>}</Content>
-      </div>
+      </Container>
     );
   }
 }
+
+const Container = styled.div`
+  position: relative;
+`;
 
 const Content = withProps<{ open: boolean }, HTMLDivElement>(styled.div)`
   position: absolute;
