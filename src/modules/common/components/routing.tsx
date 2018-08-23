@@ -25,13 +25,13 @@ import {
 import { GroupViewPage, GroupListPage, GroupAddPage } from '../../groups';
 import textManager from '../../../services/text-manager';
 import { history } from '../../../store';
-import { NotFoundPage, Wizard } from '../pages';
+import { NotFoundPage, Wizard, SearchPage } from '../pages';
 import { UserRole } from '../../users/store/models';
 import {
   HelpPage,
   ArticleViewPage,
   CategoryViewPage,
-  SearchPage,
+  SearchPage as HelpSearchPage,
   ManageHelpPage,
   CategoryAddPage,
   ArticleAddPage,
@@ -77,6 +77,11 @@ class Routing extends React.Component<Props> {
               render={() => <Redirect to="/setup-wizard/step/1" />}
             />
             <ProtectedRoute
+              path="/search"
+              component={withLoading(SearchPage)}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
               path="/help/manage/add-category"
               component={withLoading(CategoryAddPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
@@ -101,7 +106,7 @@ class Routing extends React.Component<Props> {
               component={withLoading(ManageHelpPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
-            <ProtectedRoute path="/help/search" component={SearchPage} />
+            <ProtectedRoute path="/help/search" component={HelpSearchPage} />
             <ProtectedRoute
               path="/help/category/:id"
               component={withLoading(CategoryViewPage)}

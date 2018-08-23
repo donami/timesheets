@@ -13,6 +13,8 @@ export interface User {
   fullName: string;
   gender: string;
   group: Group;
+  createdAt: string;
+  updatedAt: string;
   disabled: boolean;
   notifications: number[];
 }

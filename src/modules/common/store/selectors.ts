@@ -181,6 +181,8 @@ export const getSelectedProjectGroups = createSelector(
 
 export const getCurrentLocation = (state: any) => state.router.location;
 
+export const getSearchQuery = (state: any) => state.common.search;
+
 export const getAppIsLoading = createSelector(
   getGroupsLoading,
   getUsersLoading,

@@ -5,6 +5,7 @@ const initialState = {
   initialized: false,
   checkedConfiguration: false,
   isConfigured: undefined,
+  search: '',
 };
 
 export default (state = initialState, action: any) => {
@@ -29,6 +30,13 @@ export default (state = initialState, action: any) => {
         ...state,
         checkedConfiguration: false,
         isConfigured: undefined,
+      };
+    }
+
+    case types.SEARCH.SUCCESS: {
+      return {
+        ...state,
+        search: action.payload.query,
       };
     }
 

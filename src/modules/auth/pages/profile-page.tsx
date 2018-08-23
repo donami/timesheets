@@ -5,11 +5,11 @@ import { List, Button } from 'genui';
 
 import { getAuthedUser } from '../store/selectors';
 import { User, UserRole } from '../../users/store/models';
-import { Box } from '../../ui';
+import { Box, Column, Row } from '../../ui';
 import { TimesheetItem } from '../../timesheets/store/models';
 import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
 import { TimesheetList } from '../../timesheets';
-import { PageHeader } from '../../common';
+import { PageHeader, Avatar } from '../../common';
 import { fetchProjects } from '../../projects/store/actions';
 import { Switch, Route } from 'react-router';
 import { updateProfile } from '../store/actions';
@@ -18,6 +18,8 @@ import {
   EditProfileForm,
   EditAvatarForm,
 } from '../components';
+import { Link } from 'react-router-dom';
+import styled from '../../../styled/styled-components';
 
 type Props = {
   user: User;
@@ -56,56 +58,70 @@ class ProfilePage extends React.Component<Props> {
           Your Profile
         </PageHeader>
 
-        <Switch>
-          <Route
-            path={`/profile/edit`}
-            render={props => (
-              <>
-                <Box title="Profile settings">
-                  <EditProfileForm
-                    initialValues={user}
-                    onUpdateProfile={this.handleUpdateProfile}
-                  />
-                </Box>
+        <Row>
+          <Column sm={3} md={2}>
+            <UserLeftNode>
+              <UserCard>
+                <Avatar view="lg" avatar={user.image} />
 
-                <Box title="Change password">
-                  <EditPasswordForm
-                    initialValues={user}
-                    onUpdateProfile={this.handleUpdateProfile}
-                  />
-                </Box>
+                <h3>{user.fullName}</h3>
+                <Link to="/profile/edit">Edit Profile</Link>
+              </UserCard>
+            </UserLeftNode>
+          </Column>
+          <Column sm={9} md={10}>
+            <Switch>
+              <Route
+                path={`/profile/edit`}
+                render={props => (
+                  <>
+                    <Box title="Profile settings">
+                      <EditProfileForm
+                        initialValues={user}
+                        onUpdateProfile={this.handleUpdateProfile}
+                      />
+                    </Box>
 
-                <Box title="Change profile image">
-                  <EditAvatarForm
-                    initialValues={user}
-                    onUpdateProfile={this.handleUpdateProfile}
-                  />
-                </Box>
-              </>
-            )}
-          />
-          <Route
-            path={`/profile`}
-            render={props => (
-              <>
-                <Box title="Profile">
-                  <List divided>
-                    <List.Item>
-                      Name: {`${user.firstname} ${user.lastname}`}
-                    </List.Item>
-                    <List.Item>Role: {user.role}</List.Item>
-                  </List>
-                </Box>
+                    <Box title="Change password">
+                      <EditPasswordForm
+                        initialValues={user}
+                        onUpdateProfile={this.handleUpdateProfile}
+                      />
+                    </Box>
 
-                {user.role === UserRole.User && (
-                  <Box title="Your Timesheets">
-                    <TimesheetList timesheets={timesheets} />
-                  </Box>
+                    <Box title="Change profile image">
+                      <EditAvatarForm
+                        initialValues={user}
+                        onUpdateProfile={this.handleUpdateProfile}
+                      />
+                    </Box>
+                  </>
                 )}
-              </>
-            )}
-          />
-        </Switch>
+              />
+              <Route
+                path={`/profile`}
+                render={props => (
+                  <>
+                    <Box title="Profile">
+                      <List divided>
+                        <List.Item>
+                          Name: {`${user.firstname} ${user.lastname}`}
+                        </List.Item>
+                        <List.Item>Role: {user.role}</List.Item>
+                      </List>
+                    </Box>
+
+                    {user.role === UserRole.User && (
+                      <Box title="Your Timesheets">
+                        <TimesheetList timesheets={timesheets} />
+                      </Box>
+                    )}
+                  </>
+                )}
+              />
+            </Switch>
+          </Column>
+        </Row>
       </div>
     );
   }
@@ -129,3 +145,37 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(ProfilePage);
+
+const UserLeftNode = styled.div`
+  background: #fff;
+
+  -webkit-box-shadow: 0px 7px 41px -21px rgba(125, 125, 125, 1);
+  -moz-box-shadow: 0px 7px 41px -21px rgba(125, 125, 125, 1);
+  box-shadow: 0px 7px 41px -21px rgba(125, 125, 125, 1);
+`;
+
+const UserCard = styled.div`
+  text-align: center;
+  padding: 20px;
+
+  h3 {
+    font-size: 1.2em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  img {
+    max-width: 90px;
+  }
+
+  a {
+    color: #9ea1a8;
+    text-decoration: none;
+
+    &:hover {
+      color: #763ffe;
+    }
+  }
+
+  margin-bottom: 20px;
+`;

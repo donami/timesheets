@@ -15,3 +15,10 @@ export const setup = (data: any) => ({
 export const checkConfiguration = () => ({
   type: types.CHECK_CONFIGURATION.REQUEST,
 });
+
+export const search = (query: string) => ({
+  type: types.SEARCH.REQUEST,
+  payload: {
+    query,
+  },
+});

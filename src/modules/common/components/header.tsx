@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Dropdown, Icon } from 'genui';
+import { Dropdown, Icon, Input, Button } from 'genui';
 
 import LanguageSelector from './language-selector';
 import {
@@ -17,6 +17,7 @@ import { bindActionCreators } from 'redux';
 import { clearNotifications } from '../../auth/store/actions';
 import { Notification } from '../../auth/store/models';
 import Attention from './attention';
+import Search from './search';
 
 type Props = {
   containerHeight: number;
@@ -63,6 +64,10 @@ class Header extends React.Component<Props> {
       <Container>
         <RightNode className="right-node" containerHeight={containerHeight}>
           {/* <LanguageSelector /> */}
+
+          <div>
+            <Search />
+          </div>
 
           <HeaderAction>
             <Popup
@@ -155,7 +160,7 @@ const RightNode = styled.div`
   ${(props: RightNodeProps) => `height: ${props.containerHeight}px;`};
 
   > div {
-    margin: 0 20px;
+    margin: 0 10px;
   }
 `;
 

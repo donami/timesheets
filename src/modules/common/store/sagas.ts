@@ -63,9 +63,27 @@ function* isConfigured(action: any) {
   }
 }
 
+function* search(action: any) {
+  try {
+    yield all([
+      yield put({
+        payload: action.payload,
+        type: types.SEARCH.SUCCESS,
+      }),
+      put(push('/search')),
+    ]);
+  } catch (e) {
+    yield put({
+      type: types.SEARCH.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 export default all([
   takeEvery('FETCH_ALL', fetchAll),
   takeEvery(groupTypes.UPDATE_GROUP_MEMBER.FAILURE, handleError),
   takeEvery(types.SETUP.REQUEST, setup),
+  takeEvery(types.SEARCH.REQUEST, search),
   takeEvery(types.CHECK_CONFIGURATION.REQUEST, isConfigured),
 ]);
