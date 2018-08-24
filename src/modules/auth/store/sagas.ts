@@ -60,6 +60,27 @@ function* clearNotifications(action: any) {
   }
 }
 
+function* recoverPassword(action: any) {
+  try {
+    const response = yield call(Api.recoverPassword, action.payload.email);
+
+    yield put({
+      payload: { ...response },
+      type: types.RECOVER_PASSWORD.SUCCESS,
+    });
+  } catch (e) {
+    yield all([
+      put(
+        toastr.error({
+          title: 'Oops!',
+          message: e.message,
+        })
+      ),
+      put({ type: types.RECOVER_PASSWORD.FAILURE, message: e.message }),
+    ]);
+  }
+}
+
 function* updateProfile(action: any) {
   try {
     const response = yield call(
@@ -100,6 +121,7 @@ function* fetchAll(action: any) {
 export default all([
   takeEvery(types.AUTH.REQUEST, auth),
   takeEvery(types.LOGOUT.REQUEST, logout),
+  takeEvery(types.RECOVER_PASSWORD.REQUEST, recoverPassword),
   takeEvery(types.CLEAR_NOTIFICATIONS.REQUEST, clearNotifications),
   takeEvery(types.LOGOUT.SUCCESS, redirectToAuthPage),
   takeEvery(types.AUTH.SUCCESS, fetchAll),

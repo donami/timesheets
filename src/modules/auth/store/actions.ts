@@ -22,3 +22,10 @@ export const updateProfile = (data: any) => ({
     data,
   },
 });
+
+export const recoverPassword = (email: string) => ({
+  type: types.RECOVER_PASSWORD.REQUEST,
+  payload: {
+    email,
+  },
+});

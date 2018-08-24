@@ -168,6 +168,9 @@ const removeTimesheet = (timesheetId: number): Promise<NormalizedResponse> =>
 const clearNotifications = (): Promise<NormalizedResponse> =>
   fetchApi('auth/clear-notifications', 'GET', userSchema);
 
+const recoverPassword = (email: string): Promise<NormalizedResponse> =>
+  fetchApi('auth/recover-password', 'POST', userSchema, { email });
+
 export default {
   fetchTimesheets,
   fetchTimesheetById,
@@ -192,6 +195,7 @@ export default {
   createTimesheets,
   createTimesheetTemplate,
   clearNotifications,
+  recoverPassword,
   setup,
   isConfigured,
 };

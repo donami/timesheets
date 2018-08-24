@@ -66,7 +66,7 @@ class AuthForm extends React.Component<Props, State> {
           </Button>
         </Buttons>
 
-        <Link to="/">Forgotten password?</Link>
+        <Link to="/auth/forgotten-password">Forgotten password?</Link>
       </StyledForm>
     );
   }

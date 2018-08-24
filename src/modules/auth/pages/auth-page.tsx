@@ -6,14 +6,15 @@ import styled from 'styled-components';
 import { auth } from '../store/actions';
 import { AuthForm } from '../components';
 import { getIsAuthed } from '../store/selectors';
-import { Redirect } from 'react-router';
+import { Redirect, Switch, Route } from 'react-router';
+import ForgottenPasswordPage from './forgotten-password-page';
 
-export interface AuthPageProps {
+type Props = {
   auth: (email: string, password: string) => any;
   authed: boolean;
-}
+};
 
-class AuthPage extends React.Component<AuthPageProps> {
+class AuthPage extends React.Component<Props> {
   handleAuth = (email: string, password: string): void => {
     this.props.auth(email, password);
   };
@@ -31,9 +32,22 @@ class AuthPage extends React.Component<AuthPageProps> {
           </LogoContainer>
 
           <Content className="content">
-            <Title>Sign in to Timefly</Title>
+            <Switch>
+              <Route
+                path={`/auth/forgotten-password`}
+                render={props => <ForgottenPasswordPage {...props} />}
+              />
+              <Route
+                path="*"
+                render={props => (
+                  <>
+                    <Title>Sign in to Timefly</Title>
 
-            <AuthForm onSubmit={this.handleAuth} />
+                    <AuthForm onSubmit={this.handleAuth} />
+                  </>
+                )}
+              />
+            </Switch>
           </Content>
         </Container>
       </Page>
