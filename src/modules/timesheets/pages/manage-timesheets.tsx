@@ -141,11 +141,7 @@ class ManageTimesheets extends React.Component<Props> {
                   icon: 'fas fa-pencil-alt',
                   to: `/timesheet/${item.id}`,
                 }}
-              >
-                <Link to={`/timesheet/${item.id}`}>
-                  <Icon name="fas fa-pencil-alt" />
-                </Link>
-              </Table.Cell>
+              />
               <Table.Cell
                 option={{
                   icon: 'fa fa-trash-alt',

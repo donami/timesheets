@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'genui';
+import { TableList } from 'genui';
 
 import { User, UserRole } from '../../users/store/models';
 
@@ -29,7 +29,7 @@ class GroupMemberList extends React.Component<GroupMemberListProps> {
 
     return (
       <div>
-        <Table headings={['ID', 'Name', 'Email']} items={tableItems} />
+        <TableList headings={['ID', 'Name', 'Email']} items={tableItems} />
       </div>
     );
   }

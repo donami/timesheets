@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Button } from 'genui';
+import { TableList, Button } from 'genui';
 
 import { Group } from '../store/models';
 
@@ -21,7 +21,7 @@ class GroupList extends React.Component<GroupListProps> {
 
     return (
       <div>
-        <Table headings={['ID', 'Name']} items={tableItems} />
+        <TableList headings={['ID', 'Name']} items={tableItems} />
 
         <Button onClick={onLoadMore} disabled={groups.length >= totalCount}>
           Load More...

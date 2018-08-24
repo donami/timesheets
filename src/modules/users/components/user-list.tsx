@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Table, StatusColor } from 'genui';
+import { TableList, StatusColor } from 'genui';
 
 import { User } from '../store/models';
 
@@ -24,7 +24,7 @@ class UserList extends React.Component<UserListProps> {
 
     return (
       <div>
-        <Table
+        <TableList
           headings={['ID', 'Email', 'Name', 'Status']}
           items={tableItems}
         />

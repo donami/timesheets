@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'genui';
+import { TableList } from 'genui';
 
 import { ExpenseReport } from '../store/models';
 import { Translate } from '../../common';
@@ -21,7 +21,10 @@ class ExpenseReportList extends React.Component<ExpenseReportListProps> {
 
     return (
       <div>
-        <Table headings={['ID', 'Submitted', 'Status']} items={tableItems} />
+        <TableList
+          headings={['ID', 'Submitted', 'Status']}
+          items={tableItems}
+        />
       </div>
     );
   }

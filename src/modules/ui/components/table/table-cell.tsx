@@ -86,6 +86,10 @@ const Cell = withProps<Props, HTMLTableDataCellElement>(styled.td)`
   border-bottom: #e9edf0 1px solid;
   background: #fff;
 
+  > * {
+    vertical-align: middle;
+  }
+
   .table-cell-option {
     cursor: pointer;
     padding: 7.5px 15px;
@@ -106,6 +110,10 @@ const Cell = withProps<Props, HTMLTableDataCellElement>(styled.td)`
 
   i {
     opacity: 0.5;
+  }
+
+  .avatar {
+    margin-right: 5px;
   }
   
   ${({ textAlign }) =>

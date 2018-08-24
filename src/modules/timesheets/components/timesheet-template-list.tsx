@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'genui';
+import { TableList } from 'genui';
 
 import { TimesheetTemplateItem } from '../store/models';
 
@@ -26,7 +26,7 @@ class TimesheetTemplateList extends React.Component<
 
     return (
       <div>
-        <Table headings={['ID', 'Name']} items={tableItems} />
+        <TableList headings={['ID', 'Name']} items={tableItems} />
       </div>
     );
   }

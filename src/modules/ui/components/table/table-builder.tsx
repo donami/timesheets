@@ -28,6 +28,7 @@ type FilterType = {
     label: string;
     value: any;
   }[];
+  inputType?: 'select' | 'text';
 };
 
 type Props = {
@@ -41,7 +42,7 @@ type Props = {
 
 type State = Readonly<{
   filter: {
-    [key: string]: string | null;
+    [key: string]: any;
   };
   filteredItems: any[];
   selected: number[];
@@ -79,7 +80,10 @@ class TableBuilder extends Component<Props, State> {
     let filteredItems = items;
 
     filters.forEach(filterItem => {
-      if (filterItem.filterAs && this.state.filter[filterItem.property]) {
+      if (
+        filterItem.filterAs &&
+        typeof this.state.filter[filterItem.property] !== 'undefined'
+      ) {
         filteredItems = filteredItems.filter((item: any) => {
           return filterItem.filterAs(item, this.state.filter);
         });
@@ -177,11 +181,19 @@ class TableBuilder extends Component<Props, State> {
                 <TableFilter
                   key={filter.property}
                   label={filter.label}
+                  inputType={filter.inputType || 'select'}
                   placeholder={filter.placeholder}
                   options={filter.options}
-                  onChange={value =>
-                    this.handleFilterChange(value, filter.property)
-                  }
+                  onChange={value => {
+                    let selectedValue = value;
+                    if (value === 'false') {
+                      selectedValue = false;
+                    }
+                    if (value === 'true') {
+                      selectedValue = true;
+                    }
+                    this.handleFilterChange(selectedValue, filter.property);
+                  }}
                 />
               ))}
             </div>

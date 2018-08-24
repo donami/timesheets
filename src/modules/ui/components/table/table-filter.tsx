@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, StatusColor } from 'genui';
+import { Input } from 'genui';
 
 import styled from '../../../../styled/styled-components';
 import { Select } from '../../../common';
@@ -8,6 +8,7 @@ type Props = {
   onChange(value: any): any;
   options: { label: any; value: any }[];
   label: string;
+  inputType: string;
   placeholder?: string;
 };
 
@@ -15,17 +16,27 @@ const TableFilter: React.SFC<Props> = ({
   label,
   options,
   placeholder,
+  inputType,
   onChange,
 }) => {
   return (
     <Container>
       <Label>{label}: </Label>
 
-      <Select
-        options={options}
-        onChange={onChange}
-        placeholder={placeholder || undefined}
-      />
+      {inputType === 'select' && (
+        <Select
+          options={options}
+          onChange={onChange}
+          placeholder={placeholder || undefined}
+        />
+      )}
+
+      {inputType === 'text' && (
+        <Input
+          onValueChange={onChange}
+          placeholder={placeholder || undefined}
+        />
+      )}
     </Container>
   );
 };

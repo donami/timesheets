@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Table, StatusColor } from 'genui';
+import { TableList, StatusColor } from 'genui';
 
 import { TimesheetItem } from '../store/models';
 import { dateFormat } from '../../../utils/calendar';
@@ -98,7 +98,7 @@ class TimesheetList extends React.Component<Props> {
 
     return (
       <div>
-        <Table headings={headings} items={tableItems} />
+        <TableList headings={headings} items={tableItems} />
       </div>
     );
   }

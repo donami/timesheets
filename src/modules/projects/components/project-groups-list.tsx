@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'genui';
+import { TableList } from 'genui';
 
 import { Group } from '../../groups/store/models';
 
@@ -26,7 +26,7 @@ class ProjectGroupsList extends React.Component<Props> {
 
     return (
       <div>
-        <Table headings={['ID', 'Name']} items={tableItems} />
+        <TableList headings={['ID', 'Name']} items={tableItems} />
       </div>
     );
   }

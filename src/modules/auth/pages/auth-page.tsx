@@ -31,7 +31,7 @@ class AuthPage extends React.Component<AuthPageProps> {
           </LogoContainer>
 
           <Content className="content">
-            <Title>Sign in to Timesheets</Title>
+            <Title>Sign in to Timefly</Title>
 
             <AuthForm onSubmit={this.handleAuth} />
           </Content>

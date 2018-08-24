@@ -19,7 +19,13 @@ const defaultProps: DefaultProps = {
 };
 
 const Avatar: React.SFC<Props> = ({ avatar, ...rest }) => {
-  return <StyledAvatar avatar={avatar || DEFAULT_USER_IMAGE} {...rest} />;
+  return (
+    <StyledAvatar
+      className="avatar"
+      avatar={avatar || DEFAULT_USER_IMAGE}
+      {...rest}
+    />
+  );
 };
 
 export default withDefaultProps<Props>(defaultProps)(Avatar);

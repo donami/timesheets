@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Table } from 'genui';
+import { TableList } from 'genui';
 
 import { ProjectMember } from '../store/models';
 import { User } from '../../users/store/models';
@@ -29,7 +29,7 @@ class ProjectMemberList extends React.Component<ProjectMemberListProps> {
 
     return (
       <div>
-        <Table headings={['ID', 'Email', 'Role']} items={tableItems} />
+        <TableList headings={['ID', 'Email', 'Role']} items={tableItems} />
       </div>
     );
   }
