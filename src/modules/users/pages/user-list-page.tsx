@@ -1,15 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-// import { Link } from 'react-router-dom';
-import { Button, Icon, StatusColor } from 'genui';
+import { Button, StatusColor, TableBuilder, Table } from 'genui';
 
 import { getUsers } from '../store/selectors';
 import { fetchUsersIfNeeded, disableUser, enableUser } from '../store/actions';
 import { User } from '../store/models';
-import { UserList } from '../components';
 import { PageHeader, Translate, Avatar } from '../../common';
-import { TableBuilder, Table } from '../../ui';
 import { Link } from 'react-router-dom';
 import styled from '../../../styled/styled-components';
 import { getGroupEntities } from '../../groups/store/selectors';

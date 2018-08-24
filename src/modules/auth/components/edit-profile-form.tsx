@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Input, Button } from 'genui';
+import { Input, Button, Select } from 'genui';
 
-import { Form, Select } from '../../common';
+import { Form } from '../../common';
 import { User } from '../../users/store/models';
 
 type Props = {

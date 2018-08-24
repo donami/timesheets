@@ -1,14 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Icon, StatusColor } from 'genui';
+import { StatusColor, Table, TableBuilder } from 'genui';
 
-import { Translate, PageHeader, Select } from '../../common';
-import { Table } from '../../ui';
+import { Translate, PageHeader } from '../../common';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
 import { getTimesheets } from '../store/selectors';
 import { Link } from 'react-router-dom';
 import { parseDate } from '../../../utils/helpers';
-import TableBuilder from '../../ui/components/table/table-builder';
 import { getUserEntities } from '../../users/store/selectors';
 import { User } from '../../users/store/models';
 import { getStatusColor } from '../utils';

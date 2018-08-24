@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, List, Icon } from 'genui';
+import { Button, List, Icon, Select } from 'genui';
 
 import { getGeneratedTimesheets } from '../store/selectors';
 import { getSelectedUserGroupTemplate } from '../../users/store/selectors';
@@ -18,7 +18,7 @@ import {
 } from '../store/models';
 import { Project } from '../../projects/store/models';
 import { listOfMonthsFromToday } from '../../../utils/calendar';
-import { Translate, Select, Form } from '../../common';
+import { Translate, Form } from '../../common';
 import styled from '../../../styled/styled-components';
 import { Row, Column } from '../../ui';
 

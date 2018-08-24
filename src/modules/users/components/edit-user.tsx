@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Input, Button } from 'genui';
+import { Input, Button, Select } from 'genui';
 
 import { User } from '../store/models';
-import { Form, Select, BackButton } from '../../common';
+import { Form, BackButton } from '../../common';
 import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
 import { bindActionCreators } from 'redux';

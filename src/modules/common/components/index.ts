@@ -21,4 +21,3 @@ export { default as Search } from './search';
 export { default as Notifications } from './notifications';
 export { default as Attention } from './attention';
 export { Form } from './form';
-export { Select } from './select';

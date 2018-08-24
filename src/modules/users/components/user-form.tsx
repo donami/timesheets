@@ -1,8 +1,6 @@
 import React from 'react';
-import { Input, Button } from 'genui';
-import { toastr } from 'react-redux-toastr';
+import { Input, Button, Select } from 'genui';
 
-import { Select } from '../../common/components';
 import { Project } from '../../projects/store/models';
 import { Form } from '../../common/components/form';
 

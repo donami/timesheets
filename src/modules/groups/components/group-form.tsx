@@ -1,9 +1,9 @@
 import React from 'react';
-import { Field, Input, Button } from 'genui';
+import { Select, Input, Button } from 'genui';
 
 import { Project } from '../../projects/store/models';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
-import { Form, Select } from '../../common';
+import { Form } from '../../common';
 
 type Props = {
   onSubmit: (

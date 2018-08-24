@@ -1,8 +1,8 @@
 import React from 'react';
-import { Input, Button } from 'genui';
+import { Input, Button, Select } from 'genui';
 import { QuestionCategory, QuestionArticle } from '../store/models';
 import { UserRole } from '../../users/store/models';
-import { BackButton, Form, Select } from '../../common';
+import { BackButton, Form } from '../../common';
 
 type Props = {
   onSubmit: (data: State, categoryId: number) => any;

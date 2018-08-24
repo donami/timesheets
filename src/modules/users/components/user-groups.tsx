@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Button } from 'genui';
+import { Button, Select } from 'genui';
 
 import { Box } from '../../ui';
 import { Group } from '../../groups/store/models';
-import { Translate, Select } from '../../common';
+import { Translate } from '../../common';
 import styled from '../../../styled/styled-components';
 
 export interface UserGroupsProps {
