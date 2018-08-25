@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Button, Dropdown, Message, Icon } from 'genui';
 
 import { selectUser, disableUser, enableUser } from '../store/actions';
-import { UserInfo, UserGroups, EditUser } from '../components';
+import { UserInfo, UserGroups, EditUser, EditUserStatus } from '../components';
 import {
   getSelectedUser,
   getSelectedUserGroup,
@@ -205,7 +205,11 @@ class UserViewPage extends React.Component<Props> {
               <Route
                 path={`/user/:id/edit`}
                 render={props => (
-                  <EditUser user={user} userProject={projects} />
+                  <>
+                    <EditUser user={user} userProject={projects} />
+                    <h3>Change user type</h3>
+                    <EditUserStatus user={user} />
+                  </>
                 )}
               />
               <Route

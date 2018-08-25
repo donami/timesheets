@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Input, Button, Select } from 'genui';
 
 import { User } from '../store/models';
 import { Form, BackButton } from '../../common';
 import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
-import { bindActionCreators } from 'redux';
 import { updateUser } from '../store/actions';
 
 type Props = {
