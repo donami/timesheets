@@ -8,6 +8,7 @@ import { AuthForm } from '../components';
 import { getIsAuthed } from '../store/selectors';
 import { Redirect, Switch, Route } from 'react-router';
 import ForgottenPasswordPage from './forgotten-password-page';
+import { Link } from 'react-router-dom';
 
 type Props = {
   auth: (email: string, password: string) => any;
@@ -44,6 +45,10 @@ class AuthPage extends React.Component<Props> {
                     <Title>Sign in to Timefly</Title>
 
                     <AuthForm onSubmit={this.handleAuth} />
+
+                    <Link to="/auth/forgotten-password">
+                      Forgotten password?
+                    </Link>
                   </>
                 )}
               />
@@ -108,6 +113,10 @@ const Content = styled.div`
   background: #fff;
   padding: 60px;
   text-align: center;
+
+  a {
+    text-decoration: none;
+  }
 `;
 
 const LogoContainer = styled.div`

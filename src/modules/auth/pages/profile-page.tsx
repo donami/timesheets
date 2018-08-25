@@ -62,7 +62,7 @@ class ProfilePage extends React.Component<Props> {
           <Column sm={3} md={2}>
             <UserLeftNode>
               <UserCard>
-                <Avatar view="lg" avatar={user.image} />
+                <Avatar view="lg" avatar={user.image} gender={user.gender} />
 
                 <h3>{user.fullName}</h3>
                 <Link to="/profile/edit">Edit Profile</Link>

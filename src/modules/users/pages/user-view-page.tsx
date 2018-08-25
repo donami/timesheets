@@ -138,7 +138,7 @@ class UserViewPage extends React.Component<Props> {
           <Column sm={3} md={2}>
             <UserLeftColumn>
               <UserCard>
-                <Avatar view="lg" avatar={user.image} />
+                <Avatar view="lg" avatar={user.image} gender={user.gender} />
 
                 <h3>{user.fullName}</h3>
                 <Link to={`/user/${user.id}/edit`}>Edit User</Link>

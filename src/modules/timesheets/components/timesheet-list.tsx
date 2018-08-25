@@ -23,10 +23,12 @@ const defaultProps: DefaultProps = {
   disableFilter: false,
   includeUser: false,
   users: [],
+  sortFunction: sortByDate,
 };
 
 type DefaultProps = {
   disableFilter: boolean;
+  sortFunction(item: TimesheetItem, other: TimesheetItem): number;
   // noTimesheetsText: string;
   includeUser: boolean;
   users: { [key: number]: User };
@@ -56,6 +58,7 @@ class TimesheetList extends React.Component<Props> {
       disableFilter,
       includeUser,
       users,
+      sortFunction,
     } = this.props;
 
     if (!timesheets.length) {
@@ -74,7 +77,7 @@ class TimesheetList extends React.Component<Props> {
 
     const tableItems = timesheets
       .filter(filter)
-      .sort(sortByDate)
+      .sort(sortFunction)
       .map(timesheet => ({
         id: <Link to={`/timesheet/${timesheet.id}`}>{timesheet.id}</Link>,
         period: dateFormat(timesheet.periodStart, 'MMMM, YYYY'),

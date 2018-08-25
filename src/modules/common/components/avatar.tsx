@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { DEFAULT_USER_IMAGE } from '../../../config/constants';
+import {
+  DEFAULT_USER_IMAGE,
+  DEFAULT_USER_IMAGE_FEMALE,
+} from '../../../config/constants';
 import withDefaultProps from './with-default-props';
 import styled, { withProps, css } from '../../../styled/styled-components';
 
@@ -9,20 +12,35 @@ type Props = {} & DefaultProps;
 type DefaultProps = {
   circular: boolean;
   avatar: string;
+  gender: string;
   view: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 };
 
 const defaultProps: DefaultProps = {
   circular: true,
   view: 'md',
+  gender: 'male',
   avatar: DEFAULT_USER_IMAGE,
 };
 
-const Avatar: React.SFC<Props> = ({ avatar, ...rest }) => {
+const Avatar: React.SFC<Props> = ({ avatar, gender, ...rest }) => {
+  let imageUrl = DEFAULT_USER_IMAGE;
+
+  if (avatar) {
+    imageUrl = avatar;
+  } else if (gender) {
+    if (gender === 'female') {
+      imageUrl = DEFAULT_USER_IMAGE_FEMALE;
+    } else if (gender === 'male') {
+      imageUrl = DEFAULT_USER_IMAGE;
+    }
+  }
+
   return (
     <StyledAvatar
       className="avatar"
-      avatar={avatar || DEFAULT_USER_IMAGE}
+      gender={gender}
+      avatar={imageUrl}
       {...rest}
     />
   );

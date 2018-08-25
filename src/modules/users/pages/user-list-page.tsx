@@ -113,7 +113,7 @@ class UserListPage extends React.Component<UserListPageProps> {
                 <Link to={`/user/${item.id}`}>#{item.id}</Link>
               </Table.Cell>
               <UserCell>
-                <Avatar view="sm" avatar={item.image} />
+                <Avatar view="sm" avatar={item.image} gender={item.gender} />
                 <div>
                   <Link to={`/user/${item.id}`}>{item.fullName}</Link>
                   {item.group && <span>{groupsById[item.group].name}</span>}

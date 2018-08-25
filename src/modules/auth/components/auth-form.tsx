@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Input, Button, Field } from 'genui';
+
 import styled from '../../../styled/styled-components';
-import { Link } from 'react-router-dom';
 
 type Props = {
   onSubmit: (email: string, password: string) => any;
@@ -65,8 +65,6 @@ class AuthForm extends React.Component<Props, State> {
             Sign in
           </Button>
         </Buttons>
-
-        <Link to="/auth/forgotten-password">Forgotten password?</Link>
       </StyledForm>
     );
   }

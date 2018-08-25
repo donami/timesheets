@@ -31,8 +31,6 @@ class EditUser extends Component<Props> {
 
     return (
       <div>
-        <h3>EditUser</h3>
-
         <Form onValidSubmit={this.handleSubmit}>
           {formState => (
             <>

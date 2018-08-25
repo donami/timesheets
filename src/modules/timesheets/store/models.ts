@@ -6,6 +6,8 @@ export interface TimesheetItem {
   periodStart: string;
   status: TimesheetStatus;
   dateApproved?: string;
+  updatedAt: string;
+  createdAt: string;
   dates?: any[];
   owner: User | number;
 }

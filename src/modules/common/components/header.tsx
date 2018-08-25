@@ -9,7 +9,7 @@ import {
   getAuthedUser,
   getUnreadNotifications,
 } from '../../auth/store/selectors';
-import { User } from '../../users/store/models';
+import { User, UserRole } from '../../users/store/models';
 import Avatar from './avatar';
 import Popup from './popup';
 import Notifications from './notifications';
@@ -18,6 +18,7 @@ import { clearNotifications } from '../../auth/store/actions';
 import { Notification } from '../../auth/store/models';
 import Attention from './attention';
 import Search from './search';
+import { HasAccess } from '../components';
 
 type Props = {
   containerHeight: number;
@@ -65,9 +66,11 @@ class Header extends React.Component<Props> {
         <RightNode className="right-node" containerHeight={containerHeight}>
           {/* <LanguageSelector /> */}
 
-          <div>
-            <Search />
-          </div>
+          <HasAccess roles={[UserRole.Admin, UserRole.Manager]}>
+            <div>
+              <Search />
+            </div>
+          </HasAccess>
 
           <HeaderAction>
             <Popup
@@ -91,7 +94,7 @@ class Header extends React.Component<Props> {
               </Link>
             )}
           >
-            <Avatar view="sm" avatar={user.image} />
+            <Avatar view="sm" avatar={user.image} gender={user.gender} />
           </StyledDropdown>
         </RightNode>
       </Container>

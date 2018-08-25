@@ -10,3 +10,6 @@ export {
   default as TimesheetsReadyForReview,
 } from './timesheets-ready-for-review';
 export { default as TimesheetsPastDueDate } from './timesheets-past-due-date';
+export {
+  default as TimesheetsRecentlyUpdated,
+} from './timesheets-recently-updated';

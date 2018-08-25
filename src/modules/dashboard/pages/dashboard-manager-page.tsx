@@ -8,6 +8,7 @@ import { Row, Column, Box } from '../../ui';
 import {
   TimesheetsReadyForReview,
   TimesheetsPastDueDate,
+  TimesheetsRecentlyUpdated,
 } from '../../timesheets';
 import { fetchTimesheets } from '../../timesheets/store/actions';
 import { fetchExpenses } from '../../expenses/store/actions';
@@ -81,7 +82,18 @@ class DashboardManagerPage extends React.Component<Props> {
               <TimesheetsPastDueDate />
             </Box>
           </Column>
-          <Column sm={6} />
+          <Column sm={6}>
+            <Box
+              actions={
+                <Link to="/manage-timesheets">
+                  <Icon name="fas fa-external-link-alt" />
+                </Link>
+              }
+              title="Timesheets Recently Updated"
+            >
+              <TimesheetsRecentlyUpdated />
+            </Box>
+          </Column>
         </Row>
       </div>
     );
