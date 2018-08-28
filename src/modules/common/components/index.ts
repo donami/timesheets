@@ -19,5 +19,6 @@ export { default as Feed } from './feed';
 export { default as Modal } from './modal';
 export { default as Search } from './search';
 export { default as Notifications } from './notifications';
+export { default as Uploader } from './uploader';
 export { default as Attention } from './attention';
 export { Form } from './form';

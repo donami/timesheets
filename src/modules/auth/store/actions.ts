@@ -29,3 +29,10 @@ export const recoverPassword = (email: string) => ({
     email,
   },
 });
+
+export const uploadProfileImage = (file: any) => ({
+  type: types.UPLOAD_PROFILE_IMAGE.REQUEST,
+  payload: {
+    file,
+  },
+});

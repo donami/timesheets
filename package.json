@@ -8,6 +8,7 @@
     "history": "^4.7.2",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
+    "react-flip-move": "3.0.1",
     "react-scripts-ts": "2.16.0"
   },
   "scripts": {

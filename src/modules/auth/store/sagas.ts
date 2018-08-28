@@ -114,6 +114,35 @@ function* updateProfile(action: any) {
   }
 }
 
+function* uploadProfileImage(action: any) {
+  try {
+    const response = yield call(Api.uploadProfileImage, action.payload.file);
+
+    yield all([
+      put({
+        payload: { ...response },
+        type: types.UPLOAD_PROFILE_IMAGE.SUCCESS,
+      }),
+      put(
+        toastr.success({
+          title: 'Updated!',
+          message: 'Your profile was updated.',
+        })
+      ),
+    ]);
+  } catch (e) {
+    yield all([
+      put({ type: types.UPLOAD_PROFILE_IMAGE.FAILURE, message: e.message }),
+      put(
+        toastr.error({
+          title: 'Oops!',
+          message: e.message,
+        })
+      ),
+    ]);
+  }
+}
+
 function* fetchAll(action: any) {
   yield put({ type: 'FETCH_ALL' });
 }
@@ -126,4 +155,5 @@ export default all([
   takeEvery(types.LOGOUT.SUCCESS, redirectToAuthPage),
   takeEvery(types.AUTH.SUCCESS, fetchAll),
   takeEvery(types.UPDATE_PROFILE.REQUEST, updateProfile),
+  takeEvery(types.UPLOAD_PROFILE_IMAGE.REQUEST, uploadProfileImage),
 ]);

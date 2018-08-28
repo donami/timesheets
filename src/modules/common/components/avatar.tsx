@@ -3,6 +3,7 @@ import React from 'react';
 import {
   DEFAULT_USER_IMAGE,
   DEFAULT_USER_IMAGE_FEMALE,
+  STATICS_URL,
 } from '../../../config/constants';
 import withDefaultProps from './with-default-props';
 import styled, { withProps, css } from '../../../styled/styled-components';
@@ -35,6 +36,12 @@ const Avatar: React.SFC<Props> = ({ avatar, gender, ...rest }) => {
       imageUrl = DEFAULT_USER_IMAGE;
     }
   }
+
+  if (!imageUrl.startsWith('http')) {
+    imageUrl = `${STATICS_URL}/images/uploads/${imageUrl}`;
+  }
+
+  imageUrl = imageUrl.replace('uploads//', 'uploads/');
 
   return (
     <StyledAvatar

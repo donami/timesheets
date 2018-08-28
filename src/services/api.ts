@@ -171,6 +171,30 @@ const clearNotifications = (): Promise<NormalizedResponse> =>
 const recoverPassword = (email: string): Promise<NormalizedResponse> =>
   fetchApi('auth/recover-password', 'POST', userSchema, { email });
 
+const uploadProfileImage = (file: any): Promise<any> => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+
+  return fetch(`${API_URL}/auth/upload-profile-image`, {
+    method: 'POST',
+    headers: {
+      'x-access-token': localStorage.getItem('token') || '',
+    },
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) {
+        return Promise.reject(response);
+      }
+
+      return response.json();
+    })
+    .then(responseJson => {
+      return normalize(responseJson, userSchema);
+    })
+    .catch(handleError);
+};
+
 export default {
   fetchTimesheets,
   fetchTimesheetById,
@@ -196,6 +220,7 @@ export default {
   createTimesheetTemplate,
   clearNotifications,
   recoverPassword,
+  uploadProfileImage,
   setup,
   isConfigured,
 };

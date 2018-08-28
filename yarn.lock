@@ -2982,7 +2982,7 @@ gauge@~2.7.3:
     wide-align "^1.1.0"
 
 "genui@file:.yalc/genui":
-  version "0.1.0-f4e2f2ed"
+  version "0.1.0-f12fc0d9"
   dependencies:
     autoprefixer "7.1.6"
     babel-jest "^22.1.0"
@@ -6160,6 +6160,10 @@ react-dom@^16.4.0:
 react-error-overlay@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-4.0.0.tgz#d198408a85b4070937a98667f500c832f86bd5d4"
+
+react-flip-move@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/react-flip-move/-/react-flip-move-3.0.1.tgz#7bb5351c6e1d9778baf748cc5292aa98250c3401"
 
 react-is@^16.3.1:
   version "16.4.0"
