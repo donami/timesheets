@@ -24,7 +24,7 @@ import { User } from '../../users/store/models';
 type Props = {
   match: any;
   article: QuestionArticle;
-  category: QuestionCategory;
+  category: QuestionCategory | null | undefined;
   giveFeedback: (articleId: number, response: string) => any;
   selectArticle: (articleId: number) => any;
   fetchCategoriesIfNeeded: () => any;
@@ -57,7 +57,7 @@ class ArticleViewPage extends Component<Props> {
       <div>
         <Search />
 
-        <Breadcrumb category={category} article={article} />
+        {category && <Breadcrumb category={category} article={article} />}
 
         <ArticleInfo article={article} author={author} />
 
