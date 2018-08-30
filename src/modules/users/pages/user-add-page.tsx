@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Heading } from 'genui';
 
 import { UserForm } from '../components';
 import { createUser } from '../store/actions';

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Icon, Button } from 'genui';
-import { TransitionGroup, Transition } from 'react-transition-group';
 
 import { Calendar, TimesheetInfo, TimesheetLogs } from '../components';
 import { TimesheetItem, TimesheetStatus } from '../store/models';

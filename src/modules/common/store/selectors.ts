@@ -5,7 +5,6 @@ import {
   getGroupsLoading,
 } from '../../groups/store/selectors';
 import {
-  getUserEntities,
   getSelectedUserId,
   getUsers,
   getUsersLoading,
