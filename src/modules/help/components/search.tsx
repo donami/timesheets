@@ -8,7 +8,7 @@ import { searchArticlesClear, searchArticles } from '../store/actions';
 import { getArticleSearchQuery } from '../store/selectors';
 
 type Props = {
-  query: string;
+  query: any;
   clearSearch: () => any;
   searchArticles: (query: string) => any;
 };
