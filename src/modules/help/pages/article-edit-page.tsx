@@ -22,7 +22,7 @@ type Props = {
   article: QuestionArticle;
   userId: number;
   categories: QuestionCategory[];
-  category: QuestionCategory;
+  category: QuestionCategory | null | undefined;
   updateArticle: (
     articleId: number,
     data: Partial<QuestionArticle>,
@@ -56,12 +56,14 @@ class ArticleEditPage extends Component<Props> {
       <div>
         <PageHeader>Edit Article</PageHeader>
 
-        <ArticleForm
-          categories={this.props.categories}
-          onSubmit={this.handleSubmit}
-          article={this.props.article}
-          category={this.props.category}
-        />
+        {this.props.category && (
+          <ArticleForm
+            categories={this.props.categories}
+            onSubmit={this.handleSubmit}
+            article={this.props.article}
+            category={this.props.category}
+          />
+        )}
       </div>
     );
   }

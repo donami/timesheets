@@ -4,7 +4,6 @@ import { Icon } from 'genui';
 
 import { QuestionCategory } from '../store/models';
 import styled from '../../../styled/styled-components';
-import { Avatar } from '../../common';
 
 type Props = {
   category: QuestionCategory;

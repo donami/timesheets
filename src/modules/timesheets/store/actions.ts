@@ -87,7 +87,7 @@ export const removeTimesheet = (timesheetId: number) => ({
   },
 });
 
-export const cancelTemplates = (templates: any) => ({
+export const cancelTemplates = () => ({
   type: types.TIMESHEETS_CANCEL_TEMPLATES,
 });
 

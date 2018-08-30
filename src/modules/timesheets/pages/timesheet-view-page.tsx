@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Icon, Button } from 'genui';
-import { TransitionGroup, Transition } from 'react-transition-group';
 
 import { Calendar, TimesheetInfo, TimesheetLogs } from '../components';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
@@ -29,7 +28,7 @@ type Props = {
   updateTimesheet: (timesheetId: number, timesheet: TimesheetItem) => any;
   fetchProjects: () => any;
   timesheetsWhereAdmin: TimesheetItem[];
-  project: Project;
+  project: Project | null | undefined;
 };
 
 type State = Readonly<{
@@ -167,7 +166,9 @@ class TimesheetViewPage extends React.Component<Props, State> {
               show: !logView,
               view: (
                 <>
-                  <TimesheetInfo project={project} timesheet={timesheet} />
+                  {project && (
+                    <TimesheetInfo project={project} timesheet={timesheet} />
+                  )}
 
                   <div>
                     <Calendar

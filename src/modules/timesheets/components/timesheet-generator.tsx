@@ -20,7 +20,6 @@ import { Project } from '../../projects/store/models';
 import { listOfMonthsFromToday } from '../../../utils/calendar';
 import { Translate, Form } from '../../common';
 import styled from '../../../styled/styled-components';
-import { Row, Column } from '../../ui';
 
 type Props = {
   template: TimesheetTemplateItem;

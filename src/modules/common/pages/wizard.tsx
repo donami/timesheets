@@ -4,7 +4,7 @@ import { Button } from 'genui';
 import { toastr } from 'react-redux-toastr';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { Route, Link, Switch, Redirect } from 'react-router-dom';
+import { Route, Link, Switch } from 'react-router-dom';
 import {
   WizardStepOne,
   WizardStepTwo,

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Field } from 'genui';
 
 import { FormContext } from './form';
@@ -97,7 +97,7 @@ class FormField extends React.Component<Props, State> {
       defaultValue,
       ...rest
     } = this.props;
-    const { isValid, errors, dirty } = this.state;
+    const { errors, dirty } = this.state;
 
     const isRequired = (validations && validations.isRequired) || false;
 

@@ -8,7 +8,6 @@ import { getIsAuthed } from '../../auth/store/selectors';
 import { fetchUsers } from '../../users/store/actions';
 import types from './types';
 import { push } from 'connected-react-router';
-import { fetchTimesheets } from '../../timesheets/store/actions';
 import { fetchProjects } from '../../projects/store/actions';
 
 function* fetchAll(action: any) {

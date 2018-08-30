@@ -4,7 +4,7 @@ import styled from '../../../../styled/styled-components';
 
 type Props = {};
 
-const FeedContent: React.SFC<any> = ({ children }) => {
+const FeedContent: React.SFC<Props> = ({ children }) => {
   return <Container>{children}</Container>;
 };
 

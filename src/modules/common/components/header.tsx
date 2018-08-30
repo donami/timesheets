@@ -2,9 +2,8 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Dropdown, Icon, Input, Button } from 'genui';
+import { Dropdown, Icon } from 'genui';
 
-import LanguageSelector from './language-selector';
 import {
   getAuthedUser,
   getUnreadNotifications,
