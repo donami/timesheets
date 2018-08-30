@@ -405,6 +405,7 @@ const Information = styled.div`
 
   p {
     color: #7f92a6;
+    line-height: 1.5em;
   }
 `;
 
