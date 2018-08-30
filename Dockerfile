@@ -3,7 +3,7 @@ FROM node:carbon
 
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get -y install autoconf automake libtool nasm make pkg-config git apt-utils
+RUN apt-get -y install autoconf automake libtool nasm make pkg-config git apt-utils serve
 
 # Create app directory
 RUN mkdir -p /usr/src/app
@@ -33,4 +33,5 @@ ENV PUBLIC_PATH "/"
 RUN npm run build
 
 # Main command
-CMD [ "npm", "run", "start" ]
+# CMD [ "npm", "run", "start" ]
+CMD [ "serve", "build" ]
