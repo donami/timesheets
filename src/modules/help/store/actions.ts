@@ -52,7 +52,7 @@ export const searchArticles = (query: string) => ({
   },
 });
 
-export const searchArticlesClear = (query: string) => ({
+export const searchArticlesClear = () => ({
   type: types.SEARCH_QUESTION_ARTICLES_CLEAR,
 });
 
