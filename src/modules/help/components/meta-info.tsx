@@ -35,7 +35,7 @@ const Meta = styled.div`
 `;
 
 const AvatarContainer = styled.div`
-  max-width: 32px;
+  max-width: 48px;
   margin-right: 10px;
 
   img {
