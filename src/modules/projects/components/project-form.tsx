@@ -1,6 +1,6 @@
 import React from 'react';
 import { Input, Button } from 'genui';
-import { Form } from '../../common';
+import { Form, BackButton } from '../../common';
 
 type Props = {
   onSubmit: (data: { name: string }) => any;
@@ -27,6 +27,7 @@ class ProjectForm extends React.Component<Props> {
             <Button type="submit" color="green" disabled={!formState.isValid}>
               Add
             </Button>
+            <BackButton>Cancel</BackButton>
           </>
         )}
       </Form>

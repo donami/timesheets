@@ -3,6 +3,7 @@ import { Input, Button, Select } from 'genui';
 
 import { Project } from '../../projects/store/models';
 import { Form } from '../../common/components/form';
+import { BackButton } from '../../common';
 
 type Props = {
   onSubmit: (data: any) => any;
@@ -109,6 +110,7 @@ class UserForm extends React.Component<Props> {
             <Button type="submit" disabled={!formState.isValid} color="green">
               Add
             </Button>
+            <BackButton>Cancel</BackButton>
           </>
         )}
       </Form>

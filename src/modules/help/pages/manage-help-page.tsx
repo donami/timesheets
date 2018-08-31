@@ -56,6 +56,9 @@ class ManageHelpPage extends Component<Props> {
                 </>
               )}
             >
+              {categories.length === 0 && (
+                <p>No categories have been added yet.</p>
+              )}
               <List divided>
                 {categories.map(category => (
                   <List.Item key={category.id}>
@@ -88,6 +91,10 @@ class ManageHelpPage extends Component<Props> {
                 </>
               )}
             >
+              {articles.length === 0 && (
+                <p>No articles have been published yet.</p>
+              )}
+
               <List divided>
                 {articles.map(article => (
                   <List.Item key={article.id}>

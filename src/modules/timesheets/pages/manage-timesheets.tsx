@@ -59,23 +59,23 @@ class ManageTimesheets extends React.Component<Props> {
               },
               options: [
                 {
-                  label: TimesheetStatus.Approved,
+                  label: 'Approved',
                   value: TimesheetStatus.Approved,
                 },
                 {
-                  label: TimesheetStatus.InProgressSaved,
+                  label: 'In Progress (Saved)',
                   value: TimesheetStatus.InProgressSaved,
                 },
                 {
-                  label: TimesheetStatus.NeedsRevisement,
+                  label: 'Needs Revisement',
                   value: TimesheetStatus.NeedsRevisement,
                 },
                 {
-                  label: TimesheetStatus.InProgress,
+                  label: 'In Progress',
                   value: TimesheetStatus.InProgress,
                 },
                 {
-                  label: TimesheetStatus.WaitingForApproval,
+                  label: 'Waiting for Approval',
                   value: TimesheetStatus.WaitingForApproval,
                 },
               ],

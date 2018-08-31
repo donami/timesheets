@@ -5,6 +5,7 @@ import { ReportType } from '../store/models';
 import { capitalize } from '../../../utils/helpers';
 import styled from '../../../styled/styled-components';
 import { toDuration, timeDiff } from '../../../utils/calendar';
+import { BackButton } from '../../common';
 
 type Props = {
   onSubmit: (data: State) => any;
@@ -213,6 +214,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
         <Button type="submit" color="green">
           Add
         </Button>
+        <BackButton>Cancel</BackButton>
       </form>
     );
   }
