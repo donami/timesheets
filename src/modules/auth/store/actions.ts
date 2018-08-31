@@ -30,9 +30,25 @@ export const recoverPassword = (email: string) => ({
   },
 });
 
+export const recoverPasswordChange = (data: any, code: string) => ({
+  type: types.RECOVER_PASSWORD_CHANGE.REQUEST,
+  payload: {
+    data,
+    code,
+  },
+});
+
 export const uploadProfileImage = (file: any) => ({
   type: types.UPLOAD_PROFILE_IMAGE.REQUEST,
   payload: {
     file,
+  },
+});
+
+export const verifyRecoverCode = (userId: number, code: string) => ({
+  type: types.VERIFY_RECOVER_CODE.REQUEST,
+  payload: {
+    userId,
+    code,
   },
 });

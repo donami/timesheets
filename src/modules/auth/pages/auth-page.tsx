@@ -9,6 +9,7 @@ import { getIsAuthed } from '../store/selectors';
 import { Redirect, Switch, Route } from 'react-router';
 import ForgottenPasswordPage from './forgotten-password-page';
 import { Link } from 'react-router-dom';
+import RecoverPasswordPage from './recover-password-page';
 
 type Props = {
   auth: (email: string, password: string) => any;
@@ -34,6 +35,10 @@ class AuthPage extends React.Component<Props> {
 
           <Content className="content">
             <Switch>
+              <Route
+                path={`/auth/forgotten-password/:userId/:code`}
+                render={props => <RecoverPasswordPage {...props} />}
+              />
               <Route
                 path={`/auth/forgotten-password`}
                 render={props => <ForgottenPasswordPage {...props} />}

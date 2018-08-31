@@ -6,6 +6,7 @@ const initialState = {
   isAuthed: false,
   userId: null,
   notifications: {},
+  passwordRecovery: {},
 };
 
 const authReducer = (state = initialState, action: any) => {
@@ -49,6 +50,59 @@ const authReducer = (state = initialState, action: any) => {
     case types.LOGOUT.SUCCESS: {
       return {
         ...initialState,
+      };
+    }
+
+    case types.RECOVER_PASSWORD_CHANGE.REQUEST: {
+      return {
+        ...newState,
+        passwordRecovery: {
+          ...newState.passwordRecovery,
+          error: undefined,
+        },
+      };
+    }
+
+    case types.RECOVER_PASSWORD_CHANGE.SUCCESS: {
+      return {
+        ...newState,
+        passwordRecovery: {},
+      };
+    }
+
+    case types.RECOVER_PASSWORD_CHANGE.FAILURE: {
+      return {
+        ...newState,
+        passwordRecovery: {
+          ...newState.passwordRecovery,
+          error: action.message,
+        },
+      };
+    }
+
+    case types.VERIFY_RECOVER_CODE.REQUEST: {
+      return {
+        ...newState,
+      };
+    }
+
+    case types.VERIFY_RECOVER_CODE.SUCCESS: {
+      return {
+        ...newState,
+        passwordRecovery: {
+          verified: true,
+          code: action.payload.code,
+          userId: action.payload.userId,
+        },
+      };
+    }
+
+    case types.VERIFY_RECOVER_CODE.FAILURE: {
+      return {
+        ...newState,
+        passwordRecovery: {
+          error: action.message,
+        },
       };
     }
 

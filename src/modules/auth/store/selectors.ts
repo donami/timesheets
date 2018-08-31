@@ -11,6 +11,8 @@ export const getAuthedUserId = (state: any) => state.auth.userId;
 export const getIsAuthed = (state: any) => state.auth.isAuthed;
 
 export const getNotificationEntities = (state: any) => state.auth.notifications;
+export const getPasswordRecoveryState = (state: any) =>
+  state.auth.passwordRecovery;
 
 export const getAuthedUser = createSelector(
   getAuthedUserId,

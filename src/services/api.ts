@@ -171,6 +171,18 @@ const clearNotifications = (): Promise<NormalizedResponse> =>
 const recoverPassword = (email: string): Promise<NormalizedResponse> =>
   fetchApi('auth/recover-password', 'POST', userSchema, { email });
 
+const recoverPasswordChange = (
+  data: any,
+  code: string
+): Promise<NormalizedResponse> =>
+  fetchApi('auth/recover-password-change', 'POST', userSchema, {
+    ...data,
+    code,
+  });
+
+const verifyRecoverCode = (userId: number, code: string): Promise<any> =>
+  fetchApi(`auth/verify-recover-code?userId=${userId}&code=${code}`, 'GET');
+
 const uploadProfileImage = (file: any): Promise<any> => {
   const formData = new FormData();
   formData.append('avatar', file);
@@ -220,6 +232,8 @@ export default {
   createTimesheetTemplate,
   clearNotifications,
   recoverPassword,
+  recoverPasswordChange,
+  verifyRecoverCode,
   uploadProfileImage,
   setup,
   isConfigured,

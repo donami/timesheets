@@ -35,10 +35,15 @@ class ForgottenPasswordPage extends Component<Props, State> {
         <h3>Recover Password</h3>
 
         {submitted ? (
-          <p>
-            An email with a verification link and information on how to reset
-            your password has been sent to your email.
-          </p>
+          <>
+            <p>
+              An email with a verification link and information on how to reset
+              your password has been sent to your email.
+            </p>
+            <Button to="/" color="green">
+              Go Back
+            </Button>
+          </>
         ) : (
           <Form onValidSubmit={this.handleSubmit}>
             {formState => (

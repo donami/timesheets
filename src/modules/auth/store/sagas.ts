@@ -81,6 +81,55 @@ function* recoverPassword(action: any) {
   }
 }
 
+function* recoverPasswordChange(action: any) {
+  try {
+    const response = yield call(
+      Api.recoverPasswordChange,
+      action.payload.data,
+      action.payload.code
+    );
+
+    yield all([
+      put(
+        toastr.success({
+          title: 'Password changed!',
+          message: 'You should now be able to login with the new password.',
+        })
+      ),
+      put({
+        payload: { ...response },
+        type: types.RECOVER_PASSWORD_CHANGE.SUCCESS,
+      }),
+      put(push('/auth')),
+    ]);
+  } catch (e) {
+    yield put({
+      type: types.RECOVER_PASSWORD_CHANGE.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
+function* verifyRecoverCode(action: any) {
+  try {
+    yield call(
+      Api.verifyRecoverCode,
+      action.payload.userId,
+      action.payload.code
+    );
+
+    yield put({
+      payload: {
+        code: action.payload.code,
+        userId: action.payload.userId,
+      },
+      type: types.VERIFY_RECOVER_CODE.SUCCESS,
+    });
+  } catch (e) {
+    yield put({ type: types.VERIFY_RECOVER_CODE.FAILURE, message: e.message });
+  }
+}
+
 function* updateProfile(action: any) {
   try {
     const response = yield call(
@@ -151,9 +200,11 @@ export default all([
   takeEvery(types.AUTH.REQUEST, auth),
   takeEvery(types.LOGOUT.REQUEST, logout),
   takeEvery(types.RECOVER_PASSWORD.REQUEST, recoverPassword),
+  takeEvery(types.RECOVER_PASSWORD_CHANGE.REQUEST, recoverPasswordChange),
   takeEvery(types.CLEAR_NOTIFICATIONS.REQUEST, clearNotifications),
   takeEvery(types.LOGOUT.SUCCESS, redirectToAuthPage),
   takeEvery(types.AUTH.SUCCESS, fetchAll),
   takeEvery(types.UPDATE_PROFILE.REQUEST, updateProfile),
   takeEvery(types.UPLOAD_PROFILE_IMAGE.REQUEST, uploadProfileImage),
+  takeEvery(types.VERIFY_RECOVER_CODE.REQUEST, verifyRecoverCode),
 ]);
