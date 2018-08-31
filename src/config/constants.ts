@@ -1,5 +1,8 @@
 const production = process.env.NODE_ENV === 'production';
 
+// TODO: remove
+console.log(process.env.NODE_ENV);
+
 const API_URL_PRODUCTION = 'http://46.101.211.180:9001/api';
 const API_URL_DEVELOPMENT = 'http://localhost:9001/api';
 

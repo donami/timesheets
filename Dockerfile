@@ -36,4 +36,5 @@ RUN npm run build
 
 # Main command
 # CMD [ "npm", "run", "start" ]
+# CMD [ "serve", "-s", "build" ]
 CMD [ "serve", "build" ]
