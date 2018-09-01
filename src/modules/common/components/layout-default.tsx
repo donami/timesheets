@@ -21,7 +21,7 @@ class LayoutDefault extends React.Component {
             </HeaderContainer>
 
             <MainContentContainer className="main-content-container">
-              <MainContent>{children}</MainContent>
+              <MainContent className="main-content">{children}</MainContent>
             </MainContentContainer>
 
             <FooterContainer>
@@ -60,6 +60,7 @@ const MainContentContainer = styled.div`
 
 const MainContent = styled.div`
   padding: 20px;
+  position: relative;
 `;
 
 const SideBarContainer = styled.div`
