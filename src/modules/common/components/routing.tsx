@@ -10,6 +10,7 @@ import {
   TimesheetTemplatesPage,
   TemplateViewPage,
   TimesheetTemplateCreatePage,
+  TimesheetTemplateEditPage,
 } from '../../timesheets';
 import ProtectedRoute from './protected-route';
 import { ExpenseReportPage, ExpensesPage } from '../../expenses';
@@ -163,6 +164,11 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute
               path="/manage-timesheets"
               component={withLoading(ManageTimesheets)}
+              roles={[UserRole.Manager, UserRole.Admin]}
+            />
+            <ProtectedRoute
+              path="/timesheet-template/:id/edit"
+              component={withLoading(TimesheetTemplateEditPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute

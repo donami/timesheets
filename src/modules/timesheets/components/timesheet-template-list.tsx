@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { TableList } from 'genui';
+import { TableList, Icon } from 'genui';
 
 import { TimesheetTemplateItem } from '../store/models';
 
@@ -22,11 +22,24 @@ class TimesheetTemplateList extends React.Component<
     const tableItems = templates.map(template => ({
       id: <Link to={`/timesheet-template/${template.id}`}>{template.id}</Link>,
       name: template.name,
+      edit: (
+        <Link to={`/timesheet-template/${template.id}/edit`}>
+          <Icon name="fas fa-edit" />
+        </Link>
+      ),
+      remove: (
+        <Link to={`/timesheet-template/${template.id}/edit`}>
+          <Icon name="fas fa-trash" />
+        </Link>
+      ),
     }));
 
     return (
       <div>
-        <TableList headings={['ID', 'Name']} items={tableItems} />
+        <TableList
+          headings={['ID', 'Name', 'Edit', 'Remove']}
+          items={tableItems}
+        />
       </div>
     );
   }

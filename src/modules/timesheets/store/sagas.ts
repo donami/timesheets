@@ -308,6 +308,26 @@ function* createTimesheetTemplate(action: any) {
   }
 }
 
+function* updateTimesheetTemplate(action: any) {
+  try {
+    const response = yield call(
+      Api.updateTimesheetTemplate,
+      action.payload.templateId,
+      action.payload.template
+    );
+
+    yield put({
+      payload: { ...response },
+      type: types.UPDATE_TIMESHEET_TEMPLATE.SUCCESS,
+    });
+  } catch (e) {
+    yield put({
+      type: types.UPDATE_TIMESHEET_TEMPLATE.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 export default all([
   takeEvery(types.SELECT_TIMESHEET, selectTimesheetFunction),
   takeLatest(types.FETCH_TIMESHEETS, fetchTimesheets),
@@ -322,4 +342,5 @@ export default all([
   takeEvery(types.TIMESHEETS_CONFIRM.REQUEST, confirmTemplates),
   takeEvery(types.RESOLVE_TIMESHEET_CONFLICT.REQUEST, resolveTimesheetConflict),
   takeEvery(types.CREATE_TIMESHEET_TEMPLATE.REQUEST, createTimesheetTemplate),
+  takeEvery(types.UPDATE_TIMESHEET_TEMPLATE.REQUEST, updateTimesheetTemplate),
 ]);

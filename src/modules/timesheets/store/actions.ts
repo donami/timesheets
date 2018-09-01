@@ -112,3 +112,11 @@ export const createTimesheetTemplate = (
     template,
   },
 });
+
+export const updateTimesheetTemplate = (templateId: number, template: any) => ({
+  type: types.UPDATE_TIMESHEET_TEMPLATE.REQUEST,
+  payload: {
+    templateId,
+    template,
+  },
+});

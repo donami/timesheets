@@ -6,3 +6,6 @@ export { default as TemplateViewPage } from './template-view-page';
 export {
   default as TimesheetTemplateCreatePage,
 } from './timesheet-template-create-page';
+export {
+  default as TimesheetTemplateEditPage,
+} from './timesheet-template-edit-page';

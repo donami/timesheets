@@ -108,6 +108,19 @@ const createTimesheetTemplate = (
     ...template,
   });
 
+const updateTimesheetTemplate = (
+  templateId: number,
+  template: Partial<TimesheetTemplateItem>
+): Promise<NormalizedResponse> =>
+  fetchApi(
+    `timesheet-templates/${templateId}`,
+    'PUT',
+    timesheetTemplateSchema,
+    {
+      ...template,
+    }
+  );
+
 const updateTimesheet = (
   timesheetId: number,
   timesheet: TimesheetItem
@@ -230,6 +243,7 @@ export default {
   fetchTemplateById,
   createTimesheets,
   createTimesheetTemplate,
+  updateTimesheetTemplate,
   clearNotifications,
   recoverPassword,
   recoverPasswordChange,

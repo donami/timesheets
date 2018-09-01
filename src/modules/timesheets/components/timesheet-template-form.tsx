@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field, Input, Button } from 'genui';
 
-import { ReportType } from '../store/models';
+import { ReportType, TimesheetTemplateItem } from '../store/models';
 import { capitalize } from '../../../utils/helpers';
 import styled from '../../../styled/styled-components';
 import { toDuration, timeDiff } from '../../../utils/calendar';
@@ -9,9 +9,11 @@ import { BackButton } from '../../common';
 
 type Props = {
   onSubmit: (data: State) => any;
+  initialValues?: TimesheetTemplateItem;
 };
 
 type State = Readonly<{
+  id?: number;
   name: string;
   hoursDays: {
     [key: string]: {
@@ -79,6 +81,46 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     shiftEndTime: '17:00',
     workHoursPerDay: 8,
   };
+
+  componentWillMount() {
+    if (this.props.initialValues) {
+      this.assignInitialValues(this.props.initialValues);
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.initialValues) {
+      if (
+        !this.props.initialValues ||
+        (this.props.initialValues &&
+          this.props.initialValues.id !== nextProps.initialValues.id)
+      ) {
+        this.assignInitialValues(nextProps.initialValues);
+      }
+    }
+  }
+
+  assignInitialValues(initialValues: any) {
+    const {
+      id,
+      name,
+      hoursDays,
+      reportType,
+      shiftStartTime,
+      shiftEndTime,
+      workHoursPerDay,
+    } = initialValues;
+
+    this.setState({
+      id,
+      name,
+      hoursDays,
+      reportType,
+      shiftStartTime,
+      shiftEndTime,
+      workHoursPerDay,
+    });
+  }
 
   handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const {
@@ -212,7 +254,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
         ))}
 
         <Button type="submit" color="green">
-          Add
+          {this.state.id ? 'Save' : 'Add'}
         </Button>
         <BackButton>Cancel</BackButton>
       </form>
