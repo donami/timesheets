@@ -178,6 +178,15 @@ const createTimesheets = (data: any): Promise<NormalizedResponse> =>
 const removeTimesheet = (timesheetId: number): Promise<NormalizedResponse> =>
   fetchApi(`timesheets/${timesheetId}`, 'DELETE', timesheetSchema);
 
+const removeTimesheetTemplate = (
+  templateId: number
+): Promise<NormalizedResponse> =>
+  fetchApi(
+    `timesheet-templates/${templateId}`,
+    'DELETE',
+    timesheetTemplateSchema
+  );
+
 const clearNotifications = (): Promise<NormalizedResponse> =>
   fetchApi('auth/clear-notifications', 'GET', userSchema);
 
@@ -244,6 +253,7 @@ export default {
   createTimesheets,
   createTimesheetTemplate,
   updateTimesheetTemplate,
+  removeTimesheetTemplate,
   clearNotifications,
   recoverPassword,
   recoverPasswordChange,

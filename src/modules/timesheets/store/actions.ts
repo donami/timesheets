@@ -120,3 +120,10 @@ export const updateTimesheetTemplate = (templateId: number, template: any) => ({
     template,
   },
 });
+
+export const removeTimesheetTemplate = (templateId: number) => ({
+  type: types.REMOVE_TIMESHEET_TEMPLATE.REQUEST,
+  payload: {
+    templateId,
+  },
+});

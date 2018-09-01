@@ -154,6 +154,17 @@ const timesheetTemplatesReducer = (
         selected: action.payload.templateId,
       };
 
+    case types.REMOVE_TIMESHEET_TEMPLATE.SUCCESS:
+      const index = newState.ids.indexOf(action.payload.result);
+
+      return {
+        ...newState,
+        ids: [
+          ...newState.ids.slice(0, index),
+          ...newState.ids.slice(index + 1),
+        ],
+      };
+
     default:
       return newState;
   }

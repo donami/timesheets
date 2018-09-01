@@ -316,15 +316,61 @@ function* updateTimesheetTemplate(action: any) {
       action.payload.template
     );
 
-    yield put({
-      payload: { ...response },
-      type: types.UPDATE_TIMESHEET_TEMPLATE.SUCCESS,
-    });
+    yield all([
+      put({
+        payload: { ...response },
+        type: types.UPDATE_TIMESHEET_TEMPLATE.SUCCESS,
+      }),
+      put(
+        toastr.success({
+          title: 'Template was updated!',
+          message: 'Template was successfully updated!',
+        })
+      ),
+      put(push('/timesheet-templates')),
+    ]);
   } catch (e) {
     yield put({
       type: types.UPDATE_TIMESHEET_TEMPLATE.FAILURE,
       message: e.message,
     });
+  }
+}
+
+function* removeTimesheetTemplate(action: any) {
+  try {
+    const response = yield call(
+      Api.removeTimesheetTemplate,
+      action.payload.templateId
+    );
+
+    yield all([
+      put({
+        type: types.REMOVE_TIMESHEET_TEMPLATE.SUCCESS,
+        payload: {
+          ...response,
+        },
+      }),
+      put(
+        toastr.success({
+          title: 'Template removed!',
+          message: 'The template was removed.',
+        })
+      ),
+    ]);
+  } catch (e) {
+    yield all([
+      put({
+        type: types.REMOVE_TIMESHEET_TEMPLATE.FAILURE,
+        message: e.message,
+      }),
+      put(
+        toastr.error({
+          title: 'Oops!',
+          message: 'Unable to remove template.',
+        })
+      ),
+    ]);
   }
 }
 
@@ -343,4 +389,5 @@ export default all([
   takeEvery(types.RESOLVE_TIMESHEET_CONFLICT.REQUEST, resolveTimesheetConflict),
   takeEvery(types.CREATE_TIMESHEET_TEMPLATE.REQUEST, createTimesheetTemplate),
   takeEvery(types.UPDATE_TIMESHEET_TEMPLATE.REQUEST, updateTimesheetTemplate),
+  takeEvery(types.REMOVE_TIMESHEET_TEMPLATE.REQUEST, removeTimesheetTemplate),
 ]);

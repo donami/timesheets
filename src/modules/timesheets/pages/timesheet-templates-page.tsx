@@ -4,13 +4,17 @@ import { bindActionCreators } from 'redux';
 import { Button } from 'genui';
 
 import { TimesheetTemplateList } from '../components';
-import { fetchTimesheetTemplatesIfNeeded } from '../store/actions';
+import {
+  fetchTimesheetTemplatesIfNeeded,
+  removeTimesheetTemplate,
+} from '../store/actions';
 import { timesheetSelectors } from '../store';
 import { PageHeader, Translate } from '../../common';
 
 export interface TimesheetTemplatesPageProps {
   templates: any;
-  fetchTimesheetTemplatesIfNeeded: () => any;
+  fetchTimesheetTemplatesIfNeeded(): any;
+  removeTimesheetTemplate(templateId: number): any;
 }
 
 class TimesheetTemplatesPage extends React.Component<
@@ -19,6 +23,10 @@ class TimesheetTemplatesPage extends React.Component<
   componentWillMount() {
     this.props.fetchTimesheetTemplatesIfNeeded();
   }
+
+  handleRemove = (templateId: number) => {
+    this.props.removeTimesheetTemplate(templateId);
+  };
 
   render() {
     const { templates } = this.props;
@@ -34,7 +42,10 @@ class TimesheetTemplatesPage extends React.Component<
         >
           <Translate text="timesheetTemplates.labels.TIMESHEET_TEMPLATES" />
         </PageHeader>
-        <TimesheetTemplateList templates={templates} />
+        <TimesheetTemplateList
+          templates={templates}
+          onRemoveTemplate={this.handleRemove}
+        />
       </div>
     );
   }
@@ -48,6 +59,7 @@ const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       fetchTimesheetTemplatesIfNeeded,
+      removeTimesheetTemplate,
     },
     dispatch
   );
