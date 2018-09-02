@@ -118,7 +118,7 @@ class ArticleForm extends React.Component<Props, State> {
                   value: category.id,
                   label: category.title,
                 }))}
-                placeholder="Select Project"
+                placeholder="Select Category"
               />
             </Form.Field>
 
