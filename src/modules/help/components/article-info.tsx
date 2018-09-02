@@ -1,4 +1,5 @@
 import React from 'react';
+import MarkdownIt from 'markdown-it';
 
 import { QuestionArticle } from '../store/models';
 import styled from '../../../styled/styled-components';
@@ -13,6 +14,7 @@ type Props = {
 
 class ArticleInfo extends React.Component<Props> {
   render() {
+    const md = new MarkdownIt();
     const { article, author } = this.props;
 
     return (
@@ -27,7 +29,9 @@ class ArticleInfo extends React.Component<Props> {
           authorName={author.fullName}
         />
 
-        <ArticleBody>{article.body}</ArticleBody>
+        <ArticleBody
+          dangerouslySetInnerHTML={{ __html: md.render(article.body) }}
+        />
       </Container>
     );
   }
