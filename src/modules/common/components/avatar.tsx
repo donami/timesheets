@@ -38,7 +38,7 @@ const Avatar: React.SFC<Props> = ({ avatar, gender, ...rest }) => {
   }
 
   if (!imageUrl.startsWith('http')) {
-    imageUrl = `${STATICS_URL}/images/uploads/${imageUrl}`;
+    imageUrl = `${STATICS_URL}/static/uploads/${imageUrl}`;
   }
 
   imageUrl = imageUrl.replace('uploads//', 'uploads/');
