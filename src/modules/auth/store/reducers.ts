@@ -106,6 +106,27 @@ const authReducer = (state = initialState, action: any) => {
       };
     }
 
+    case types.UPLOAD_PROFILE_IMAGE.REQUEST: {
+      return {
+        ...newState,
+        loading: true,
+      };
+    }
+
+    case types.UPLOAD_PROFILE_IMAGE.SUCCESS: {
+      return {
+        ...newState,
+        loading: false,
+      };
+    }
+
+    case types.UPLOAD_PROFILE_IMAGE.FAILURE: {
+      return {
+        ...newState,
+        loading: false,
+      };
+    }
+
     default:
       return newState;
   }

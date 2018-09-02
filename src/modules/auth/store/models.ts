@@ -12,5 +12,4 @@ export type Notification = {
   image?: string;
   createdAt: string;
   updatedAt: string;
-  // createdBy?: UserModel;
 };

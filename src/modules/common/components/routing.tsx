@@ -136,6 +136,7 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute
               path="/profile/:page?"
               component={withLoading(ProfilePage)}
+              roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/user/:id/:page?"

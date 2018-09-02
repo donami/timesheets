@@ -9,6 +9,7 @@ import { sortByRecentCreatedDates } from '../../../utils/helpers';
 export const getAuthedUserId = (state: any) => state.auth.userId;
 
 export const getIsAuthed = (state: any) => state.auth.isAuthed;
+export const getAuthIsLoading = (state: any) => state.auth.loading;
 
 export const getNotificationEntities = (state: any) => state.auth.notifications;
 export const getPasswordRecoveryState = (state: any) =>

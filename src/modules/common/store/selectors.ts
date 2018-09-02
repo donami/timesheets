@@ -25,6 +25,7 @@ import {
 import {
   getAuthedUserProjectsWhereAdmin,
   getAuthedUser,
+  getAuthIsLoading,
 } from '../../auth/store/selectors';
 import { TimesheetItem } from '../../timesheets/store/models';
 import { User } from '../../users/store/models';
@@ -190,6 +191,7 @@ export const getAppIsLoading = createSelector(
   getCategoriesLoading,
   getArticlesLoading,
   getLogsLoading,
+  getAuthIsLoading,
   getTimesheetsLoading,
   (
     groupsLoading,
@@ -199,6 +201,7 @@ export const getAppIsLoading = createSelector(
     categoriesLoading,
     articlesLoading,
     logsLoading,
+    authLoading,
     timesheetsLoading
   ) => {
     const appIsLoading = [
@@ -209,6 +212,7 @@ export const getAppIsLoading = createSelector(
       categoriesLoading,
       articlesLoading,
       logsLoading,
+      authLoading,
       timesheetsLoading,
     ].some(loading => loading);
 
