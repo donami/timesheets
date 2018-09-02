@@ -118,14 +118,21 @@ class Uploader extends React.Component<Props, State> {
 	 */
   hasExtension(fileName: string) {
     if (this.props.imgExtension) {
-      const pattern =
-        '(' + this.props.imgExtension.join('|').replace(/\./g, '\\.') + ')$';
+      const pattern = `(${this.props.imgExtension
+        .join('|')
+        .replace(/\./g, '\\.')})$`;
+
+      // const pattern =
+      //   '(' + this.props.imgExtension.join('|').replace(/\./g, '\\.') + ')$';
       return new RegExp(pattern, 'i').test(fileName);
     }
-    const pattern =
-      '(' +
-      ['.jpg', '.jpeg', '.gif', '.png'].join('|').replace(/\./g, '\\.') +
-      ')$';
+    const pattern = `(${['.jpg', '.jpeg', '.gif', '.png']
+      .join('|')
+      .replace(/\./g, '\\.')})$`;
+    // const pattern =
+    //   '(' +
+    //   ['.jpg', '.jpeg', '.gif', '.png'].join('|').replace(/\./g, '\\.') +
+    //   ')$';
     return new RegExp(pattern, 'i').test(fileName);
   }
 
@@ -229,7 +236,7 @@ class Uploader extends React.Component<Props, State> {
       notAccepted = this.state.notAcceptedFileType.map((error, index) => {
         return (
           <div
-            className={'errorMessage ' + this.props.errorClass}
+            className={`errorMessage ${this.props.errorClass}`}
             key={index}
             style={this.props.errorStyle}
           >
@@ -242,7 +249,7 @@ class Uploader extends React.Component<Props, State> {
       notAccepted = this.state.notAcceptedFileSize.map((error, index) => {
         return (
           <div
-            className={'errorMessage ' + this.props.errorClass}
+            className={`errorMessage ${this.props.errorClass}`}
             key={index}
             style={this.props.errorStyle}
           >
@@ -346,7 +353,7 @@ class Uploader extends React.Component<Props, State> {
 
     return (
       <div
-        className={'fileUploader ' + this.props.className}
+        className={`fileUploader ${this.props.className}`}
         style={this.props.style}
       >
         <div className="fileContainer">
