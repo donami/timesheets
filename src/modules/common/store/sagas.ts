@@ -9,12 +9,18 @@ import { fetchUsers } from '../../users/store/actions';
 import types from './types';
 import { push } from 'connected-react-router';
 import { fetchProjects } from '../../projects/store/actions';
+import { fetchTimesheetTemplates } from '../../timesheets/store/actions';
 
 function* fetchAll(action: any) {
   const isAuthed = yield select(getIsAuthed);
 
   if (isAuthed) {
-    yield all([put(fetchLogs()), put(fetchUsers()), put(fetchProjects())]);
+    yield all([
+      put(fetchLogs()),
+      put(fetchUsers()),
+      put(fetchProjects()),
+      put(fetchTimesheetTemplates()),
+    ]);
   }
 }
 

@@ -8,7 +8,7 @@ import {
   getGroupListPageState,
   getTotalCount,
 } from '../store/selectors';
-import { loadGroupListPage, fetchGroups } from '../store/actions';
+import { loadGroupListPage, fetchGroups, removeGroup } from '../store/actions';
 import { Group } from '../store/models';
 import { GroupList } from '../components';
 import { PageHeader, Translate } from '../../common';
@@ -16,6 +16,7 @@ import { PageHeader, Translate } from '../../common';
 type Props = {
   loadGroupListPage: (options?: any) => any;
   fetchGroups: (options?: any) => any;
+  removeGroup: (groupId: number) => any;
   groupListPage: any;
   groups: Group[];
   totalCount: number;
@@ -34,6 +35,10 @@ class GroupListPage extends React.Component<Props> {
     this.props.loadGroupListPage({ take, skip: skip + take });
   };
 
+  handleRemoveGroup = (groupId: number) => {
+    this.props.removeGroup(groupId);
+  };
+
   render() {
     const { groups, totalCount } = this.props;
 
@@ -49,6 +54,7 @@ class GroupListPage extends React.Component<Props> {
           <Translate text="groups.labels.GROUPS" />
         </PageHeader>
         <GroupList
+          onRemoveGroup={this.handleRemoveGroup}
           groups={groups}
           onLoadMore={this.handleLoadMore}
           totalCount={totalCount}
@@ -69,6 +75,7 @@ const mapDispatchToProps = (dispatch: any) =>
     {
       loadGroupListPage,
       fetchGroups,
+      removeGroup,
     },
     dispatch
   );
