@@ -8,11 +8,14 @@ import { Project } from '../../projects/store/models';
 import { fetchProjects } from '../../projects/store/actions';
 import { getAuthedUserProjectsWhereAdmin } from '../../auth/store/selectors';
 import { PageHeader } from '../../common';
+import { getGroups } from '../../groups/store/selectors';
+import { Group } from '../../groups/store/models';
 
 type Props = {
   createUser: (user: UserFormData) => any;
   fetchProjects: () => any;
   projects: Project[];
+  groups: Group[];
   error: any;
 };
 
@@ -34,12 +37,16 @@ class UserAddPage extends React.Component<Props> {
   };
 
   render() {
-    const { projects } = this.props;
+    const { projects, groups } = this.props;
 
     return (
       <div>
         <PageHeader>Add new user</PageHeader>
-        <UserForm onSubmit={this.handleAdd} projects={projects} />
+        <UserForm
+          onSubmit={this.handleAdd}
+          projects={projects}
+          groups={groups}
+        />
       </div>
     );
   }
@@ -47,6 +54,7 @@ class UserAddPage extends React.Component<Props> {
 
 const mapStateToProps = (state: any) => ({
   projects: getAuthedUserProjectsWhereAdmin(state),
+  groups: getGroups(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

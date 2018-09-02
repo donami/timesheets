@@ -4,10 +4,12 @@ import { Input, Button, Select } from 'genui';
 import { Project } from '../../projects/store/models';
 import { Form } from '../../common/components/form';
 import { BackButton } from '../../common';
+import { Group } from '../../groups/store/models';
 
 type Props = {
   onSubmit: (data: any) => any;
   projects: Project[];
+  groups: Group[];
 };
 
 class UserForm extends React.Component<Props> {
@@ -15,6 +17,7 @@ class UserForm extends React.Component<Props> {
     const data = {
       ...model,
       projects: [+model.project],
+      group: +model.group,
     };
 
     // if (
@@ -47,7 +50,7 @@ class UserForm extends React.Component<Props> {
   };
 
   render() {
-    const { projects } = this.props;
+    const { projects, groups } = this.props;
 
     return (
       <Form onValidSubmit={this.handleSubmit}>
@@ -104,6 +107,20 @@ class UserForm extends React.Component<Props> {
                   label: project.name,
                 }))}
                 placeholder="Select Project"
+              />
+            </Form.Field>
+
+            <Form.Field
+              name="group"
+              label="Assign to group"
+              validations={{ isRequired: true }}
+            >
+              <Select
+                options={groups.map(group => ({
+                  value: group.id,
+                  label: group.name,
+                }))}
+                placeholder="Select Group"
               />
             </Form.Field>
 
