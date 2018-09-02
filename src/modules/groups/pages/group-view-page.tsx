@@ -11,10 +11,16 @@ import {
   getSelectedGroupId,
 } from '../store/selectors';
 import { Group } from '../store/models';
-import { getSelectedGroupMembers } from '../../common/store/selectors';
+import {
+  getSelectedGroupMembers,
+  getSelectedGroupProject,
+} from '../../common/store/selectors';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
 import { Box, Row, Column } from '../../ui';
 import { capitalize } from '../../../utils/helpers';
+import { Switch, Route } from 'react-router-dom';
+import { GroupEditPage } from '../pages';
+import { Project } from '../../projects/store/models';
 
 export interface GroupViewPageProps {
   match: any;
@@ -24,6 +30,7 @@ export interface GroupViewPageProps {
   template: TimesheetTemplateItem | null;
   group: Group;
   groupMembers: any;
+  project: Project;
 }
 
 class GroupViewPage extends React.Component<GroupViewPageProps> {
@@ -40,57 +47,73 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
   };
 
   render() {
-    const { group, template, groupMembers } = this.props;
+    const { group, template, groupMembers, project } = this.props;
 
     return (
-      <div>
-        <GroupInfo group={group} />
+      <Switch>
+        <Route
+          path={`/group/:id/edit`}
+          render={props => <GroupEditPage group={group} project={project} />}
+        />
 
-        {template && (
-          <Box title="Timesheet Template">
-            <Row>
-              <Column sm={6}>
-                <List>
-                  <List.Item>
-                    <strong>Name:</strong> {template.name}
-                  </List.Item>
-                </List>
-              </Column>
-              <Column sm={6}>
-                <h3>Hours per day</h3>
-                <List divided>
-                  {Object.keys(template.hoursDays).map((day, index) => {
-                    const totalHours =
-                      (template.hoursDays &&
-                        template.hoursDays[day] &&
-                        template.hoursDays[day].totalHours) ||
-                      0;
+        <Route
+          path={`/group/:id`}
+          render={props => (
+            <div>
+              <GroupInfo group={group} {...props} />
 
-                    return (
-                      <List.Item key={index}>
-                        {' '}
-                        <strong>{capitalize(day)}:</strong> {totalHours} hour
-                        {totalHours > 1 && 's'}
-                      </List.Item>
-                    );
-                  })}
-                </List>
-              </Column>
-            </Row>
-          </Box>
-        )}
+              {template && (
+                <Box title="Timesheet Template">
+                  <Row>
+                    <Column sm={6}>
+                      <List>
+                        <List.Item>
+                          <strong>Name:</strong> {template.name}
+                        </List.Item>
+                      </List>
+                    </Column>
+                    <Column sm={6}>
+                      <h3>Hours per day</h3>
+                      <List divided>
+                        {Object.keys(template.hoursDays).map((day, index) => {
+                          const totalHours =
+                            (template.hoursDays &&
+                              template.hoursDays[day] &&
+                              template.hoursDays[day].totalHours) ||
+                            0;
 
-        <Box title="Users attached to this group">
-          <GroupMemberList
-            noMembersText="No users are attached to this group"
-            members={groupMembers}
-          />
-        </Box>
+                          return (
+                            <List.Item key={index}>
+                              {' '}
+                              <strong>{capitalize(day)}:</strong> {totalHours}{' '}
+                              hour
+                              {totalHours > 1 && 's'}
+                            </List.Item>
+                          );
+                        })}
+                      </List>
+                    </Column>
+                  </Row>
+                </Box>
+              )}
 
-        <div>
-          <Button onClick={this.handleRemove}>Remove</Button>
-        </div>
-      </div>
+              <Box title="Users attached to this group">
+                <GroupMemberList
+                  noMembersText="No users are attached to this group"
+                  members={groupMembers}
+                />
+              </Box>
+
+              {group && (
+                <div>
+                  <Button onClick={this.handleRemove}>Remove</Button>
+                  <Button to={`/group/${group.id}/edit`}>Edit</Button>
+                </div>
+              )}
+            </div>
+          )}
+        />
+      </Switch>
     );
   }
 }
@@ -100,6 +123,7 @@ const mapStateToProps = (state: any) => ({
   template: getSelectedGroupTimesheetTemplate(state),
   groupMembers: getSelectedGroupMembers(state),
   groupId: getSelectedGroupId(state),
+  project: getSelectedGroupProject(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

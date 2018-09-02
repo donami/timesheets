@@ -3,7 +3,8 @@ import { Select, Input, Button } from 'genui';
 
 import { Project } from '../../projects/store/models';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
-import { Form } from '../../common';
+import { Form, BackButton } from '../../common';
+import { Group } from '../store/models';
 
 type Props = {
   onSubmit: (
@@ -16,12 +17,16 @@ type Props = {
   ) => any;
   projects: Project[];
   templates: TimesheetTemplateItem[];
+  initialValues?: Group;
+  project?: Project;
 };
 
 class GroupForm extends React.Component<Props> {
   handleSubmit = (model: any) => {
     const data = {
       ...model,
+      id:
+        (this.props.initialValues && this.props.initialValues.id) || undefined,
       project: +model.project,
       timesheetTemplate:
         this.props.templates.find(
@@ -37,7 +42,7 @@ class GroupForm extends React.Component<Props> {
   };
 
   render() {
-    const { projects, templates } = this.props;
+    const { projects, templates, initialValues, project } = this.props;
 
     return (
       <Form onValidSubmit={this.handleSubmit}>
@@ -47,6 +52,7 @@ class GroupForm extends React.Component<Props> {
               name="name"
               label="Name"
               validations={{ isRequired: true }}
+              defaultValue={(initialValues && initialValues.name) || ''}
             >
               <Input placeholder="Name of the the group" />
             </Form.Field>
@@ -55,6 +61,7 @@ class GroupForm extends React.Component<Props> {
               name="project"
               label="Select Project"
               validations={{ isRequired: true }}
+              defaultValue={project && project.id.toString()}
             >
               <Select
                 options={projects.map(project => ({
@@ -69,6 +76,11 @@ class GroupForm extends React.Component<Props> {
               name="timesheetTemplate"
               label="Timesheet Template"
               validations={{ isRequired: true }}
+              defaultValue={
+                initialValues &&
+                initialValues.timesheetTemplate &&
+                initialValues.timesheetTemplate.toString()
+              }
             >
               <Select
                 options={templates.map(template => ({
@@ -80,8 +92,9 @@ class GroupForm extends React.Component<Props> {
             </Form.Field>
 
             <Button type="submit" color="green" disabled={!formState.isValid}>
-              Add
+              {initialValues && initialValues.id ? 'Save' : 'Add'}
             </Button>
+            <BackButton>Cancel</BackButton>
           </>
         )}
       </Form>

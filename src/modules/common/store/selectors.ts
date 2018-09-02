@@ -61,6 +61,19 @@ export const getSelectedGroupMembers = createSelector(
   }
 );
 
+export const getSelectedGroupProject = createSelector(
+  getSelectedGroup,
+  getProjects,
+  (group, projects) => {
+    if (!group) {
+      return undefined;
+    }
+    return projects.find(
+      (project: any) => project.groups.indexOf(group.id) > -1
+    );
+  }
+);
+
 // Get selected language
 export const getSelectedLanguage = (state: any) => {
   return state.common.language;

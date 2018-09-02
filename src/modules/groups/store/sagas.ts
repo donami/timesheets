@@ -85,10 +85,18 @@ function* updateGroup(action: any) {
       action.payload.group
     );
 
-    yield put({
-      payload: { ...response },
-      type: types.UPDATE_GROUP.SUCCESS,
-    });
+    yield all([
+      put(
+        toastr.success({
+          title: 'Group updated!',
+          message: 'Group was successfully updated!',
+        })
+      ),
+      put({
+        payload: { ...response },
+        type: types.UPDATE_GROUP.SUCCESS,
+      }),
+    ]);
   } catch (e) {
     yield put({
       type: types.UPDATE_GROUP.FAILURE,

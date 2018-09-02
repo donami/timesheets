@@ -198,7 +198,7 @@ class Routing extends React.Component<Props> {
               roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
-              path="/group/:id"
+              path="/group/:id/:page?"
               component={withLoading(GroupViewPage)}
               roles={[UserRole.Manager, UserRole.Admin]}
             />
