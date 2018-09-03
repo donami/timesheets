@@ -83,10 +83,19 @@ function* updateProject(action: any) {
       action.payload.project
     );
 
-    yield put({
-      payload: { ...response },
-      type: types.UPDATE_PROJECT.SUCCESS,
-    });
+    yield all([
+      put(
+        toastr.success({
+          title: 'Project was updated!',
+          message: 'Project was successfully updated.',
+        })
+      ),
+      put({
+        payload: { ...response },
+        type: types.UPDATE_PROJECT.SUCCESS,
+      }),
+      put(push('/projects')),
+    ]);
   } catch (e) {
     yield put({
       type: types.UPDATE_PROJECT.FAILURE,
@@ -103,19 +112,19 @@ function* createProject(action: any) {
       action.payload.userId
     );
 
-    yield put({
-      payload: { ...response },
-      type: types.CREATE_PROJECT.SUCCESS,
-    });
-
-    yield put(
-      toastr.success({
-        title: 'Project was created!',
-        message: 'Project was successfully created.',
-      })
-    );
-
-    yield put(push('/projects'));
+    yield all([
+      put({
+        payload: { ...response },
+        type: types.CREATE_PROJECT.SUCCESS,
+      }),
+      put(
+        toastr.success({
+          title: 'Project was created!',
+          message: 'Project was successfully created.',
+        })
+      ),
+      put(push('/projects')),
+    ]);
   } catch (e) {
     yield put({
       type: types.CREATE_PROJECT.FAILURE,

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Icon } from 'genui';
+import { Link } from 'react-router-dom';
 
 import { Project } from '../store/models';
 import styled from '../../../styled/styled-components';
@@ -13,14 +14,21 @@ const ProjectCard: React.SFC<Props> = ({ project }) =>
   project ? (
     <Container>
       <Top>
-        <span
-          className="fa-stack fa-1x"
-          style={{ marginRight: 10, color: '#7b42ff' }}
-        >
-          <i className="fas fa-square fa-stack-2x" />
-          <i className="fas fa-flag fa-stack-1x fa-inverse" />
-        </span>
-        <span>{project.name}</span>
+        <div>
+          <span
+            className="fa-stack fa-1x"
+            style={{ marginRight: 10, color: '#7b42ff' }}
+          >
+            <i className="fas fa-square fa-stack-2x" />
+            <i className="fas fa-flag fa-stack-1x fa-inverse" />
+          </span>
+          <span>{project.name}</span>
+        </div>
+        <div className="options">
+          <Link to={`/project/${project.id}/edit`} title="Edit project">
+            <Icon name="fas fa-edit" />
+          </Link>
+        </div>
       </Top>
       <Info>
         <InfoItem>
@@ -52,6 +60,22 @@ const Top = styled.div`
   display: flex;
   line-height: 32px;
   font-size: 1.2em;
+
+  > div {
+    flex: 1;
+  }
+
+  .options {
+    text-align: right;
+
+    i {
+      opacity: 0.5;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
 `;
 
 const Info = styled.ul`

@@ -182,7 +182,7 @@ export const getSelectedProjectGroups = createSelector(
   getSelectedProject,
   getGroupEntities,
   (project, groupsById) => {
-    if (!project || !groupsById) {
+    if (!project || !groupsById || !project.groups) {
       return [];
     }
 

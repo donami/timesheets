@@ -3,11 +3,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Badge } from 'genui';
 
-import { selectProject } from '../store/actions';
+import { selectProject, updateProject } from '../store/actions';
 import {
   ProjectCard,
   ProjectMemberList,
   ProjectGroupsList,
+  ProjectForm,
 } from '../components';
 import {
   getSelectedProject,
@@ -22,11 +23,14 @@ import { Box, Row, Column } from '../../ui';
 import styled from '../../../styled/styled-components';
 import { Group } from '../../groups/store/models';
 import { getSelectedProjectGroups } from '../../common/store/selectors';
+import { Switch, Route } from 'react-router-dom';
+import { PageHeader } from '../../common';
 
 export interface ProjectViewPageProps {
   match: any;
   timesheets: TimesheetItem[];
-  selectProject: (projectId: number) => any;
+  selectProject(projectId: number): any;
+  updateProject(projectId: number, project: Project): any;
   projectId: number;
   project: Project;
   groups: Group[];
@@ -42,6 +46,10 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
     }
   }
 
+  handleSave = (data: Project) => {
+    this.props.updateProject(data.id, data);
+  };
+
   render() {
     const { project, timesheets, projectMembers, groups } = this.props;
 
@@ -51,68 +59,84 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
     );
 
     return (
-      <div>
-        <Row>
-          <Column sm={3}>
-            <ProjectCard project={project} />
-          </Column>
-          <Column sm={9}>
-            <Box
-              title={() => (
-                <div>
-                  <BoxTitleWithBadge>
-                    Timesheets waiting for approval
-                  </BoxTitleWithBadge>
-                  <Badge color="purple">
-                    {timesheetsWaitingForApproval.length}
-                  </Badge>
-                </div>
-              )}
-            >
-              <TimesheetList
-                noTimesheetsText="No timesheets are waiting for approval"
-                timesheets={timesheetsWaitingForApproval}
-              />
-            </Box>
-          </Column>
-        </Row>
-
-        <Box title="All timesheets">
-          <TimesheetList timesheets={timesheets} />
-        </Box>
-
-        <Box
-          title={() => (
+      <Switch>
+        <Route
+          path={`/project/:id/edit`}
+          render={props => (
             <div>
-              <BoxTitleWithBadge>
-                Users attached to this project
-              </BoxTitleWithBadge>
-              <Badge color="purple">{projectMembers.length}</Badge>
+              <PageHeader>Edit Project</PageHeader>
+              <ProjectForm onSubmit={this.handleSave} initialValues={project} />
             </div>
           )}
-        >
-          <ProjectMemberList
-            noMembersText="No users are attached to this project"
-            members={projectMembers}
-          />
-        </Box>
-
-        <Box
-          title={() => (
+        />
+        <Route
+          path="/project/:id"
+          render={props => (
             <div>
-              <BoxTitleWithBadge>
-                Groups attached to this project
-              </BoxTitleWithBadge>
-              <Badge color="purple">{groups.length || 0}</Badge>
+              <Row>
+                <Column sm={3}>
+                  <ProjectCard project={project} />
+                </Column>
+                <Column sm={9}>
+                  <Box
+                    title={() => (
+                      <div>
+                        <BoxTitleWithBadge>
+                          Timesheets waiting for approval
+                        </BoxTitleWithBadge>
+                        <Badge color="purple">
+                          {timesheetsWaitingForApproval.length}
+                        </Badge>
+                      </div>
+                    )}
+                  >
+                    <TimesheetList
+                      noTimesheetsText="No timesheets are waiting for approval"
+                      timesheets={timesheetsWaitingForApproval}
+                    />
+                  </Box>
+                </Column>
+              </Row>
+
+              <Box title="All timesheets">
+                <TimesheetList timesheets={timesheets} />
+              </Box>
+
+              <Box
+                title={() => (
+                  <div>
+                    <BoxTitleWithBadge>
+                      Users attached to this project
+                    </BoxTitleWithBadge>
+                    <Badge color="purple">{projectMembers.length}</Badge>
+                  </div>
+                )}
+              >
+                <ProjectMemberList
+                  noMembersText="No users are attached to this project"
+                  members={projectMembers}
+                />
+              </Box>
+
+              <Box
+                title={() => (
+                  <div>
+                    <BoxTitleWithBadge>
+                      Groups attached to this project
+                    </BoxTitleWithBadge>
+                    <Badge color="purple">{groups.length || 0}</Badge>
+                  </div>
+                )}
+              >
+                <ProjectGroupsList
+                  noGroupsText="No groups are attached to this project"
+                  groups={groups}
+                />
+              </Box>
             </div>
           )}
-        >
-          <ProjectGroupsList
-            noGroupsText="No groups are attached to this project"
-            groups={groups}
-          />
-        </Box>
-      </div>
+        />
+      </Switch>
     );
   }
 }
@@ -129,6 +153,7 @@ const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       selectProject,
+      updateProject,
     },
     dispatch
   );
