@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button } from 'genui';
+import { Button, TableBuilder, Table } from 'genui';
 
-import { TimesheetTemplateList } from '../components';
+// import { TimesheetTemplateList } from '../components';
 import {
   fetchTimesheetTemplatesIfNeeded,
   removeTimesheetTemplate,
 } from '../store/actions';
 import { timesheetSelectors } from '../store';
 import { PageHeader, Translate } from '../../common';
+import { Link } from 'react-router-dom';
 
 export interface TimesheetTemplatesPageProps {
   templates: any;
@@ -42,10 +43,53 @@ class TimesheetTemplatesPage extends React.Component<
         >
           <Translate text="timesheetTemplates.labels.TIMESHEET_TEMPLATES" />
         </PageHeader>
-        <TimesheetTemplateList
+
+        <TableBuilder
+          selectable
+          items={templates}
+          itemsOptions={(item: any) => [
+            {
+              label: 'View template',
+              icon: 'fas fa-eye',
+              to: `/timesheet-template/${item.id}`,
+            },
+          ]}
+          renderHeaders={
+            <>
+              <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+              <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
+              <Table.HeaderCell length="5%" />
+              <Table.HeaderCell length="5%" />
+              <Table.HeaderCell length="5%" />
+            </>
+          }
+          renderItem={(item: any) => (
+            <>
+              <Table.Cell>
+                <Link to={`/timesheet-template/${item.id}`}>#{item.id}</Link>
+              </Table.Cell>
+              <Table.Cell>{item.name}</Table.Cell>
+
+              <Table.Cell
+                option={{
+                  icon: 'fas fa-pencil-alt',
+                  to: `/timesheet-template/${item.id}/edit`,
+                }}
+              />
+              <Table.Cell
+                option={{
+                  icon: 'fas fa-trash',
+                  onClick: () => this.handleRemove(item.id),
+                }}
+              />
+            </>
+          )}
+        />
+
+        {/* <TimesheetTemplateList
           templates={templates}
           onRemoveTemplate={this.handleRemove}
-        />
+        /> */}
       </div>
     );
   }
