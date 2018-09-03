@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { TableList, StatusColor } from 'genui';
+import { TableList, StatusColor, Label } from 'genui';
 
-import { TimesheetItem } from '../store/models';
-import { dateFormat } from '../../../utils/calendar';
+import { TimesheetItem, TimesheetStatus } from '../store/models';
+import { dateFormat, monthIsInPast } from '../../../utils/calendar';
 import withDefaultProps from '../../common/components/with-default-props';
 import { Translate } from '../../common';
 import {
@@ -22,6 +22,7 @@ const defaultProps: DefaultProps = {
   // noTimesheetsText: 'No timesheets',
   disableFilter: false,
   includeUser: false,
+  indicateDueDate: false,
   users: [],
   sortFunction: sortByDate,
 };
@@ -32,6 +33,7 @@ type DefaultProps = {
   // noTimesheetsText: string;
   includeUser: boolean;
   users: { [key: number]: User };
+  indicateDueDate: boolean;
 };
 
 class TimesheetList extends React.Component<Props> {
@@ -49,6 +51,26 @@ class TimesheetList extends React.Component<Props> {
     }
 
     return <Link to={`/user/${user.id}`}>{user.fullName}</Link>;
+  }
+
+  renderPastDueDate(date: string, status: TimesheetStatus) {
+    if (!this.props.indicateDueDate) {
+      return null;
+    }
+
+    if (
+      monthIsInPast(date) &&
+      [TimesheetStatus.InProgress, TimesheetStatus.InProgressSaved].indexOf(
+        status
+      ) > -1
+    ) {
+      return (
+        <Label color="red" style={{ float: 'right' }}>
+          Past due date
+        </Label>
+      );
+    }
+    return null;
   }
 
   render() {
@@ -88,6 +110,7 @@ class TimesheetList extends React.Component<Props> {
               {...getStatusColor(timesheet.status)}
             />
             <Translate text={`timesheet.status.${timesheet.status}`} />
+            {this.renderPastDueDate(timesheet.periodStart, timesheet.status)}
           </>
         ),
         user: includeUser ? this.getUserLink(timesheet) : null,

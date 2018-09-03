@@ -3069,9 +3069,9 @@ gauge@~2.7.3:
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
 
-genui@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/genui/-/genui-0.1.2.tgz#cbccca00c3f36266db793423fbc702a0e40dddfb"
+genui@0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/genui/-/genui-0.1.4.tgz#73e252d5ec3af424f8a91bf3e61b25885c6c2c2b"
   dependencies:
     autoprefixer "7.1.6"
     babel-jest "^22.1.0"

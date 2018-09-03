@@ -29,7 +29,7 @@ class TimesheetsPage extends React.Component<Props> {
     return (
       <div>
         <PageHeader>Your Timesheets</PageHeader>
-        <TimesheetList timesheets={filteredTimesheets} />
+        <TimesheetList timesheets={filteredTimesheets} indicateDueDate={true} />
       </div>
     );
   }

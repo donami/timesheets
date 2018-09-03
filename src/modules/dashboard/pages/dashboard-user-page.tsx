@@ -38,7 +38,7 @@ class DashboardUserPage extends React.Component<Props> {
         <Row>
           <Column sm={6}>
             <Box title="Timesheets">
-              <TimesheetList timesheets={timesheets} />
+              <TimesheetList indicateDueDate={true} timesheets={timesheets} />
             </Box>
           </Column>
           <Column sm={6}>
