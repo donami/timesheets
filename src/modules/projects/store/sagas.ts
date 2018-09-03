@@ -111,7 +111,7 @@ function* createProject(action: any) {
     yield put(
       toastr.success({
         title: 'Project was created!',
-        message: 'Project was successfully created!',
+        message: 'Project was successfully created.',
       })
     );
 
@@ -124,10 +124,35 @@ function* createProject(action: any) {
   }
 }
 
+function* removeProject(action: any) {
+  try {
+    const response = yield call(Api.removeProject, action.payload.projectId);
+
+    yield all([
+      put(
+        toastr.success({
+          title: 'Project was removed!',
+          message: 'Project was successfully removed.',
+        })
+      ),
+      put({
+        payload: { ...response },
+        type: types.REMOVE_PROJECT.SUCCESS,
+      }),
+    ]);
+  } catch (e) {
+    yield put({
+      type: types.REMOVE_PROJECT.FAILURE,
+      message: e.message,
+    });
+  }
+}
+
 export default all([
   takeEvery(types.SELECT_PROJECT, selectProjectFunction),
   takeEvery(types.FETCH_PROJECTS, fetchProjects),
   takeEvery(types.FETCH_PROJECT_BY_ID, fetchProjectById),
   takeEvery(types.UPDATE_PROJECT.REQUEST, updateProject),
   takeEvery(types.CREATE_PROJECT.REQUEST, createProject),
+  takeEvery(types.REMOVE_PROJECT.REQUEST, removeProject),
 ]);

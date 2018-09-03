@@ -135,6 +135,9 @@ const updateProject = (
 ): Promise<NormalizedResponse> =>
   fetchApi(`projects/${projectId}`, 'PUT', projectSchema, { ...project });
 
+const removeProject = (projectId: number): Promise<NormalizedResponse> =>
+  fetchApi(`projects/${projectId}`, 'DELETE', projectSchema);
+
 const createProject = (
   project: Partial<Project>,
   userId: number
@@ -248,6 +251,7 @@ export default {
   fetchProjectById,
   updateProject,
   createProject,
+  removeProject,
   fetchTimesheetTemplates,
   fetchTemplateById,
   createTimesheets,

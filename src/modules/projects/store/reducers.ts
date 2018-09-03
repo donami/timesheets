@@ -61,6 +61,18 @@ const projectReducer = (state = initialState, action: any) => {
         loaded: false,
       };
 
+    case types.REMOVE_PROJECT.SUCCESS:
+      if (!action.payload.result) {
+        return newState;
+      }
+
+      const index = state.ids.indexOf(action.payload.result);
+
+      return {
+        ...newState,
+        ids: [...state.ids.slice(0, index), ...state.ids.slice(index + 1)],
+      };
+
     case types.SELECT_PROJECT_SUCCESS:
       return {
         ...newState,

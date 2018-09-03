@@ -34,3 +34,10 @@ export const createProject = (project: Partial<Project>, userId: number) => ({
     userId,
   },
 });
+
+export const removeProject = (projectId: number) => ({
+  type: types.REMOVE_PROJECT.REQUEST,
+  payload: {
+    projectId,
+  },
+});

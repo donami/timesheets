@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Button, TableBuilder, Table } from 'genui';
 
-import { fetchProjects } from '../store/actions';
+import { fetchProjects, removeProject } from '../store/actions';
 import { Project } from '../store/models';
 // import { ProjectList } from '../components';
 import { getAuthedUserProjects } from '../../auth/store/selectors';
@@ -11,7 +11,8 @@ import { PageHeader, Translate } from '../../common';
 import { Link } from 'react-router-dom';
 
 export interface ProjectListPageProps {
-  fetchProjects: () => any;
+  fetchProjects(): any;
+  removeProject(projectId: number): any;
   projects: Project[];
 }
 
@@ -21,7 +22,7 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
   }
 
   handleRemove = (projectId: number) => {
-    // TODO: implement
+    this.props.removeProject(projectId);
   };
 
   render() {
@@ -95,6 +96,7 @@ const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
       fetchProjects,
+      removeProject,
     },
     dispatch
   );
