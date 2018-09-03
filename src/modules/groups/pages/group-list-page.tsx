@@ -13,12 +13,15 @@ import { Group } from '../store/models';
 // import { GroupList } from '../components';
 import { PageHeader, Translate } from '../../common';
 import { Link } from 'react-router-dom';
+import { getProjects } from '../../projects/store/selectors';
+import { Project } from '../../projects/store/models';
 
 type Props = {
   loadGroupListPage: (options?: any) => any;
   fetchGroups: (options?: any) => any;
   removeGroup: (groupId: number) => any;
   groupListPage: any;
+  projects: Project[];
   groups: Group[];
   totalCount: number;
 };
@@ -38,6 +41,12 @@ class GroupListPage extends React.Component<Props> {
 
   handleRemoveGroup = (groupId: number) => {
     this.props.removeGroup(groupId);
+  };
+
+  getProject = (group: Group) => {
+    return this.props.projects.find(
+      (project: any) => project.groups.indexOf(group.id) > -1
+    );
   };
 
   render() {
@@ -77,32 +86,39 @@ class GroupListPage extends React.Component<Props> {
             <>
               <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
               <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
+              <Table.HeaderCell sortableBy="project">Project</Table.HeaderCell>
               <Table.HeaderCell length="5%" />
               <Table.HeaderCell length="5%" />
               <Table.HeaderCell length="5%" />
             </>
           }
-          renderItem={(item: any) => (
-            <>
-              <Table.Cell>
-                <Link to={`/group/${item.id}`}>#{item.id}</Link>
-              </Table.Cell>
-              <Table.Cell>{item.name}</Table.Cell>
+          renderItem={(item: any) => {
+            const project = this.getProject(item);
+            return (
+              <>
+                <Table.Cell>
+                  <Link to={`/group/${item.id}`}>#{item.id}</Link>
+                </Table.Cell>
+                <Table.Cell>{item.name}</Table.Cell>
+                <Table.Cell>
+                  {(project && project.name) || 'No project'}
+                </Table.Cell>
 
-              <Table.Cell
-                option={{
-                  icon: 'fas fa-pencil-alt',
-                  to: `/group/${item.id}/edit`,
-                }}
-              />
-              <Table.Cell
-                option={{
-                  icon: 'fas fa-trash',
-                  onClick: () => this.handleRemoveGroup(item.id),
-                }}
-              />
-            </>
-          )}
+                <Table.Cell
+                  option={{
+                    icon: 'fas fa-pencil-alt',
+                    to: `/group/${item.id}/edit`,
+                  }}
+                />
+                <Table.Cell
+                  option={{
+                    icon: 'fas fa-trash',
+                    onClick: () => this.handleRemoveGroup(item.id),
+                  }}
+                />
+              </>
+            );
+          }}
         />
       </div>
     );
@@ -112,6 +128,7 @@ class GroupListPage extends React.Component<Props> {
 const mapStateToProps = (state: any) => ({
   groups: getGroups(state),
   groupListPage: getGroupListPageState(state),
+  projects: getProjects(state),
   totalCount: getTotalCount(state),
 });
 
