@@ -11,7 +11,7 @@ type Props = {
 
 const TemplateInfo: React.SFC<Props> = ({ template }) => (
   <Row>
-    <Column sm={6}>
+    <Column xs={12} sm={6}>
       <Box title="Basic Information">
         <List>
           <List.Item>
@@ -20,7 +20,7 @@ const TemplateInfo: React.SFC<Props> = ({ template }) => (
         </List>
       </Box>
     </Column>
-    <Column sm={6}>
+    <Column xs={12} sm={6}>
       <Box title="Work Hours">
         <List divided>
           {Object.keys(template.hoursDays).map(day => (

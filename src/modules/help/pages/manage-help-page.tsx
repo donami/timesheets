@@ -43,7 +43,7 @@ class ManageHelpPage extends Component<Props> {
         <PageHeader>Manage</PageHeader>
 
         <Row>
-          <Column sm={6}>
+          <Column xs={12} sm={12} md={6}>
             <Box
               title={() => (
                 <>
@@ -78,7 +78,7 @@ class ManageHelpPage extends Component<Props> {
               </List>
             </Box>
           </Column>
-          <Column sm={6}>
+          <Column xs={12} sm={12} md={6}>
             <Box
               title={() => (
                 <>

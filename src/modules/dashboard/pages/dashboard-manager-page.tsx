@@ -37,7 +37,7 @@ class DashboardManagerPage extends React.Component<Props> {
         <PageHeader>Welcome {user.firstname}!</PageHeader>
 
         <Row>
-          <Column sm={6}>
+          <Column xs={12} sm={6}>
             <Box
               actions={
                 <Link to="/manage-timesheets">
@@ -51,7 +51,7 @@ class DashboardManagerPage extends React.Component<Props> {
               <TimesheetsReadyForReview />
             </Box>
           </Column>
-          <Column sm={6}>
+          <Column xs={12} sm={6}>
             <Box
               title={() => <Translate text={`help.labels.SUPPORT_AND_HELP`} />}
             >
@@ -66,7 +66,7 @@ class DashboardManagerPage extends React.Component<Props> {
         </Row>
 
         <Row>
-          <Column sm={6}>
+          <Column xs={12} sm={6}>
             <Box
               actions={
                 <Link to="/manage-timesheets">
@@ -82,7 +82,7 @@ class DashboardManagerPage extends React.Component<Props> {
               <TimesheetsPastDueDate />
             </Box>
           </Column>
-          <Column sm={6}>
+          <Column xs={12} sm={6}>
             <Box
               actions={
                 <Link to="/manage-timesheets">

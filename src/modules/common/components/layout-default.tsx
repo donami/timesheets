@@ -66,6 +66,7 @@ const MainContent = styled.div`
 const SideBarContainer = styled.div`
   flex: 1;
   max-width: ${sidebarWidth}px;
+  min-width: ${sidebarWidth}px;
 `;
 
 const FooterContainer = styled.div`

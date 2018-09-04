@@ -3,7 +3,7 @@ import { Label, List } from 'genui';
 import { Link } from 'react-router-dom';
 
 import { Box } from '../../ui';
-import { TimesheetItem } from '../store/models';
+import { TimesheetItem, TimesheetStatus } from '../store/models';
 import { Translate, HasAccess } from '../../common';
 import { Project } from '../../projects/store/models';
 import { parseDate } from '../../../utils/helpers';
@@ -16,6 +16,19 @@ export interface TimesheetInfoProps {
   owner: User;
 }
 
+const labelProps = (status: TimesheetStatus) => {
+  if (status === TimesheetStatus.Approved) {
+    return { color: 'green' };
+  }
+  if (status === TimesheetStatus.WaitingForApproval) {
+    return { color: 'orange' };
+  }
+  if (status === TimesheetStatus.NeedsRevisement) {
+    return { color: 'red' };
+  }
+  return {};
+};
+
 const TimesheetInfo: React.StatelessComponent<TimesheetInfoProps> = ({
   timesheet,
   project,
@@ -25,7 +38,7 @@ const TimesheetInfo: React.StatelessComponent<TimesheetInfoProps> = ({
     title={() => (
       <>
         <BoxStatus>
-          <Label>
+          <Label {...labelProps(timesheet.status)}>
             <Translate text={`timesheet.status.${timesheet.status}`} />
           </Label>
         </BoxStatus>
@@ -40,7 +53,7 @@ const TimesheetInfo: React.StatelessComponent<TimesheetInfoProps> = ({
       </List.Item>
       <List.Item>
         <strong>Status: </strong>
-        <Label>
+        <Label {...labelProps(timesheet.status)}>
           <Translate text={`timesheet.status.${timesheet.status}`} />
         </Label>
       </List.Item>

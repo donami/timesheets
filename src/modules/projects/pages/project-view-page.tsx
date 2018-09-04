@@ -74,10 +74,10 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
           render={props => (
             <div>
               <Row>
-                <Column sm={3}>
+                <Column xs={12} sm={3}>
                   <ProjectCard project={project} />
                 </Column>
-                <Column sm={9}>
+                <Column xs={12} sm={9}>
                   <Box
                     title={() => (
                       <div>

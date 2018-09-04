@@ -135,7 +135,7 @@ class UserViewPage extends React.Component<Props> {
         )}
 
         <Row>
-          <Column sm={3} md={2}>
+          <Column xs={12} sm={3} md={2}>
             <UserLeftColumn>
               <UserCard>
                 <Avatar view="lg" avatar={user.image} gender={user.gender} />
@@ -171,7 +171,7 @@ class UserViewPage extends React.Component<Props> {
             </UserLeftColumn>
           </Column>
 
-          <Column sm={9} md={10}>
+          <Column xs={12} sm={9} md={10}>
             <Switch>
               <Route
                 path={`/user/:id/generator`}
