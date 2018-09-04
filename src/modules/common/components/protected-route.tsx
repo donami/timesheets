@@ -41,7 +41,7 @@ const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
                 <Component isLoading={appIsLoading} {...props} />
               </HasAccess>
             ) : (
-              <Component {...props} />
+              <Component isLoading={appIsLoading} {...props} />
             )}
           </LayoutDefault>
         ) : (

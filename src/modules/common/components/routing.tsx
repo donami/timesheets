@@ -111,19 +111,27 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute
               path="/help/category/:id"
               component={withLoading(CategoryViewPage)}
+              roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/help/:id"
               component={withLoading(ArticleViewPage)}
+              roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
             />
-            <ProtectedRoute path="/help" component={withLoading(HelpPage)} />
+            <ProtectedRoute
+              path="/help"
+              component={withLoading(HelpPage)}
+              roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
+            />
             <ProtectedRoute
               path="/timesheet/:id"
               component={withLoading(TimesheetViewPage)}
+              roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/timesheets"
               component={withLoading(TimesheetsPage)}
+              roles={[UserRole.User]}
             />
             <ProtectedRoute
               path="/expense-report/:id"
@@ -132,6 +140,7 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute
               path="/expense-reports"
               component={withLoading(ExpensesPage)}
+              roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/profile/:page?"
@@ -141,6 +150,7 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute
               path="/user/:id/:page?"
               component={withLoading(UserViewPage)}
+              roles={[UserRole.Manager, UserRole.Admin]}
             />
             <ProtectedRoute
               path="/users/add"
