@@ -111,7 +111,14 @@ class Calendar extends React.Component<Props, State> {
       outTime: string;
       break: number;
       totalHours: number;
+      holiday: boolean;
     } = date.reported || date.expected;
+
+    // If holiday and no reported hours, simply display string
+    if (data.holiday && !(date.reported && date.reported.totalHours)) {
+      return <div>Holiday</div>;
+    }
+
     return (
       <div>
         {data.inTime} - {data.outTime} <br />
@@ -231,7 +238,10 @@ class Calendar extends React.Component<Props, State> {
                   </Modal>
                 </DateItemTop>
 
-                <DateItemContent className="date-item-content">
+                <DateItemContent
+                  className="date-item-content"
+                  holiday={date.expected.holiday}
+                >
                   {this.getDisplayDates(date)}
                 </DateItemContent>
               </React.Fragment>
@@ -362,12 +372,20 @@ const DateItemTop = styled.div`
   background-color: #f7f6f5;
 `;
 
-const DateItemContent = styled.div`
+const DateItemContent = withProps<{ holiday?: boolean }, HTMLDivElement>(
+  styled.div
+)`
   flex: 2;
   display: flex;
   justify-content: center;
   background-color: #fff;
   font-size: 0.9em;
+
+  ${({ holiday }) =>
+    holiday &&
+    css`
+      background: #ececec;
+    `}
 
   div {
     align-self: center;

@@ -21,6 +21,7 @@ type State = Readonly<{
       outTime: string;
       break: number;
       totalHours: number;
+      holiday: boolean;
     };
   };
   reportType: ReportType;
@@ -38,42 +39,49 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
         outTime: '17:00',
         break: 60,
         totalHours: 7,
+        holiday: false,
       },
       tuesday: {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
+        holiday: false,
       },
       wednesday: {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
+        holiday: false,
       },
       thursday: {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
+        holiday: false,
       },
       friday: {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
+        holiday: false,
       },
       saturday: {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
+        holiday: true,
       },
       sunday: {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
+        holiday: true,
       },
     },
     reportType: ReportType.StartEnd,
@@ -139,7 +147,13 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     const {
       name,
       value,
-    }: { name: keyof State; value: string; type: string } = e.target as any;
+      checked,
+    }: {
+      name: keyof State;
+      value: string;
+      type: string;
+      checked: boolean;
+    } = e.target as any;
 
     const [day, property] = name.split('.');
 
@@ -156,17 +170,30 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
       breakInMinutes
     );
 
-    this.setState({
-      ...this.state,
-      hoursDays: {
-        ...this.state.hoursDays,
-        [day]: {
-          ...this.state.hoursDays[day],
-          totalHours,
-          [property]: property === 'break' ? +value : value,
+    if (property === 'holiday') {
+      this.setState({
+        ...this.state,
+        hoursDays: {
+          ...this.state.hoursDays,
+          [day]: {
+            ...this.state.hoursDays[day],
+            holiday: checked,
+          },
         },
-      },
-    });
+      });
+    } else {
+      this.setState({
+        ...this.state,
+        hoursDays: {
+          ...this.state.hoursDays,
+          [day]: {
+            ...this.state.hoursDays[day],
+            totalHours,
+            [property]: property === 'break' ? +value : value,
+          },
+        },
+      });
+    }
   };
 
   calcTotalHoursPerDay = (
@@ -226,6 +253,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
                   type="time"
                   name={`${day}.inTime`}
                   value={hoursDays[day].inTime}
+                  disabled={hoursDays[day].holiday}
                   onChange={this.handleNewHoursDayChange}
                 />
               </div>
@@ -236,6 +264,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
                   type="time"
                   name={`${day}.outTime`}
                   value={hoursDays[day].outTime}
+                  disabled={hoursDays[day].holiday}
                   onChange={this.handleNewHoursDayChange}
                 />
               </div>
@@ -246,6 +275,16 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
                   type="number"
                   name={`${day}.break`}
                   value={hoursDays[day].break}
+                  disabled={hoursDays[day].holiday}
+                  onChange={this.handleNewHoursDayChange}
+                />
+              </div>
+              <div style={{ alignSelf: 'center' }}>
+                Holiday{' '}
+                <input
+                  type="checkbox"
+                  name={`${day}.holiday`}
+                  checked={hoursDays[day].holiday}
                   onChange={this.handleNewHoursDayChange}
                 />
               </div>

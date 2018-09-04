@@ -28,6 +28,7 @@ export type ExpectedHoursDayType = {
   outTime: string;
   totalHours: number;
   break: number;
+  holiday: boolean;
 };
 
 export interface TimesheetTemplateItem {
