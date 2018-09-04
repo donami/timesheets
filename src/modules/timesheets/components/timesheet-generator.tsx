@@ -45,10 +45,20 @@ type Props = {
 
 class TimesheetGenerator extends React.Component<Props> {
   handleGenerateTimesheets = (model: any) => {
+    const project = this.props.projects.find(item => {
+      return (
+        item.members.map(member => member.user).indexOf(this.props.userId) > -1
+      );
+    });
+
+    if (!project) {
+      return;
+    }
+
     this.props.generateTimesheets(
       model.from,
       model.to,
-      +model.project,
+      project.id,
       this.props.userId,
       this.props.template
     );
@@ -71,7 +81,7 @@ class TimesheetGenerator extends React.Component<Props> {
   };
 
   render() {
-    const { template, generated, projects, previousTimesheets } = this.props;
+    const { template, generated, previousTimesheets } = this.props;
 
     const pastMonths = listOfMonthsFromToday(
       6,
@@ -204,20 +214,6 @@ class TimesheetGenerator extends React.Component<Props> {
                         options={futureMonths.map((month: string) => ({
                           value: month,
                           label: month,
-                        }))}
-                      />
-                    </Form.Field>
-
-                    <Form.Field
-                      name="project"
-                      label="Project:"
-                      validations={{ isRequired: true }}
-                    >
-                      <Select
-                        placeholder="Project"
-                        options={projects.map(project => ({
-                          value: project.id,
-                          label: project.name,
                         }))}
                       />
                     </Form.Field>
