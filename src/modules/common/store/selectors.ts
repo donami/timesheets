@@ -8,6 +8,7 @@ import {
   getSelectedUserId,
   getUsers,
   getUsersLoading,
+  getUserEntities,
 } from '../../users/store/selectors';
 import {
   getProjects,
@@ -189,6 +190,17 @@ export const getSelectedProjectGroups = createSelector(
     return project.groups
       .map((groupId: number) => groupsById[groupId])
       .filter((group: Group) => group);
+  }
+);
+
+export const getOwnerOfSelectedTimesheet = createSelector(
+  getSelectedTimesheet,
+  getUserEntities,
+  (timesheet, users) => {
+    if (!timesheet) {
+      return undefined;
+    }
+    return users[timesheet.owner];
   }
 );
 

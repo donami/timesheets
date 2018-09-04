@@ -13,20 +13,23 @@ import {
 import {
   getTimesheetsInProjectsWhereAdmin,
   getProjectOfSelectedTimesheet,
+  getOwnerOfSelectedTimesheet,
 } from '../../common/store/selectors';
 import { fetchProjects } from '../../projects/store/actions';
 import { Project } from '../../projects/store/models';
 import { Box } from '../../ui';
 import { PageHeader, ToggleView } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
+import { User } from '../../users/store/models';
 
 type Props = {
   match: any;
   timesheet: TimesheetItem;
   timesheetId: number;
-  selectTimesheet: (timesheetId: number) => any;
-  updateTimesheet: (timesheetId: number, timesheet: TimesheetItem) => any;
-  fetchProjects: () => any;
+  owner: User;
+  selectTimesheet(timesheetId: number): any;
+  updateTimesheet(timesheetId: number, timesheet: TimesheetItem): any;
+  fetchProjects(): any;
   timesheetsWhereAdmin: TimesheetItem[];
   project: Project | null | undefined;
 };
@@ -109,7 +112,7 @@ class TimesheetViewPage extends React.Component<Props, State> {
   };
 
   render() {
-    const { timesheet, timesheetsWhereAdmin, project } = this.props;
+    const { timesheet, timesheetsWhereAdmin, project, owner } = this.props;
     const { logView } = this.state;
 
     if (!timesheet) {
@@ -167,7 +170,11 @@ class TimesheetViewPage extends React.Component<Props, State> {
               view: (
                 <>
                   {project && (
-                    <TimesheetInfo project={project} timesheet={timesheet} />
+                    <TimesheetInfo
+                      project={project}
+                      timesheet={timesheet}
+                      owner={owner}
+                    />
                   )}
 
                   <div>
@@ -196,6 +203,7 @@ class TimesheetViewPage extends React.Component<Props, State> {
 const mapStateToProps = (state: any) => ({
   timesheet: getSelectedTimesheet(state),
   timesheetId: getSelectedTimesheetId(state),
+  owner: getOwnerOfSelectedTimesheet(state),
   timesheetsWhereAdmin: getTimesheetsInProjectsWhereAdmin(state),
   project: getProjectOfSelectedTimesheet(state),
 });

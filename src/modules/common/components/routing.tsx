@@ -135,7 +135,6 @@ class Routing extends React.Component<Props> {
             <ProtectedRoute
               path="/timesheets"
               component={withLoading(TimesheetsPage)}
-              roles={[UserRole.User]}
             />
             <ProtectedRoute
               path="/expense-report/:id"
