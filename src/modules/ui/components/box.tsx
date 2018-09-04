@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { List } from 'genui';
 
 import styled from '../../../styled/styled-components';
 
@@ -28,13 +29,17 @@ const StyledBox = styled.div`
   margin-bottom: 20px;
   background: #fff;
   font-weight: 300;
+
+  ${List} {
+    margin: 0;
+  }
 `;
 
 const BoxTitle = styled.div`
   padding: 10px;
   text-transform: uppercase;
   font-weight: 300;
-  border-bottom: 2px solid #763ffe;
+  border-bottom: 2px solid ${props => props.theme.primaryColor};
 `;
 
 const BoxContent = styled.div`

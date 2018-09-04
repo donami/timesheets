@@ -51,7 +51,7 @@ const Options = styled.div`
   i {
     margin-right: 5px;
     cursor: pointer;
-    color: #763ffe;
+    color: ${props => props.theme.primaryColor};
     opacity: 0.5;
 
     &:hover {

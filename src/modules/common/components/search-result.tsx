@@ -63,7 +63,7 @@ const RightNode = styled.div`
     text-decoration: none;
 
     &:hover {
-      color: #763ffe;
+      color: ${props => props.theme.primaryColor};
     }
   }
 `;

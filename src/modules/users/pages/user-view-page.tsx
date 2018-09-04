@@ -295,7 +295,7 @@ const UserCard = styled.div`
     text-decoration: none;
 
     &:hover {
-      color: #763ffe;
+      color: ${props => props.theme.primaryColor};
     }
   }
 
@@ -336,7 +336,7 @@ const UserNavigationLink = withProps<{ active: boolean }, HTMLLIElement>(
 
     &:hover {
       background-color: #f8fafb;
-      border-left: 3px solid #763ffe;
+      border-left: 3px solid ${props => props.theme.primaryColor};
       opacity: 1;
     }
 
