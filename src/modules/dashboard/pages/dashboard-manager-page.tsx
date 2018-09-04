@@ -48,7 +48,7 @@ class DashboardManagerPage extends React.Component<Props> {
                 <Translate text="timesheet.labels.TIMESHEETS_READY_FOR_REVIEW" />
               )}
             >
-              <TimesheetsReadyForReview />
+              <TimesheetsReadyForReview limit={10} />
             </Box>
           </Column>
           <Column xs={12} sm={6}>
@@ -79,7 +79,7 @@ class DashboardManagerPage extends React.Component<Props> {
                 </>
               )}
             >
-              <TimesheetsPastDueDate />
+              <TimesheetsPastDueDate limit={10} />
             </Box>
           </Column>
           <Column xs={12} sm={6}>
@@ -91,7 +91,7 @@ class DashboardManagerPage extends React.Component<Props> {
               }
               title="Timesheets Recently Updated"
             >
-              <TimesheetsRecentlyUpdated />
+              <TimesheetsRecentlyUpdated limit={10} />
             </Box>
           </Column>
         </Row>

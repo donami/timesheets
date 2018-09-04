@@ -36,14 +36,18 @@ class DashboardUserPage extends React.Component<Props> {
       <div>
         <PageHeader>Welcome {user.firstname}!</PageHeader>
         <Row>
-          <Column sm={6}>
+          <Column xs={12} sm={6}>
             <Box title="Timesheets">
-              <TimesheetList indicateDueDate={true} timesheets={timesheets} />
+              <TimesheetList
+                limit={20}
+                indicateDueDate={true}
+                timesheets={timesheets}
+              />
             </Box>
           </Column>
-          <Column sm={6}>
+          <Column xs={12} sm={6}>
             <Box title="Expenses">
-              <ExpenseReportList expenseReports={expenseReports} />
+              <ExpenseReportList limit={20} expenseReports={expenseReports} />
             </Box>
           </Column>
         </Row>

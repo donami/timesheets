@@ -10,11 +10,12 @@ import { User } from '../../users/store/models';
 type Props = {
   timesheets: TimesheetItem[];
   users: { [key: number]: User };
+  limit?: number;
 };
 
 class TimesheetsPastDueDate extends Component<Props> {
   render() {
-    const { timesheets, users } = this.props;
+    const { timesheets, users, ...rest } = this.props;
 
     return (
       <div>
@@ -23,6 +24,7 @@ class TimesheetsPastDueDate extends Component<Props> {
           users={users}
           disableFilter={true}
           includeUser={true}
+          {...rest}
         />
       </div>
     );

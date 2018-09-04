@@ -8,16 +8,18 @@ import { connect } from 'react-redux';
 
 type Props = {
   timesheets: TimesheetItem[];
+  limit?: number;
 };
 
 class TimesheetsRecentlyUpdated extends Component<Props> {
   render() {
-    const { timesheets } = this.props;
+    const { timesheets, ...rest } = this.props;
 
     return (
       <TimesheetList
         sortFunction={sortByRecentUpdatedDates}
         timesheets={timesheets}
+        {...rest}
       />
     );
   }

@@ -15,6 +15,7 @@ type Props = {
   fetchProjects: () => any;
   timesheetsLoaded: boolean;
   timesheetsLoading: boolean;
+  limit?: number;
 };
 
 class TimesheetsReadyForReview extends React.Component<Props> {
@@ -33,11 +34,11 @@ class TimesheetsReadyForReview extends React.Component<Props> {
   }
 
   render() {
-    const { timesheets } = this.props;
+    const { timesheets, ...rest } = this.props;
 
     return (
       <div>
-        <TimesheetList timesheets={timesheets} />
+        <TimesheetList timesheets={timesheets} {...rest} />
       </div>
     );
   }

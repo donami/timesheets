@@ -25,6 +25,7 @@ const defaultProps: DefaultProps = {
   indicateDueDate: false,
   users: [],
   sortFunction: sortByDate,
+  limit: 99999,
 };
 
 type DefaultProps = {
@@ -34,6 +35,7 @@ type DefaultProps = {
   includeUser: boolean;
   users: { [key: number]: User };
   indicateDueDate: boolean;
+  limit: number;
 };
 
 class TimesheetList extends React.Component<Props> {
@@ -81,6 +83,7 @@ class TimesheetList extends React.Component<Props> {
       includeUser,
       users,
       sortFunction,
+      limit,
     } = this.props;
 
     if (!timesheets.length) {
@@ -100,6 +103,7 @@ class TimesheetList extends React.Component<Props> {
     const tableItems = timesheets
       .filter(filter)
       .sort(sortFunction)
+      .slice(0, limit)
       .map(timesheet => ({
         id: <Link to={`/timesheet/${timesheet.id}`}>{timesheet.id}</Link>,
         period: dateFormat(timesheet.periodStart, 'MMMM, YYYY'),
