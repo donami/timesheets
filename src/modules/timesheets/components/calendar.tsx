@@ -60,9 +60,12 @@ class Calendar extends React.Component<Props, State> {
 
   calcWeeklyExpectedHours(dates: any[]): number {
     return dates.reduce((acc, date) => {
-      if (!date.expected) {
+      if (!date.expected || !(date.expected && date.expected.totalHours)) {
         return acc;
       }
+      // if (!date.expected.totalHours) {
+      //   return acc;
+      // }
       return acc + date.expected.totalHours;
     }, 0);
   }
