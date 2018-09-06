@@ -13,6 +13,9 @@
 
 export enum ExpenseLineItemType {
   Meal = 'MEAL',
+  Lodging = 'LODGING',
+  Transportation = 'TRANSPORTATION',
+  Other = 'OTHER',
 }
 
 export enum ExpenseReportStatus {
@@ -35,4 +38,5 @@ export interface ExpenseLineItem {
   amount: number;
   currency: string;
   attachment?: string;
+  files: any[];
 }

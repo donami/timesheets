@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { TableList } from 'genui';
+import { TableList, Label } from 'genui';
 
 import { ExpenseReport } from '../store/models';
 import { Translate } from '../../common';
+import { parseDate } from '../../../utils/helpers';
 
 type Props = {
   expenseReports: ExpenseReport[];
@@ -16,8 +17,12 @@ class ExpenseReportList extends React.Component<Props> {
 
     const tableItems = expenseReports.slice(0, limit || 9999).map(report => ({
       id: <Link to={`/expense-report/${report.id}`}>{report.id}</Link>,
-      status: <Translate text={`expenses.status.${report.status}`} />,
-      submitted: report.dateSubmitted,
+      status: (
+        <Label>
+          <Translate text={`expenses.status.${report.status}`} />
+        </Label>
+      ),
+      submitted: parseDate(report.dateSubmitted),
     }));
 
     return (

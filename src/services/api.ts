@@ -14,6 +14,7 @@ import {
   timesheetTemplateSchema,
   userSchema,
 } from '../utils/schemas';
+import { ExpenseReport } from '../modules/expenses/store/models';
 
 const handleError = (error: any) => {
   console.log(error);
@@ -161,6 +162,19 @@ const fetchExpenseReportById = (
 ): Promise<NormalizedResponse> =>
   fetchApi(`expense-reports/${expenseReportId}`, 'GET', expenseSchema);
 
+const createExpense = (
+  expense: Partial<ExpenseReport>
+): Promise<NormalizedResponse> =>
+  fetchApi(`expense-reports`, 'POST', expenseSchema, { ...expense });
+
+const updateExpense = (
+  expenseReportId: number,
+  expense: ExpenseReport
+): Promise<NormalizedResponse> =>
+  fetchApi(`expense-reports/${expenseReportId}`, 'PUT', expenseSchema, {
+    ...expense,
+  });
+
 const fetchUserById = (userId: number): Promise<NormalizedResponse> =>
   fetchApi(`users/${userId}`, 'GET', userSchema);
 
@@ -232,12 +246,54 @@ const uploadProfileImage = (file: any): Promise<any> => {
     .catch(handleError);
 };
 
+const createExpenseLineItem = (lineItem: any): Promise<any> => {
+  const formData = new FormData();
+
+  lineItem.files
+    .filter((file: any) => typeof file === 'string')
+    .forEach((file: string) => {
+      formData.append('previousFiles', file);
+    });
+
+  lineItem.files
+    .filter((file: any) => typeof file !== 'string')
+    .forEach((file: any) => {
+      formData.append('files', file);
+    });
+
+  formData.append('amount', lineItem.amount);
+  formData.append('currency', lineItem.currency);
+  formData.append('expenseDate', lineItem.expenseDate);
+  formData.append('expenseType', lineItem.expenseType);
+
+  return fetch(`${API_URL}/expense-reports/line-item-upload`, {
+    method: 'POST',
+    headers: {
+      'x-access-token': localStorage.getItem('token') || '',
+    },
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) {
+        return Promise.reject(response);
+      }
+
+      return response.json();
+    })
+    .then(responseJson => {
+      return responseJson;
+    })
+    .catch(handleError);
+};
+
 export default {
   fetchTimesheets,
   fetchTimesheetById,
   updateTimesheet,
   fetchUsers,
   fetchUserById,
+  createExpense,
+  updateExpense,
   fetchExpenses,
   fetchExpenseReportById,
   auth,
@@ -263,6 +319,7 @@ export default {
   recoverPasswordChange,
   verifyRecoverCode,
   uploadProfileImage,
+  createExpenseLineItem,
   setup,
   isConfigured,
 };
