@@ -263,7 +263,7 @@ export default connect(
   mapDispatchToProps
 )(UserViewPage);
 
-const StyledDropdown = styled(Dropdown)`
+const StyledDropdown = withProps<any>(styled(Dropdown))`
   line-height: normal;
   align-self: center;
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, TableBuilder, Table } from 'genui';
+import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
 // import { TimesheetTemplateList } from '../components';
 import {
@@ -78,8 +78,18 @@ class TimesheetTemplatesPage extends React.Component<
               />
               <Table.Cell
                 option={{
-                  icon: 'fas fa-trash',
-                  onClick: () => this.handleRemove(item.id),
+                  confirm: {
+                    trigger: <Icon name="fas fa-trash" title="Remove" />,
+                    content: `Do you really want to remove "${item.name}"?`,
+                    onActionClick: (
+                      e: React.MouseEvent<HTMLElement>,
+                      actionProps: ActionProps
+                    ) => {
+                      if (actionProps.positive) {
+                        this.handleRemove(item.id);
+                      }
+                    },
+                  },
                 }}
               />
             </>

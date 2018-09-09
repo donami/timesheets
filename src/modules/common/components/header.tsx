@@ -18,6 +18,7 @@ import { Notification } from '../../auth/store/models';
 import Attention from './attention';
 import Search from './search';
 import { HasAccess } from '../components';
+import { withProps } from '../../../styled/styled-components';
 
 type Props = {
   containerHeight: number;
@@ -129,7 +130,7 @@ const TriggerAction = styled.div`
   }
 `;
 
-const StyledDropdown = styled(Dropdown)`
+const StyledDropdown = withProps<any>(styled(Dropdown))`
   line-height: normal;
   align-self: center;
 

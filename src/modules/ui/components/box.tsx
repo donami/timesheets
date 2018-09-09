@@ -30,7 +30,7 @@ const StyledBox = styled.div`
   background: #fff;
   font-weight: 300;
 
-  ${List} {
+  ${List as any} {
     margin: 0;
   }
 `;

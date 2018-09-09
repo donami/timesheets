@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, TableBuilder, Table } from 'genui';
+import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
 import {
   getGroups,
@@ -10,16 +10,15 @@ import {
 } from '../store/selectors';
 import { loadGroupListPage, fetchGroups, removeGroup } from '../store/actions';
 import { Group } from '../store/models';
-// import { GroupList } from '../components';
 import { PageHeader, Translate } from '../../common';
 import { Link } from 'react-router-dom';
 import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
 
 type Props = {
-  loadGroupListPage: (options?: any) => any;
-  fetchGroups: (options?: any) => any;
-  removeGroup: (groupId: number) => any;
+  loadGroupListPage(options?: any): any;
+  fetchGroups(options?: any): any;
+  removeGroup(groupId: number): any;
   groupListPage: any;
   projects: Project[];
   groups: Group[];
@@ -112,8 +111,18 @@ class GroupListPage extends React.Component<Props> {
                 />
                 <Table.Cell
                   option={{
-                    icon: 'fas fa-trash',
-                    onClick: () => this.handleRemoveGroup(item.id),
+                    confirm: {
+                      trigger: <Icon name="fas fa-trash" title="Remove" />,
+                      content: `Do you really want to remove "${item.name}"?`,
+                      onActionClick: (
+                        e: React.MouseEvent<HTMLElement>,
+                        actionProps: ActionProps
+                      ) => {
+                        if (actionProps.positive) {
+                          this.handleRemoveGroup(item.id);
+                        }
+                      },
+                    },
                   }}
                 />
               </>

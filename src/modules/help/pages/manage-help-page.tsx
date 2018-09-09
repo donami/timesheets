@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { List, Icon } from 'genui';
+import { List, Icon, Confirm, ActionProps } from 'genui';
 
 import { QuestionCategory, QuestionArticle } from '../store/models';
 import { Row, Column, Box } from '../../ui';
@@ -66,10 +66,19 @@ class ManageHelpPage extends Component<Props> {
                       <Link to={`/help/manage/edit-category/${category.id}`}>
                         <Icon name="far fa-edit" title="Edit" />
                       </Link>
-                      <Icon
-                        name="far fa-trash-alt"
-                        title="Remove"
-                        onClick={() => this.handleRemoveCategory(category.id)}
+
+                      <Confirm
+                        trigger={
+                          <Icon name="far fa-trash-alt" title="Remove" />
+                        }
+                        onActionClick={(
+                          e: React.MouseEvent<HTMLElement>,
+                          actionProps: ActionProps
+                        ) => {
+                          if (actionProps.positive) {
+                            this.handleRemoveCategory(category.id);
+                          }
+                        }}
                       />
                     </ListActions>
                     {category.title}
@@ -102,10 +111,18 @@ class ManageHelpPage extends Component<Props> {
                       <Link to={`/help/manage/edit-article/${article.id}`}>
                         <Icon name="far fa-edit" title="Edit" />
                       </Link>
-                      <Icon
-                        name="far fa-trash-alt"
-                        title="Remove"
-                        onClick={() => this.handleRemoveArticle(article.id)}
+                      <Confirm
+                        trigger={
+                          <Icon name="far fa-trash-alt" title="Remove" />
+                        }
+                        onActionClick={(
+                          e: React.MouseEvent<HTMLElement>,
+                          actionProps: ActionProps
+                        ) => {
+                          if (actionProps.positive) {
+                            this.handleRemoveArticle(article.id);
+                          }
+                        }}
                       />
                     </ListActions>
                     {article.title}

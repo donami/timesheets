@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, TableBuilder, Table } from 'genui';
+import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
 import { fetchProjects, removeProject } from '../store/actions';
 import { Project } from '../store/models';
-// import { ProjectList } from '../components';
 import { getAuthedUserProjects } from '../../auth/store/selectors';
 import { PageHeader, Translate } from '../../common';
 import { Link } from 'react-router-dom';
@@ -65,7 +64,6 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
                 <Link to={`/project/${item.id}`}>#{item.id}</Link>
               </Table.Cell>
               <Table.Cell>{item.name}</Table.Cell>
-
               <Table.Cell
                 option={{
                   icon: 'fas fa-pencil-alt',
@@ -74,15 +72,23 @@ class ProjectListPage extends React.Component<ProjectListPageProps> {
               />
               <Table.Cell
                 option={{
-                  icon: 'fas fa-trash',
-                  onClick: () => this.handleRemove(item.id),
+                  confirm: {
+                    trigger: <Icon name="fas fa-trash" title="Remove" />,
+                    content: `Do you really want to remove "${item.name}"?`,
+                    onActionClick: (
+                      e: React.MouseEvent<HTMLElement>,
+                      actionProps: ActionProps
+                    ) => {
+                      if (actionProps.positive) {
+                        this.handleRemove(item.id);
+                      }
+                    },
+                  },
                 }}
               />
             </>
           )}
         />
-
-        {/* <ProjectList projects={projects} /> */}
       </div>
     );
   }

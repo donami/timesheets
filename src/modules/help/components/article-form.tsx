@@ -4,7 +4,7 @@ import { Input, Button, Select } from 'genui';
 import { QuestionCategory, QuestionArticle } from '../store/models';
 import { UserRole } from '../../users/store/models';
 import { BackButton, Form } from '../../common';
-import styled from '../../../styled/styled-components';
+import styled, { withProps } from '../../../styled/styled-components';
 
 type Props = {
   onSubmit: (data: State, categoryId: number) => any;
@@ -136,7 +136,7 @@ class ArticleForm extends React.Component<Props, State> {
 
 export default ArticleForm;
 
-const MultiLineInput = styled(Input)`
+const MultiLineInput = withProps<any>(styled(Input))`
   width: 100%;
   min-height: 300px;
 `;
