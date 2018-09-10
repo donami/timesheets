@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { StatusColor, Table, TableBuilder } from 'genui';
+import { StatusColor, Table, TableBuilder, Icon, ActionProps } from 'genui';
 
 import { Translate, PageHeader } from '../../common';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
@@ -142,9 +142,17 @@ class ManageTimesheets extends React.Component<Props> {
               />
               <Table.Cell
                 option={{
-                  icon: 'fa fa-trash-alt',
-                  onClick: () => {
-                    this.handleRemoveTimesheet(item.id);
+                  confirm: {
+                    trigger: <Icon name="fas fa-trash" title="Remove" />,
+                    content: `Do you really want to remove this timesheet?`,
+                    onActionClick: (
+                      e: React.MouseEvent<HTMLElement>,
+                      actionProps: ActionProps
+                    ) => {
+                      if (actionProps.positive) {
+                        this.handleRemoveTimesheet(item.id);
+                      }
+                    },
                   },
                 }}
               />
