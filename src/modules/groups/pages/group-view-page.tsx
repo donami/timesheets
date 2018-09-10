@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, List } from 'genui';
+import { Button, List, Confirm, ActionProps } from 'genui';
 
 import { selectGroup, removeGroup } from '../store/actions';
 import { GroupInfo, GroupMemberList } from '../components';
@@ -21,6 +21,7 @@ import { capitalize } from '../../../utils/helpers';
 import { Switch, Route } from 'react-router-dom';
 import { GroupEditPage } from '../pages';
 import { Project } from '../../projects/store/models';
+import { PageHeader } from '../../common';
 
 export interface GroupViewPageProps {
   match: any;
@@ -60,6 +61,31 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
           path={`/group/:id`}
           render={props => (
             <div>
+              <PageHeader
+                options={() => (
+                  <>
+                    {group && (
+                      <div>
+                        <Confirm
+                          trigger={<Button color="red">Remove</Button>}
+                          onActionClick={(
+                            e: React.MouseEvent<HTMLElement>,
+                            actionProps: ActionProps
+                          ) => {
+                            if (actionProps.positive) {
+                              this.handleRemove();
+                            }
+                          }}
+                        />
+
+                        <Button to={`/group/${group.id}/edit`}>Edit</Button>
+                      </div>
+                    )}
+                  </>
+                )}
+              >
+                View Group
+              </PageHeader>
               <GroupInfo group={group} {...props} />
 
               {template && (
@@ -103,13 +129,6 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
                   members={groupMembers}
                 />
               </Box>
-
-              {group && (
-                <div>
-                  <Button onClick={this.handleRemove}>Remove</Button>
-                  <Button to={`/group/${group.id}/edit`}>Edit</Button>
-                </div>
-              )}
             </div>
           )}
         />
