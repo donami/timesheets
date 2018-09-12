@@ -92,14 +92,14 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
                   >
                     <TimesheetList
                       noTimesheetsText="No timesheets are waiting for approval"
-                      timesheets={timesheetsWaitingForApproval}
+                      items={timesheetsWaitingForApproval}
                     />
                   </Box>
                 </Column>
               </Row>
 
               <Box title="All timesheets">
-                <TimesheetList timesheets={timesheets} />
+                <TimesheetList items={timesheets} />
               </Box>
 
               <Box

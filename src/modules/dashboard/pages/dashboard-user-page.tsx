@@ -41,7 +41,7 @@ class DashboardUserPage extends React.Component<Props> {
               <TimesheetList
                 limit={20}
                 indicateDueDate={true}
-                timesheets={timesheets}
+                items={timesheets}
               />
             </Box>
           </Column>

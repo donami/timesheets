@@ -38,7 +38,7 @@ class TimesheetsReadyForReview extends React.Component<Props> {
 
     return (
       <div>
-        <TimesheetList timesheets={timesheets} {...rest} />
+        <TimesheetList items={timesheets} {...rest} />
       </div>
     );
   }

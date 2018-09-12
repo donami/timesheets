@@ -113,7 +113,7 @@ class ProfilePage extends React.Component<Props> {
 
                     {user.role === UserRole.User && (
                       <Box title="Your Timesheets">
-                        <TimesheetList timesheets={timesheets} />
+                        <TimesheetList items={timesheets} />
                       </Box>
                     )}
                   </>

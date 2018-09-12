@@ -20,7 +20,7 @@ class TimesheetsPastDueDate extends Component<Props> {
     return (
       <div>
         <TimesheetList
-          timesheets={timesheets}
+          items={timesheets}
           users={users}
           disableFilter={true}
           includeUser={true}

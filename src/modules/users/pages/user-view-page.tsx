@@ -221,7 +221,7 @@ class UserViewPage extends React.Component<Props> {
                     )}
                   >
                     <TimesheetList
-                      timesheets={timesheets || []}
+                      items={timesheets || []}
                       disableFilter={true}
                       noTimesheetsText="There is no generated timesheets for this user."
                     />

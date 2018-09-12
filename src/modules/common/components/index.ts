@@ -11,6 +11,7 @@ export { default as HasAccess } from './has-access';
 export { default as Avatar } from './avatar';
 export { default as Flag } from './flag';
 export { default as BackButton } from './back-button';
+export { default as Pagination, withPagination } from './pagination';
 export { default as SearchResult } from './search-result';
 export { default as PageHeader } from './page-header';
 export { default as Popup } from './popup';

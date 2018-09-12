@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { TableList, StatusColor, Label } from 'genui';
+import { compose, defaultProps } from 'recompose';
 
 import { TimesheetItem, TimesheetStatus } from '../store/models';
 import { dateFormat, monthIsInPast } from '../../../utils/calendar';
-import withDefaultProps from '../../common/components/with-default-props';
-import { Translate } from '../../common';
+import { Translate, withPagination } from '../../common';
 import {
   sortByDate,
   filterOutFutureTimesheets,
@@ -14,28 +14,14 @@ import {
 import { User } from '../../users/store/models';
 
 type Props = {
-  timesheets: TimesheetItem[];
+  items: TimesheetItem[];
   noTimesheetsText?: string;
-} & DefaultProps;
-
-const defaultProps: DefaultProps = {
-  // noTimesheetsText: 'No timesheets',
-  disableFilter: false,
-  includeUser: false,
-  indicateDueDate: false,
-  users: [],
-  sortFunction: sortByDate,
-  limit: 99999,
-};
-
-type DefaultProps = {
-  disableFilter: boolean;
-  sortFunction(item: TimesheetItem, other: TimesheetItem): number;
-  // noTimesheetsText: string;
-  includeUser: boolean;
-  users: { [key: number]: User };
-  indicateDueDate: boolean;
-  limit: number;
+  disableFilter?: boolean;
+  sortFunction?(item: TimesheetItem, other: TimesheetItem): number;
+  includeUser?: boolean;
+  users?: { [key: number]: User };
+  indicateDueDate?: boolean;
+  limit?: number;
 };
 
 class TimesheetList extends React.Component<Props> {
@@ -77,7 +63,7 @@ class TimesheetList extends React.Component<Props> {
 
   render() {
     const {
-      timesheets,
+      items,
       noTimesheetsText,
       disableFilter,
       includeUser,
@@ -86,7 +72,7 @@ class TimesheetList extends React.Component<Props> {
       limit,
     } = this.props;
 
-    if (!timesheets.length) {
+    if (!items.length) {
       return (
         <div>
           {noTimesheetsText || (
@@ -100,7 +86,7 @@ class TimesheetList extends React.Component<Props> {
     // no filtering of future timesheets
     const filter = disableFilter ? () => true : filterOutFutureTimesheets;
 
-    const tableItems = timesheets
+    const tableItems = items
       .filter(filter)
       .sort(sortFunction)
       .slice(0, limit)
@@ -122,7 +108,7 @@ class TimesheetList extends React.Component<Props> {
 
     const headings = ['ID', 'Period', 'Status'];
 
-    if (includeUser && Object.keys(users).length > 0) {
+    if (includeUser && users && Object.keys(users).length > 0) {
       headings.push('User');
     }
 
@@ -134,4 +120,21 @@ class TimesheetList extends React.Component<Props> {
   }
 }
 
-export default withDefaultProps<Props>(defaultProps)(TimesheetList);
+// Default props
+const props = {
+  disableFilter: false,
+  includeUser: false,
+  indicateDueDate: false,
+  sortFunction: sortByDate,
+  limit: 99999,
+};
+
+export const TimesheetListWithPagination = compose<
+  any,
+  Props & { items?: any }
+>(
+  defaultProps(props),
+  withPagination
+)(TimesheetList);
+
+export default compose<any, Props>(defaultProps(props))(TimesheetList);

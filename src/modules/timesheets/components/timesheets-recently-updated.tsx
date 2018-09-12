@@ -18,7 +18,7 @@ class TimesheetsRecentlyUpdated extends Component<Props> {
     return (
       <TimesheetList
         sortFunction={sortByRecentUpdatedDates}
-        timesheets={timesheets}
+        items={timesheets}
         {...rest}
       />
     );
