@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom';
 import { TableList, StatusColor, Label } from 'genui';
 import { compose, defaultProps } from 'recompose';
 
+import { withPagination } from '../../common/components/pagination';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
 import { dateFormat, monthIsInPast } from '../../../utils/calendar';
-import { Translate, withPagination } from '../../common';
+import { Translate } from '../../common';
 import {
   sortByDate,
   filterOutFutureTimesheets,
   getStatusColor,
 } from '../utils';
 import { User } from '../../users/store/models';
+import { WithPaginationProps } from '../../common/components/pagination/with-pagination';
 
 type Props = {
   items: TimesheetItem[];
@@ -120,21 +122,20 @@ class TimesheetList extends React.Component<Props> {
   }
 }
 
-// Default props
-const props = {
+const withDefaultProps = defaultProps({
   disableFilter: false,
   includeUser: false,
   indicateDueDate: false,
   sortFunction: sortByDate,
   limit: 99999,
-};
+});
 
 export const TimesheetListWithPagination = compose<
   any,
-  Props & { items?: any }
+  Props & WithPaginationProps
 >(
-  defaultProps(props),
+  withDefaultProps,
   withPagination
 )(TimesheetList);
 
-export default compose<any, Props>(defaultProps(props))(TimesheetList);
+export default compose<any, Props>(withDefaultProps)(TimesheetList);

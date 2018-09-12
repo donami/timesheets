@@ -18,13 +18,13 @@ import {
 } from '../store/selectors';
 import { Project, ProjectMember } from '../store/models';
 import { TimesheetItem, TimesheetStatus } from '../../timesheets/store/models';
-import { TimesheetList } from '../../timesheets';
 import { Box, Row, Column } from '../../ui';
 import styled from '../../../styled/styled-components';
 import { Group } from '../../groups/store/models';
 import { getSelectedProjectGroups } from '../../common/store/selectors';
 import { Switch, Route } from 'react-router-dom';
 import { PageHeader } from '../../common';
+import { TimesheetListWithPagination } from '../../timesheets/components/timesheet-list';
 
 export interface ProjectViewPageProps {
   match: any;
@@ -90,16 +90,17 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
                       </div>
                     )}
                   >
-                    <TimesheetList
+                    <TimesheetListWithPagination
                       noTimesheetsText="No timesheets are waiting for approval"
                       items={timesheetsWaitingForApproval}
+                      pageSize={10}
                     />
                   </Box>
                 </Column>
               </Row>
 
               <Box title="All timesheets">
-                <TimesheetList items={timesheets} />
+                <TimesheetListWithPagination items={timesheets} pageSize={10} />
               </Box>
 
               <Box

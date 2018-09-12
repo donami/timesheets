@@ -2,6 +2,10 @@ import * as React from 'react';
 
 import Pagination from './pagination';
 
+export type WithPaginationProps = {
+  pageSize?: number;
+};
+
 type State = {
   items: any;
   pageOfItems: any[];
@@ -9,6 +13,7 @@ type State = {
 
 type Props = {
   items: any[];
+  pageSize?: number;
 };
 
 type InjectedProps = {
@@ -42,6 +47,7 @@ const withPagination = <P extends InjectedProps>(
           <Component {...this.props} items={this.state.pageOfItems} />
           <Pagination
             items={this.state.items}
+            pageSize={this.props.pageSize}
             onChangePage={this.onChangePage}
           />
         </div>
