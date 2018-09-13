@@ -24,11 +24,14 @@ import { Group } from '../../groups/store/models';
 import { getSelectedProjectGroups } from '../../common/store/selectors';
 import { Switch, Route } from 'react-router-dom';
 import { PageHeader } from '../../common';
-import { TimesheetListWithPagination } from '../../timesheets/components/timesheet-list';
+import { getUserEntities } from '../../users/store/selectors';
+import { User } from '../../users/store/models';
+import { TimesheetList } from '../../timesheets';
 
 export interface ProjectViewPageProps {
   match: any;
   timesheets: TimesheetItem[];
+  users: User[];
   selectProject(projectId: number): any;
   updateProject(projectId: number, project: Project): any;
   projectId: number;
@@ -51,7 +54,7 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
   };
 
   render() {
-    const { project, timesheets, projectMembers, groups } = this.props;
+    const { project, timesheets, projectMembers, groups, users } = this.props;
 
     const timesheetsWaitingForApproval = timesheets.filter(
       (timesheet: TimesheetItem) =>
@@ -90,17 +93,27 @@ class ProjectViewPage extends React.Component<ProjectViewPageProps> {
                       </div>
                     )}
                   >
-                    <TimesheetListWithPagination
-                      noTimesheetsText="No timesheets are waiting for approval"
+                    <TimesheetList
                       items={timesheetsWaitingForApproval}
+                      paginated
+                      noTimesheetsText="No timesheets are waiting for approval."
                       pageSize={10}
+                      includeUser
+                      users={users}
                     />
                   </Box>
                 </Column>
               </Row>
 
               <Box title="All timesheets">
-                <TimesheetListWithPagination items={timesheets} pageSize={10} />
+                <TimesheetList
+                  items={timesheets}
+                  paginated
+                  noTimesheetsText="No timesheets belongs to this project."
+                  pageSize={10}
+                  includeUser
+                  users={users}
+                />
               </Box>
 
               <Box
@@ -148,6 +161,7 @@ const mapStateToProps = (state: any) => ({
   projectMembers: getSelectedProjectMembers(state),
   timesheets: getSelectedProjectTimesheets(state),
   groups: getSelectedProjectGroups(state),
+  users: getUserEntities(state),
 });
 
 const mapDispatchToProps = (dispatch: any) =>

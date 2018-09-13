@@ -53,3 +53,15 @@ export const getStatusColor = (status: TimesheetStatus) => {
 
   return statusColor;
 };
+
+export const displayTimesheetStatus = (status: TimesheetStatus) => {
+  const map = {
+    [TimesheetStatus.Approved]: 'Approved',
+    [TimesheetStatus.InProgress]: 'In Progress',
+    [TimesheetStatus.InProgressSaved]: 'In Progress (Saved)',
+    [TimesheetStatus.WaitingForApproval]: 'Waiting for Approval',
+    [TimesheetStatus.NeedsRevisement]: 'Needs Revisement',
+  };
+
+  return map[status] || '';
+};

@@ -43,14 +43,14 @@ const withPagination = <P extends InjectedProps>(
 
     render() {
       return (
-        <div>
+        <>
           <Component {...this.props} items={this.state.pageOfItems} />
           <Pagination
             items={this.state.items}
             pageSize={this.props.pageSize}
             onChangePage={this.onChangePage}
           />
-        </div>
+        </>
       );
     }
   };
