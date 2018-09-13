@@ -52,7 +52,7 @@ class ExpensesPage extends React.Component<ExpensesPageProps> {
                 Expense Reports
               </PageHeader>
               <Box title="Expenses">
-                <ExpenseReportList expenseReports={expenseReports} />
+                <ExpenseReportList items={expenseReports} paginated />
               </Box>
             </div>
           )}

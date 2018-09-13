@@ -53,48 +53,57 @@ const renderPastDueDate = (
   return null;
 };
 
-type Props = ListProps & {
+type Props = {
   items: TimesheetItem[];
   noTimesheetsText?: string;
   disableFilter?: boolean;
   includeUser?: boolean;
   users?: { [key: number]: User };
+  paginated?: boolean;
+  noItemsText?: string;
+  pageSize?: number;
+  limit?: number;
   indicateDueDate?: boolean;
   sortFunction?(item: TimesheetItem, other: TimesheetItem): number;
-  itemRenderer?(item: TimesheetItem, index: number): JSX.Element;
 };
 
-const TimesheetList: React.SFC<Props> = ({
+type EnhancedProps = Props & ListProps;
+
+const TimesheetList: React.SFC<EnhancedProps> = ({
   items,
   includeUser,
   pageSize,
-  itemRenderer,
+  renderItem,
   paginated,
+  noItemsText,
   filter,
   limit,
 }) => {
   return (
     <Container className="timesheet-list">
-      <Headings className="timesheet-list-headings">
-        <div>ID</div>
-        <div>Period</div>
-        {includeUser && <div>User</div>}
-        <div>Status</div>
-      </Headings>
       <StyledList
         items={items}
         pageSize={pageSize}
         limit={limit}
         paginated={paginated}
+        noItemsText={noItemsText}
         filter={filter}
-        renderItem={itemRenderer}
+        renderItem={renderItem}
+        header={
+          <Headings className="timesheet-list-headings">
+            <div>ID</div>
+            <div>Period</div>
+            {includeUser && <div>User</div>}
+            <div>Status</div>
+          </Headings>
+        }
         className="timesheet-list-content"
       />
     </Container>
   );
 };
 
-export default compose<Props, Props>(
+export default compose<EnhancedProps, Props>(
   defaultProps({
     noTimesheetsText: 'No timesheets',
     disableFilter: false,
@@ -103,7 +112,7 @@ export default compose<Props, Props>(
     paginated: false,
     pageSize: 10,
   }),
-  mapProps((props: Props) => {
+  mapProps<any, Props>(props => {
     const newProps = {
       ...props,
       // If disableFilter is true, there should be
@@ -111,7 +120,7 @@ export default compose<Props, Props>(
       items: props.disableFilter
         ? props.items.filter(filterOutFutureTimesheets)
         : props.items,
-      itemRenderer: (item: TimesheetItem, index: number) => {
+      renderItem: (item: TimesheetItem, index: number) => {
         const newItem: any = {
           id: <Link to={`/timesheet/${item.id}`}>{item.id}</Link>,
           period: dateFormat(item.periodStart, 'MMMM, YYYY'),

@@ -47,7 +47,7 @@ class DashboardUserPage extends React.Component<Props> {
           </Column>
           <Column xs={12} sm={6}>
             <Box title="Expenses">
-              <ExpenseReportList limit={20} expenseReports={expenseReports} />
+              <ExpenseReportList limit={20} items={expenseReports} />
             </Box>
           </Column>
         </Row>
