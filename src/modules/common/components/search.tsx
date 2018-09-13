@@ -1,70 +1,78 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Icon } from 'genui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { search } from '../store/actions';
 import styled, { withProps, css } from '../../../styled/styled-components';
+import { compose, withHandlers, withState } from 'recompose';
 
-type Props = {
+type Props = {};
+
+type State = {
+  value: string;
+};
+
+type ActionCreatorProps = {
   search(query: string): any;
 };
-type State = Readonly<{
-  value: string;
-}>;
 
-const initialState: State = {
-  value: '',
+type HandlerProps = {
+  handleSubmit(event: any): void;
+  onChange(event: any): void;
 };
 
-class Search extends Component<Props, State> {
-  readonly state = initialState;
-  inputField: any;
+type StateHandlerProps = {
+  setValue(value: string): void;
+};
 
-  handleChange = (e: any) => {
-    const { value } = e.target;
+type EnhancedProps = Props &
+  State &
+  ActionCreatorProps &
+  StateHandlerProps &
+  HandlerProps;
 
-    this.setState({ value });
-  };
+const Search: React.SFC<EnhancedProps> = ({
+  handleSubmit,
+  value,
+  onChange,
+}) => (
+  <Container>
+    <form onSubmit={handleSubmit}>
+      <InputField value={value} onChange={onChange} />
+      <SearchButton type="submit">
+        <Icon name="fas fa-search" />
+      </SearchButton>
+    </form>
+  </Container>
+);
 
-  handleSubmit = (e: any) => {
-    e.preventDefault();
+const enhance = compose<EnhancedProps, Props>(
+  connect(
+    undefined,
+    (dispatch: any) => bindActionCreators({ search }, dispatch)
+  ),
+  withState<Props, string, 'value', 'setValue'>('value', 'setValue', ''),
+  withHandlers<EnhancedProps, HandlerProps>({
+    handleSubmit: props => (event: any) => {
+      event.preventDefault();
 
-    if (!this.state.value.length) {
-      if (this.inputField) {
-        this.inputField.focus();
+      if (!props.value.length) {
+        return;
       }
-      return;
-    }
 
-    this.props.search(this.state.value);
-    this.setState({ value: '' });
-  };
+      props.search(props.value);
+      props.setValue('');
+    },
+    onChange: props => (event: any) => {
+      const { value } = event.target;
 
-  render() {
-    return (
-      <Container>
-        <form onSubmit={this.handleSubmit}>
-          <InputField
-            innerRef={inputField => {
-              this.inputField = inputField;
-            }}
-            value={this.state.value}
-            onChange={this.handleChange}
-          />
-          <SearchButton type="submit">
-            <Icon name="fas fa-search" />
-          </SearchButton>
-        </form>
-      </Container>
-    );
-  }
-}
+      props.setValue(value);
+    },
+  })
+);
 
-export default connect(
-  undefined,
-  (dispatch: any) => bindActionCreators({ search }, dispatch)
-)(Search);
+export default enhance(Search);
 
 const Container = styled.div`
   position: relative;
@@ -79,16 +87,6 @@ const InputField = withProps<{ value: string }, HTMLInputElement>(styled.input)`
   padding: 0.67em 1em;
   color: rgba(0, 0, 0, 0.87);
   border-radius: 0.28571429rem;
-  // -webkit-transition: border-color 0.1s ease, -webkit-box-shadow 0.1s ease;
-  // -webkit-transition: border-color 0.1s ease, -webkit-box-shadow 0.1s ease;
-  // transition: border-color 0.1s ease, -webkit-box-shadow 0.1s ease;
-  // -webkit-transition: box-shadow 0.1s ease, border-color 0.1s ease;
-  // transition: box-shadow 0.1s ease, border-color 0.1s ease;
-  // -webkit-transition: box-shadow 0.1s ease, border-color 0.1s ease,
-  //   -webkit-box-shadow 0.1s ease;
-  // transition: box-shadow 0.1s ease, border-color 0.1s ease,
-  //   -webkit-box-shadow 0.1s ease;
-  // -webkit-box-shadow: none;
   box-shadow: none;
   font-family: inherit;
   box-sizing: border-box;
@@ -112,7 +110,7 @@ const InputField = withProps<{ value: string }, HTMLInputElement>(styled.input)`
 
 const SearchButton = styled.button`
   position: absolute;
-  right: 10px
+  right: 10px;
   top: 22px;
   background: #fff;
   border: none;
