@@ -11,56 +11,48 @@ import { Box } from '../../ui';
 import { PageHeader } from '../../common';
 import { Switch, Route } from 'react-router';
 import ExpenseAddPage from './expense-add-page';
+import { lifecycle, compose, withHandlers } from 'recompose';
 
-export interface ExpensesPageProps {
+type Props = {
   fetchExpenses(): any;
   createExpense(expense: ExpenseReport): any;
   expenseReports: ExpenseReport[];
-}
+};
+type HandlerProps = { onAddExpense(data: any): void };
+type EnhancedProps = Props & HandlerProps;
 
-class ExpensesPage extends React.Component<ExpensesPageProps> {
-  componentWillMount() {
-    this.props.fetchExpenses();
-  }
-
-  handleAddExpense = (data: ExpenseReport) => {
-    this.props.createExpense(data);
-  };
-
-  render() {
-    const { expenseReports } = this.props;
-
-    return (
-      <Switch>
-        <Route
-          path="/expense-reports/add"
-          render={props => (
-            <ExpenseAddPage onAddExpense={this.handleAddExpense} {...props} />
-          )}
-        />
-        <Route
-          path="/expense-reports"
-          render={props => (
-            <div>
-              <PageHeader
-                options={() => (
-                  <Button to="/expense-reports/add" color="purple">
-                    Create Expense Report
-                  </Button>
-                )}
-              >
-                Expense Reports
-              </PageHeader>
-              <Box title="Expenses">
-                <ExpenseReportList items={expenseReports} paginated />
-              </Box>
-            </div>
-          )}
-        />
-      </Switch>
-    );
-  }
-}
+const ExpensesPage: React.SFC<EnhancedProps> = ({
+  expenseReports,
+  onAddExpense,
+}) => (
+  <Switch>
+    <Route
+      path="/expense-reports/add"
+      render={props => (
+        <ExpenseAddPage onAddExpense={onAddExpense} {...props} />
+      )}
+    />
+    <Route
+      path="/expense-reports"
+      render={props => (
+        <div>
+          <PageHeader
+            options={() => (
+              <Button to="/expense-reports/add" color="purple">
+                Create Expense Report
+              </Button>
+            )}
+          >
+            Expense Reports
+          </PageHeader>
+          <Box title="Expenses">
+            <ExpenseReportList items={expenseReports} paginated />
+          </Box>
+        </div>
+      )}
+    />
+  </Switch>
+);
 
 const mapStateToProps = (state: any) => ({
   expenseReports: getExpenses(state),
@@ -75,7 +67,21 @@ const mapDispatchToProps = (dispatch: any) =>
     dispatch
   );
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ExpensesPage);
+const enhance = compose<EnhancedProps, Props>(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  ),
+  lifecycle<Props, {}>({
+    componentWillMount() {
+      this.props.fetchExpenses();
+    },
+  }),
+  withHandlers<Props, HandlerProps>({
+    onAddExpense: props => (data: any) => {
+      props.createExpense(data);
+    },
+  })
+);
+
+export default enhance(ExpensesPage);

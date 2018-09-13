@@ -6,6 +6,7 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 import { Column, Row } from '../../ui';
 import ExpenseLineItemImage from './expense-line-item-image';
 import { ExpenseLineItemType } from '../store/models';
+import { compose, withState, withHandlers } from 'recompose';
 
 type Props = {
   onItemChange(e: any): any;
@@ -20,129 +21,139 @@ type Props = {
   };
 };
 
-type State = Readonly<{
+type State = {
   expanded: boolean;
-}>;
-
-const initialState: State = {
-  expanded: true,
 };
 
-class ExpenseFormLineItem extends React.Component<Props, State> {
-  readonly state = initialState;
+type StateHandlers = {
+  setExpanded(expanded: boolean): void;
+};
+type HandlerProps = {
+  toggleExpanded(): void;
+};
 
-  render() {
-    const { onItemChange, onItemUpload, initialValues } = this.props;
-    const { expanded } = this.state;
+type EnhancedProps = Props & State & StateHandlers & HandlerProps;
 
-    return (
-      <Container>
-        <Heading expanded={expanded}>
-          <div
-            className="expense-form-line-item-options"
-            title="Remove expense"
-          >
-            <Icon name="fas fa-times" onClick={this.props.onRemoveItem} />
-          </div>
-          <span onClick={() => this.setState({ expanded: !expanded })}>
-            Line Item
-            <Icon name={expanded ? 'fas fa-caret-up' : 'fas fa-caret-down'} />
-          </span>
-        </Heading>
-        <Content expanded={expanded}>
-          <Row>
-            <Column xs={12} md={6}>
-              <InputField>
-                <label>Amount</label>
-                <Input
-                  type="number"
-                  name="amount"
-                  value={initialValues.amount}
-                  placeholder="Amount"
-                  onChange={onItemChange}
-                />
-              </InputField>
-              <InputField>
-                <label>Date of expense</label>
-                <Input
-                  type="date"
-                  name="expenseDate"
-                  value={initialValues.expenseDate}
-                  placeholder="Expense date"
-                  onChange={onItemChange}
-                />
-              </InputField>
-              <InputField>
-                <label>Type</label>
-                <Select
-                  name="expenseType"
-                  options={[
-                    {
-                      label: 'Meals & Entertainment',
-                      value: ExpenseLineItemType.Meal,
-                    },
-                    { label: 'Lodging', value: ExpenseLineItemType.Lodging },
-                    {
-                      label: 'Transportation',
-                      value: ExpenseLineItemType.Transportation,
-                    },
-                    {
-                      label: 'Other Business Expense',
-                      value: ExpenseLineItemType.Other,
-                    },
-                  ]}
-                  value={initialValues.expenseType}
-                  onChange={(value: string) =>
-                    onItemChange({ target: { value, name: 'expenseType' } })
+const ExpenseFormLineItem: React.SFC<EnhancedProps> = ({
+  onItemChange,
+  onItemUpload,
+  initialValues,
+  onRemoveItem,
+  onRemoveUploadedFile,
+  expanded,
+  toggleExpanded,
+}) => (
+  <Container>
+    <Heading expanded={expanded}>
+      <div className="expense-form-line-item-options" title="Remove expense">
+        <Icon name="fas fa-times" onClick={onRemoveItem} />
+      </div>
+      <span onClick={toggleExpanded}>
+        Line Item
+        <Icon name={expanded ? 'fas fa-caret-up' : 'fas fa-caret-down'} />
+      </span>
+    </Heading>
+    <Content expanded={expanded}>
+      <Row>
+        <Column xs={12} md={6}>
+          <InputField>
+            <label>Amount</label>
+            <Input
+              type="number"
+              name="amount"
+              value={initialValues.amount}
+              placeholder="Amount"
+              onChange={onItemChange}
+            />
+          </InputField>
+          <InputField>
+            <label>Date of expense</label>
+            <Input
+              type="date"
+              name="expenseDate"
+              value={initialValues.expenseDate}
+              placeholder="Expense date"
+              onChange={onItemChange}
+            />
+          </InputField>
+          <InputField>
+            <label>Type</label>
+            <Select
+              name="expenseType"
+              options={[
+                {
+                  label: 'Meals & Entertainment',
+                  value: ExpenseLineItemType.Meal,
+                },
+                { label: 'Lodging', value: ExpenseLineItemType.Lodging },
+                {
+                  label: 'Transportation',
+                  value: ExpenseLineItemType.Transportation,
+                },
+                {
+                  label: 'Other Business Expense',
+                  value: ExpenseLineItemType.Other,
+                },
+              ]}
+              value={initialValues.expenseType}
+              onChange={(value: string) =>
+                onItemChange({ target: { value, name: 'expenseType' } })
+              }
+              placeholder="Choose expense type"
+            />
+          </InputField>
+        </Column>
+        <Column xs={12} md={6}>
+          {initialValues &&
+            initialValues.files && (
+              <PreviousFiles>
+                {initialValues.files.map((file: any) => {
+                  if (typeof file !== 'string') {
+                    return null;
                   }
-                  placeholder="Choose expense type"
-                />
-              </InputField>
-            </Column>
-            <Column xs={12} md={6}>
-              {initialValues &&
-                initialValues.files && (
-                  <PreviousFiles>
-                    {initialValues.files.map((file: any) => {
-                      if (typeof file !== 'string') {
-                        return null;
-                      }
-                      return (
-                        <PreviousFileContainer key={file}>
-                          <ExpenseLineItemImage image={file} />
-                          <span
-                            className="fa-stack fa-2x"
-                            title="Remove attachment"
-                            onClick={() =>
-                              this.props.onRemoveUploadedFile(file)
-                            }
-                          >
-                            <i className="fas fa-circle fa-stack-2x" />
-                            <i className="fas fa-times fa-stack-1x fa-inverse" />
-                          </span>
-                        </PreviousFileContainer>
-                      );
-                    })}
-                  </PreviousFiles>
-                )}
-              <Uploader
-                withIcon={false}
-                buttonText="Attach files"
-                onChange={onItemUpload}
-                singleImage={false}
-                withPreview={true}
-                imgExtension={['.jpg', '.gif', '.png', '.gif']}
-                maxFileSize={5242880}
-              />
-            </Column>
-          </Row>
-        </Content>
-      </Container>
-    );
-  }
-}
+                  return (
+                    <PreviousFileContainer key={file}>
+                      <ExpenseLineItemImage image={file} />
+                      <span
+                        className="fa-stack fa-2x"
+                        title="Remove attachment"
+                        onClick={() => onRemoveUploadedFile(file)}
+                      >
+                        <i className="fas fa-circle fa-stack-2x" />
+                        <i className="fas fa-times fa-stack-1x fa-inverse" />
+                      </span>
+                    </PreviousFileContainer>
+                  );
+                })}
+              </PreviousFiles>
+            )}
+          <Uploader
+            withIcon={false}
+            buttonText="Attach files"
+            onChange={onItemUpload}
+            singleImage={false}
+            withPreview={true}
+            imgExtension={['.jpg', '.gif', '.png', '.gif']}
+            maxFileSize={5242880}
+          />
+        </Column>
+      </Row>
+    </Content>
+  </Container>
+);
 
-export default ExpenseFormLineItem;
+const enhance = compose<EnhancedProps, Props>(
+  withState<Props, boolean, 'expanded', 'setExpanded'>(
+    'expanded',
+    'setExpanded',
+    true
+  ),
+  withHandlers<EnhancedProps, HandlerProps>({
+    toggleExpanded: ({ setExpanded, expanded }) => () => setExpanded(!expanded),
+  })
+);
+
+export default enhance(ExpenseFormLineItem);
 
 const Container = styled.div`
   border: #ccc 1px solid;
