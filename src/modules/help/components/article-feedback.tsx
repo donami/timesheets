@@ -1,5 +1,12 @@
 import React from 'react';
 import { Icon } from 'genui';
+import {
+  compose,
+  withStateHandlers,
+  StateHandler,
+  StateHandlerMap,
+  withHandlers,
+} from 'recompose';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
 
@@ -8,66 +15,80 @@ type Props = {
   articleId: number;
 };
 
-type State = Readonly<{
-  responded: string | null;
-}>;
+type State = { responded: string | null };
 
-const initialState: State = {
-  responded: null,
+type StateHandlerProps = StateHandlerMap<State> & {
+  respond: (response: string) => StateHandler<State>;
 };
 
-class ArticleFeedback extends React.Component<Props, State> {
-  state = initialState;
+type HandlerProps = {
+  onGiveFeedback: (response: string) => void;
+};
 
-  giveFeedback = (response: string) => {
-    const { responded } = this.state;
+type EnhancedProps = Props & State & StateHandlerProps & HandlerProps;
 
-    if (responded && responded === response) {
-      return;
+const ArticleFeedback: React.SFC<EnhancedProps> = ({
+  responded,
+  onGiveFeedback,
+}) => (
+  <Container>
+    <Label>Did this answer your question?</Label>
+
+    <ResponseList>
+      <ResponseAction
+        value="negative"
+        responded={responded}
+        type="button"
+        onClick={() => onGiveFeedback('negative')}
+      >
+        <Icon name="far fa-frown" size="3x" title="No" />
+      </ResponseAction>
+      <ResponseAction
+        value="neutral"
+        responded={responded}
+        type="button"
+        onClick={() => onGiveFeedback('neutral')}
+      >
+        <Icon name="far fa-meh" size="3x" title="Not really" />
+      </ResponseAction>
+      <ResponseAction
+        value="positive"
+        responded={responded}
+        type="button"
+        onClick={() => onGiveFeedback('positive')}
+      >
+        <Icon name="far fa-smile" size="3x" title="Yes" />
+      </ResponseAction>
+    </ResponseList>
+  </Container>
+);
+
+const enhance = compose<EnhancedProps, Props>(
+  withStateHandlers<State, StateHandlerProps, Props>(
+    props => ({
+      ...props,
+      responded: null,
+    }),
+    {
+      respond: (state, props) => (response: string) => ({
+        responded: response,
+      }),
     }
+  ),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onGiveFeedback: ({ respond, responded, articleId, onFeedback }) => (
+      response: string
+    ) => {
+      if (responded && responded === response) {
+        return;
+      }
 
-    this.props.onFeedback(this.props.articleId, response);
+      onFeedback(articleId, response);
 
-    this.setState({ responded: response });
-  };
-
-  render() {
-    const { responded } = this.state;
-
-    return (
-      <Container>
-        <Label>Did this answer your question?</Label>
-
-        <ResponseList>
-          <ResponseAction
-            value="negative"
-            responded={responded}
-            type="button"
-            onClick={() => this.giveFeedback('negative')}
-          >
-            <Icon name="far fa-frown" size="3x" title="No" />
-          </ResponseAction>
-          <ResponseAction
-            value="neutral"
-            responded={responded}
-            type="button"
-            onClick={() => this.giveFeedback('neutral')}
-          >
-            <Icon name="far fa-meh" size="3x" title="Not really" />
-          </ResponseAction>
-          <ResponseAction
-            value="positive"
-            responded={responded}
-            type="button"
-            onClick={() => this.giveFeedback('positive')}
-          >
-            <Icon name="far fa-smile" size="3x" title="Yes" />
-          </ResponseAction>
-        </ResponseList>
-      </Container>
-    );
-  }
-}
+      respond(response);
+    },
+  })
+);
 
 const Container = styled.div`
   padding: 20px 0;
@@ -115,4 +136,4 @@ const ResponseAction = withProps<
 
 `;
 
-export default ArticleFeedback;
+export default enhance(ArticleFeedback);

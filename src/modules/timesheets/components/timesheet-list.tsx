@@ -13,7 +13,7 @@ import {
 } from '../utils';
 import { User } from '../../users/store/models';
 import { ListProps } from '../../common/components/list/list';
-import { List } from '../../common';
+import List from '../../common/components/list';
 
 const getUserLink = (timesheet: any, users?: any) => {
   if (!users || !timesheet.owner) {

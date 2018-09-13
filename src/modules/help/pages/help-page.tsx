@@ -1,35 +1,29 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { compose, lifecycle } from 'recompose';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { Search, Category } from '../components';
+import { QuestionCategory } from '../store/models';
 import { fetchCategoriesIfNeeded } from '../store/actions';
 import { getCategories } from '../store/selectors';
-import { QuestionCategory } from '../store/models';
-import { Category, Search } from '../components';
 
 type Props = {
   fetchCategoriesIfNeeded: () => any;
   categories: QuestionCategory[];
 };
 
-class HelpPage extends Component<Props> {
-  componentWillMount() {
-    this.props.fetchCategoriesIfNeeded();
-  }
+const HelpPage: React.SFC<Props> = ({ categories }) => {
+  return (
+    <div>
+      <Search />
 
-  render() {
-    const { categories } = this.props;
-    return (
-      <div>
-        <Search />
-
-        {categories.map(category => (
-          <Category key={category.id} category={category} />
-        ))}
-      </div>
-    );
-  }
-}
+      {categories.map(category => (
+        <Category key={category.id} category={category} />
+      ))}
+    </div>
+  );
+};
 
 const mapStateToProps = (state: any) => ({
   categories: getCategories(state),
@@ -43,7 +37,16 @@ const mapDispatchToProps = (dispatch: any) =>
     dispatch
   );
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HelpPage);
+const enhance = compose<any, any>(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  ),
+  lifecycle<Props, {}>({
+    componentWillMount() {
+      this.props.fetchCategoriesIfNeeded();
+    },
+  })
+);
+
+export default enhance(HelpPage);

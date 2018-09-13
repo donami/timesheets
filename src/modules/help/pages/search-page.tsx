@@ -1,19 +1,15 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import { Search, SearchResults } from '../components';
 
 type Props = {};
 
-class SearchPage extends Component<Props> {
-  render() {
-    return (
-      <div>
-        <Search />
+const SearchPage: React.SFC<Props> = () => (
+  <div>
+    <Search />
 
-        <SearchResults />
-      </div>
-    );
-  }
-}
+    <SearchResults />
+  </div>
+);
 
 export default SearchPage;

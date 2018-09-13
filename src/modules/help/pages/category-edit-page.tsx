@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import { CategoryForm } from '../components';
-import { QuestionCategory } from '../store/models';
+import React from 'react';
+import { compose, withHandlers, lifecycle } from 'recompose';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+
+import { CategoryForm } from '../components';
+import { QuestionCategory } from '../store/models';
 import { updateCategory, selectCategory } from '../store/actions';
 import { getSelectedCategory } from '../store/selectors';
 import { PageHeader } from '../../common';
@@ -12,42 +14,42 @@ type Props = {
   category: QuestionCategory;
   updateCategory: (categoryId: number, data: Partial<QuestionCategory>) => any;
   selectCategory: (categoryId: number) => any;
+  onSubmit: (props: any) => (event: any) => any;
 };
 
-class CategoryEditPage extends Component<Props> {
-  componentWillMount() {
-    const { match } = this.props;
+const CategoryEditPage: React.SFC<Props> = ({ category, onSubmit }) => (
+  <div>
+    <PageHeader>Edit Category</PageHeader>
+    <CategoryForm onSubmit={onSubmit} category={category} />
+  </div>
+);
 
-    if (match.params.id) {
-      this.props.selectCategory(+match.params.id);
-    }
-  }
+const enhance = compose(
+  connect(
+    (state: any) => ({
+      category: getSelectedCategory(state),
+    }),
+    (dispatch: any) =>
+      bindActionCreators({ updateCategory, selectCategory }, dispatch)
+  ),
+  lifecycle<Props, {}>({
+    componentWillMount() {
+      const { match } = this.props;
 
-  handleSubmit = (data: Partial<QuestionCategory>) => {
-    if (!data.id) {
-      return;
-    }
-
-    this.props.updateCategory(data.id, data);
-  };
-
-  render() {
-    return (
-      <div>
-        <PageHeader>Edit Category</PageHeader>
-        <CategoryForm
-          onSubmit={this.handleSubmit}
-          category={this.props.category}
-        />
-      </div>
-    );
-  }
-}
-
-export default connect(
-  (state: any) => ({
-    category: getSelectedCategory(state),
+      if (match.params.id) {
+        this.props.selectCategory(+match.params.id);
+      }
+    },
   }),
-  (dispatch: any) =>
-    bindActionCreators({ updateCategory, selectCategory }, dispatch)
-)(CategoryEditPage);
+  withHandlers<Props, {}>({
+    onSubmit: props => (data: any) => {
+      if (!data.id) {
+        return;
+      }
+
+      props.updateCategory(data.id, data);
+    },
+  })
+);
+
+export default enhance(CategoryEditPage);

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { selectCategory } from '../store/actions';
@@ -8,6 +8,7 @@ import {
   getSelectedCategoryArticles,
 } from '../store/selectors';
 import { CategoryInfo, Breadcrumb, Search } from '../components';
+import { compose, lifecycle, branch, renderNothing } from 'recompose';
 
 type Props = {
   match: any;
@@ -16,36 +17,32 @@ type Props = {
   selectCategory: (categoryId: number) => any;
 };
 
-class CategoryViewPage extends Component<Props> {
-  componentWillMount() {
-    const { match } = this.props;
+const CategoryViewPage: React.SFC<Props> = ({ category, articles }) => (
+  <>
+    <Search />
+    <Breadcrumb category={category} />
+    <CategoryInfo category={category} articles={articles} />
+  </>
+);
 
-    if (match.params.id) {
-      this.props.selectCategory(+match.params.id);
-    }
-  }
+const enhance = compose(
+  connect(
+    (state: any) => ({
+      category: getSelectedCategory(state),
+      articles: getSelectedCategoryArticles(state),
+    }),
+    (dispatch: any) => bindActionCreators({ selectCategory }, dispatch)
+  ),
+  lifecycle<Props, {}>({
+    componentWillMount() {
+      const { match } = this.props;
 
-  render() {
-    const { category, articles } = this.props;
-
-    if (!category) {
-      return null;
-    }
-
-    return (
-      <>
-        <Search />
-        <Breadcrumb category={category} />
-        <CategoryInfo category={category} articles={articles} />
-      </>
-    );
-  }
-}
-
-export default connect(
-  (state: any) => ({
-    category: getSelectedCategory(state),
-    articles: getSelectedCategoryArticles(state),
+      if (match.params.id) {
+        this.props.selectCategory(+match.params.id);
+      }
+    },
   }),
-  (dispatch: any) => bindActionCreators({ selectCategory }, dispatch)
-)(CategoryViewPage);
+  branch<Props>(props => !props.category, renderNothing)
+);
+
+export default enhance(CategoryViewPage);
