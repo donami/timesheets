@@ -1,19 +1,13 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Button, Dropdown, Message, Icon } from 'genui';
 
-import { selectUser, disableUser, enableUser } from '../store/actions';
 import { UserInfo, UserGroups, EditUser, EditUserStatus } from '../components';
 import {
   getSelectedUser,
   getSelectedUserGroup,
   getSelectedUserDisabled,
 } from '../store/selectors';
-import { User } from '../store/models';
 import { Group } from '../../groups/store/models';
-import { getGroups } from '../../groups/store/selectors';
-import { updateGroupMember } from '../../groups/store/actions';
 import { Box, Row, Column } from '../../ui';
 import {
   generateTimesheets,
@@ -25,10 +19,15 @@ import {
   getSelectedUserTimesheets,
 } from '../../common/store/selectors';
 import { TimesheetGenerator, TimesheetList } from '../../timesheets';
-import { TimesheetItem } from '../../timesheets/store/models';
 import { PageHeader, Translate, Avatar } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
 import { Link, Switch, Route } from 'react-router-dom';
+import { compose, withHandlers } from 'recompose';
+import { graphql } from 'react-apollo';
+import { DISABLE_USER, ENABLE_USER } from '../store/mutations';
+import { GET_USER } from '../store/queries';
+import { GET_GROUPS } from '../../groups/store/queries';
+import { GET_PROJECTS } from '../../projects/store/queries';
 
 type DropdownItem = {
   label: string;
@@ -39,47 +38,36 @@ type DropdownItem = {
 type Props = {
   match: any;
   selectUser: (userId: number) => any;
-  disableUser: (userId: number) => any;
-  enableUser: (userId: number) => any;
   updateGroupMember: (groupId: number, userId: number) => any;
-  user: User;
-  disabled: boolean;
-  projects: Project[];
   groups: Group[];
   group: Group;
-  timesheets: TimesheetItem[];
 };
+type DataProps = {
+  user: any;
+  groups: any[];
+  allProjects: any[];
+  disableUser(options: any): any;
+  enableUser(options: any): any;
+};
+type HandlerProps = {
+  onEnableUser(): any;
+  onDisableUser(): any;
+};
+type EnhancedProps = Props & DataProps & HandlerProps;
 
-class UserViewPage extends React.Component<Props> {
-  componentWillMount() {
-    const { match, selectUser } = this.props;
-
-    if (match && match.params.id) {
-      selectUser(+match.params.id);
-    }
-  }
-
-  handleUpdateGroups = (groupId: number) => {
-    this.props.updateGroupMember(groupId, this.props.user.id);
-  };
-
-  handleDisableUser = () => {
-    this.props.disableUser(this.props.user.id);
-  };
-
-  handleEnableUser = () => {
-    this.props.enableUser(this.props.user.id);
+class UserViewPage extends React.Component<EnhancedProps> {
+  handleUpdateGroups = (groupId: string) => {
+    // this.props.updateGroupMember(groupId, this.props.user.id);
   };
 
   render() {
     const {
       user,
       groups,
-      projects,
-      timesheets,
-      group,
-      disabled,
+      allProjects,
       match,
+      onEnableUser,
+      onDisableUser,
     } = this.props;
 
     if (!user) {
@@ -88,17 +76,17 @@ class UserViewPage extends React.Component<Props> {
 
     const items: DropdownItem[] = [];
 
-    if (disabled) {
+    if (user.disabled) {
       items.push({
         label: 'Enable user',
         icon: 'fas fa-unlock',
-        onClick: this.handleEnableUser,
+        onClick: onEnableUser,
       });
     } else {
       items.push({
         label: 'Disable user',
         icon: 'fas fa-ban',
-        onClick: this.handleDisableUser,
+        onClick: onDisableUser,
       });
     }
 
@@ -120,10 +108,11 @@ class UserViewPage extends React.Component<Props> {
             </StyledDropdown>
           )}
         >
-          <Translate text="users.labels.USER_PROFILE" />: {user.fullName}
+          <Translate text="users.labels.USER_PROFILE" />:{' '}
+          {`${user.firstName} ${user.lastName}`}
         </PageHeader>
 
-        {disabled && (
+        {user.disabled && (
           <Row>
             <Column xs={12}>
               <Message negative>
@@ -140,7 +129,7 @@ class UserViewPage extends React.Component<Props> {
               <UserCard>
                 <Avatar view="lg" avatar={user.image} gender={user.gender} />
 
-                <h3>{user.fullName}</h3>
+                <h3>{`${user.firstName} ${user.lastName}`}</h3>
                 <Link to={`/user/${user.id}/edit`}>Edit User</Link>
               </UserCard>
 
@@ -183,8 +172,10 @@ class UserViewPage extends React.Component<Props> {
                   >
                     <TimesheetGenerator
                       userId={user.id}
-                      projects={projects}
-                      previousTimesheets={timesheets}
+                      projects={(user.projectMember || []).map(
+                        (member: any) => member.project
+                      )}
+                      previousTimesheets={user.timesheets}
                     />
                   </Box>
                 )}
@@ -195,9 +186,10 @@ class UserViewPage extends React.Component<Props> {
                   <>
                     <UserInfo user={user} />
                     <UserGroups
+                      user={user}
                       groups={groups}
                       onSubmit={this.handleUpdateGroups}
-                      initialSelectedGroup={group ? group.id : 0}
+                      initialSelectedGroup={user.group ? user.group.id : ''}
                     />
                   </>
                 )}
@@ -206,7 +198,13 @@ class UserViewPage extends React.Component<Props> {
                 path={`/user/:id/edit`}
                 render={props => (
                   <>
-                    <EditUser user={user} userProject={projects} />
+                    <EditUser
+                      user={user}
+                      userProject={(user.projectMember || []).map(
+                        (member: any) => member.project
+                      )}
+                      projects={allProjects}
+                    />
                     <h3>Change user type</h3>
                     <EditUserStatus user={user} />
                   </>
@@ -221,9 +219,9 @@ class UserViewPage extends React.Component<Props> {
                     )}
                   >
                     <TimesheetList
-                      items={timesheets || []}
+                      items={user.timesheets || []}
                       disableFilter={true}
-                      noTimesheetsText="There is no generated timesheets for this user."
+                      noItemsText="There is no generated timesheets for this user."
                     />
                   </Box>
                 )}
@@ -236,32 +234,73 @@ class UserViewPage extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  user: getSelectedUser(state),
-  projects: getSelectedUserProjects(state),
-  groups: getGroups(state),
-  group: getSelectedUserGroup(state),
-  timesheets: getSelectedUserTimesheets(state),
-  disabled: getSelectedUserDisabled(state),
-});
+// const mapStateToProps = (state: any) => ({
+//   user: getSelectedUser(state),
+// projects: getSelectedUserProjects(state),
+//   groups: getGroups(state),
+//   group: getSelectedUserGroup(state),
+//   timesheets: getSelectedUserTimesheets(state),
+//   disabled: getSelectedUserDisabled(state),
+// });
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      selectUser,
-      updateGroupMember,
-      generateTimesheets,
-      confirmTemplates,
-      disableUser,
-      enableUser,
+// const mapDispatchToProps = (dispatch: any) =>
+//   bindActionCreators(
+//     {
+//       selectUser,
+//       updateGroupMember,
+//       generateTimesheets,
+//       confirmTemplates,
+//       disableUser,
+//       enableUser,
+//     },
+//     dispatch
+//   );
+
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(UserViewPage);
+
+const enhance = compose(
+  graphql(GET_USER, {
+    options: (props: any) => ({
+      variables: { id: props.match.params.id },
+    }),
+    props: ({ data }: any) => ({
+      loading: data.loading,
+      user: data.User,
+    }),
+  }),
+  graphql(GET_GROUPS, {
+    props: ({ data }: any) => ({
+      groups: data.allGroups || [],
+    }),
+  }),
+  graphql(GET_PROJECTS, {
+    props: ({ data }: any) => ({
+      allProjects: data.allProjects || [],
+    }),
+  }),
+  graphql(DISABLE_USER, {
+    name: 'disableUser',
+  }),
+  graphql(ENABLE_USER, {
+    name: 'enableUser',
+  }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    // onRemove: ({ deleteUser }) => (userId: string) => {
+    //   deleteUser({ variables: { id: userId } });
+    // },
+    onDisableUser: ({ disableUser, user }) => () => {
+      disableUser({ variables: { id: user.id } });
     },
-    dispatch
-  );
+    onEnableUser: ({ enableUser, user }) => () => {
+      enableUser({ variables: { id: user.id } });
+    },
+  })
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UserViewPage);
+export default enhance(UserViewPage);
 
 const StyledDropdown = withProps<any>(styled(Dropdown))`
   line-height: normal;

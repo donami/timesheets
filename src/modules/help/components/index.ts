@@ -10,3 +10,5 @@ export { default as SearchResults } from './search-results';
 export { default as ArticleList } from './article-list';
 export { default as CategoryForm } from './category-form';
 export { default as ArticleFeedback } from './article-feedback';
+export { default as ManageArticlesList } from './manage-articles-list';
+export { default as ManageCategoriesList } from './manage-categories-list';

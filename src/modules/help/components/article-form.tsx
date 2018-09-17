@@ -60,7 +60,7 @@ class ArticleForm extends React.Component<Props, State> {
   handleSubmit = (model: any) => {
     const data = {
       ...model,
-      categoryId: +model.categoryId,
+      categoryId: model.categoryId,
     };
 
     if (this.props.article && this.props.article.id) {

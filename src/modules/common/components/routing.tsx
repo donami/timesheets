@@ -42,6 +42,9 @@ import categoryEditPage from '../../help/pages/category-edit-page';
 import withLoading from './with-loading';
 import { ThemeProvider } from '../../../styled/styled-components';
 import { theme } from '../../../styled/theme';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 type Props = {
   initialize: () => any;
@@ -230,6 +233,14 @@ class Routing extends React.Component<Props> {
   }
 }
 
+export const LOGGED_IN_USER = gql`
+  query loggedInUser {
+    loggedInUser {
+      id
+    }
+  }
+`;
+
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
@@ -240,7 +251,16 @@ const mapDispatchToProps = (dispatch: any) =>
     dispatch
   );
 
-export default connect(
-  undefined,
-  mapDispatchToProps
-)(Routing);
+const enhance = compose(
+  graphql(LOGGED_IN_USER),
+  connect(
+    undefined,
+    mapDispatchToProps
+  )
+);
+// export default connect(
+//   undefined,
+//   mapDispatchToProps
+// )(Routing);
+
+export default enhance(Routing);

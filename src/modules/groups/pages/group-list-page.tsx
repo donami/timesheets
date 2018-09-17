@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { graphql } from 'react-apollo';
+import { compose, branch, renderNothing, withHandlers } from 'recompose';
 import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
 import {
@@ -8,150 +8,136 @@ import {
   getGroupListPageState,
   getTotalCount,
 } from '../store/selectors';
-import { loadGroupListPage, fetchGroups, removeGroup } from '../store/actions';
-import { Group } from '../store/models';
 import { PageHeader, Translate } from '../../common';
 import { Link } from 'react-router-dom';
-import { getProjects } from '../../projects/store/selectors';
-import { Project } from '../../projects/store/models';
+import { GET_GROUPS } from '../store/queries';
+import { DELETE_GROUP } from '../store/mutations';
+import {
+  withToastr,
+  WithToastrProps,
+} from '../../common/components/toastr/toastr';
 
-type Props = {
-  loadGroupListPage(options?: any): any;
-  fetchGroups(options?: any): any;
-  removeGroup(groupId: number): any;
-  groupListPage: any;
-  projects: Project[];
-  groups: Group[];
-  totalCount: number;
+type Props = {};
+type HandlerProps = {
+  onRemoveGroup(groupId: string): void;
 };
+type DataProps = {
+  groups: any[];
+  deleteGroup(options: any): any;
+  loading: boolean;
+};
+type EnhancedProps = Props & HandlerProps & DataProps & WithToastrProps;
 
-class GroupListPage extends React.Component<Props> {
-  componentWillMount() {
-    const { take, skip } = this.props.groupListPage;
+const GroupListPage: React.SFC<EnhancedProps> = ({ groups, onRemoveGroup }) => (
+  <div>
+    <PageHeader
+      options={() => (
+        <Button to="/groups/add" color="purple">
+          <Translate text="groups.labels.NEW_GROUP" />
+        </Button>
+      )}
+    >
+      <Translate text="groups.labels.GROUPS" />
+    </PageHeader>
 
-    this.props.loadGroupListPage({ take, skip });
-  }
+    <TableBuilder
+      selectable
+      items={groups}
+      itemsOptions={(item: any) => [
+        {
+          label: 'View group',
+          icon: 'fas fa-eye',
+          to: `/group/${item.id}`,
+        },
+      ]}
+      renderHeaders={
+        <>
+          <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+          <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
+          <Table.HeaderCell sortableBy="project">Project</Table.HeaderCell>
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+        </>
+      }
+      renderItem={(item: any) => {
+        return (
+          <>
+            <Table.Cell>
+              <Link to={`/group/${item.id}`}>#{item.id}</Link>
+            </Table.Cell>
+            <Table.Cell>{item.name}</Table.Cell>
+            <Table.Cell>
+              {(item.project && item.project.name) || 'No project'}
+            </Table.Cell>
 
-  handleLoadMore = () => {
-    const { take, skip } = this.props.groupListPage;
+            <Table.Cell
+              option={{
+                icon: 'fas fa-pencil-alt',
+                to: `/group/${item.id}/edit`,
+              }}
+            />
+            <Table.Cell
+              option={{
+                confirm: {
+                  trigger: <Icon name="fas fa-trash" title="Remove" />,
+                  content: `Do you really want to remove "${item.name}"?`,
+                  onActionClick: (
+                    e: React.MouseEvent<HTMLElement>,
+                    actionProps: ActionProps
+                  ) => {
+                    if (actionProps.positive) {
+                      onRemoveGroup(item.id);
+                    }
+                  },
+                },
+              }}
+            />
+          </>
+        );
+      }}
+    />
+  </div>
+);
 
-    this.props.loadGroupListPage({ take, skip: skip + take });
-  };
+const enhance = compose<EnhancedProps, Props>(
+  withToastr,
+  graphql(GET_GROUPS, {
+    props: ({ data }: any) => ({
+      groups: data.allGroups,
+      loading: data.loading,
+    }),
+  }),
+  graphql(DELETE_GROUP, {
+    name: 'deleteGroup',
+    options: {
+      update: (proxy, { data: { deleteGroup } }: { data: any }) => {
+        const { allGroups }: any = proxy.readQuery({
+          query: GET_GROUPS,
+        });
 
-  handleRemoveGroup = (groupId: number) => {
-    this.props.removeGroup(groupId);
-  };
-
-  getProject = (group: Group) => {
-    return this.props.projects.find(
-      (project: any) => project.groups.indexOf(group.id) > -1
-    );
-  };
-
-  render() {
-    const { groups } = this.props;
-    // const { groups, totalCount } = this.props;
-
-    return (
-      <div>
-        <PageHeader
-          options={() => (
-            <Button to="/groups/add" color="purple">
-              <Translate text="groups.labels.NEW_GROUP" />
-            </Button>
-          )}
-        >
-          <Translate text="groups.labels.GROUPS" />
-        </PageHeader>
-
-        {/* <GroupList
-          onRemoveGroup={this.handleRemoveGroup}
-          groups={groups}
-          onLoadMore={this.handleLoadMore}
-          totalCount={totalCount}
-        /> */}
-
-        <TableBuilder
-          selectable
-          items={groups}
-          itemsOptions={(item: any) => [
-            {
-              label: 'View group',
-              icon: 'fas fa-eye',
-              to: `/group/${item.id}`,
-            },
-          ]}
-          renderHeaders={
-            <>
-              <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
-              <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
-              <Table.HeaderCell sortableBy="project">Project</Table.HeaderCell>
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-            </>
-          }
-          renderItem={(item: any) => {
-            const project = this.getProject(item);
-            return (
-              <>
-                <Table.Cell>
-                  <Link to={`/group/${item.id}`}>#{item.id}</Link>
-                </Table.Cell>
-                <Table.Cell>{item.name}</Table.Cell>
-                <Table.Cell>
-                  {(project && project.name) || 'No project'}
-                </Table.Cell>
-
-                <Table.Cell
-                  option={{
-                    icon: 'fas fa-pencil-alt',
-                    to: `/group/${item.id}/edit`,
-                  }}
-                />
-                <Table.Cell
-                  option={{
-                    confirm: {
-                      trigger: <Icon name="fas fa-trash" title="Remove" />,
-                      content: `Do you really want to remove "${item.name}"?`,
-                      onActionClick: (
-                        e: React.MouseEvent<HTMLElement>,
-                        actionProps: ActionProps
-                      ) => {
-                        if (actionProps.positive) {
-                          this.handleRemoveGroup(item.id);
-                        }
-                      },
-                    },
-                  }}
-                />
-              </>
-            );
-          }}
-        />
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state: any) => ({
-  groups: getGroups(state),
-  groupListPage: getGroupListPageState(state),
-  projects: getProjects(state),
-  totalCount: getTotalCount(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      loadGroupListPage,
-      fetchGroups,
-      removeGroup,
+        proxy.writeQuery({
+          query: GET_GROUPS,
+          data: {
+            allGroups: allGroups.filter(
+              (group: any) => group.id !== deleteGroup.id
+            ),
+          },
+        });
+      },
     },
-    dispatch
-  );
+  }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onRemoveGroup: ({ deleteGroup, addToast }) => async (id: string) => {
+      await deleteGroup({ variables: { id } });
+      await addToast(
+        'Group was removed',
+        'Group was successfully removed',
+        'positive'
+      );
+    },
+  }),
+  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(GroupListPage);
+export default enhance(GroupListPage);

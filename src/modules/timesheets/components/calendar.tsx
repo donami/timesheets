@@ -7,6 +7,9 @@ import { TimesheetStatus } from '../store/models';
 import { parseDate } from '../../../utils/helpers';
 import { Modal } from '../../common';
 import { withProps, css } from '../../../styled/styled-components';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
+import { ADD_REPORTED_TO_DATE } from '../store/mutations';
 
 type Props = {
   onSubmit?: Function;
@@ -20,6 +23,11 @@ type Props = {
   status: TimesheetStatus;
 };
 
+type DataProps = {
+  addReportedToDate(options: any): any;
+};
+type EnhancedProps = Props & DataProps;
+
 type State = Readonly<{
   dates: any[];
 }>;
@@ -28,7 +36,7 @@ const initialState: State = {
   dates: [],
 };
 
-class Calendar extends React.Component<Props, State> {
+class Calendar extends React.Component<EnhancedProps, State> {
   readonly state = initialState;
 
   static defaultProps = {
@@ -104,6 +112,21 @@ class Calendar extends React.Component<Props, State> {
     date.hours = workHours - breakInHours;
     date.reported = data;
     dates[weekIndex][dayIndex] = date;
+
+    const selectedDate = dates[weekIndex][dayIndex];
+
+    console.log(selectedDate);
+
+    this.props.addReportedToDate({
+      variables: {
+        id: selectedDate.id,
+        break: selectedDate.reported.break,
+        inTime: selectedDate.reported.inTime,
+        outTime: selectedDate.reported.outTime,
+        holiday: selectedDate.reported.holiday,
+        totalHours: selectedDate.hours,
+      },
+    });
 
     this.setState({ dates });
   };
@@ -424,4 +447,8 @@ const HeaderItem = styled.div`
   text-align: center;
 `;
 
-export default Calendar;
+const enhance = compose<any, any>(
+  graphql(ADD_REPORTED_TO_DATE, { name: 'addReportedToDate' })
+);
+
+export default enhance(Calendar);

@@ -12,13 +12,11 @@ type Props = {
       name: string;
       project: number;
       timesheetTemplate: TimesheetTemplateItem;
-    },
-    projectId: number
+    }
   ) => any;
   projects: Project[];
   templates: TimesheetTemplateItem[];
-  initialValues?: Group;
-  project?: Project;
+  initialValues?: any;
 };
 
 class GroupForm extends React.Component<Props> {
@@ -27,22 +25,17 @@ class GroupForm extends React.Component<Props> {
       ...model,
       id:
         (this.props.initialValues && this.props.initialValues.id) || undefined,
-      project: +model.project,
-      timesheetTemplate:
-        this.props.templates.find(
-          item => item.id === +model.timesheetTemplate
-        ) || null,
     };
 
     if (data.project === null) {
       throw new Error('You need to select a project.');
     }
 
-    this.props.onSubmit(data, data.project);
+    this.props.onSubmit(data);
   };
 
   render() {
-    const { projects, templates, initialValues, project } = this.props;
+    const { projects, templates, initialValues } = this.props;
 
     return (
       <Form onValidSubmit={this.handleSubmit}>
@@ -61,7 +54,11 @@ class GroupForm extends React.Component<Props> {
               name="project"
               label="Select Project"
               validations={{ isRequired: true }}
-              defaultValue={project && project.id.toString()}
+              defaultValue={
+                initialValues &&
+                initialValues.project &&
+                initialValues.project.id
+              }
             >
               <Select
                 options={projects.map(project => ({
@@ -78,8 +75,8 @@ class GroupForm extends React.Component<Props> {
               validations={{ isRequired: true }}
               defaultValue={
                 initialValues &&
-                initialValues.timesheetTemplate &&
-                initialValues.timesheetTemplate.toString()
+                initialValues.template &&
+                initialValues.template.id
               }
             >
               <Select

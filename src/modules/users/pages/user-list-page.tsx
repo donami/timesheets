@@ -1,175 +1,188 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Button, StatusColor, TableBuilder, Table } from 'genui';
-
-import { getUsers } from '../store/selectors';
-import { fetchUsersIfNeeded, disableUser, enableUser } from '../store/actions';
-import { User } from '../store/models';
-import { PageHeader, Translate, Avatar } from '../../common';
 import { Link } from 'react-router-dom';
+import { graphql } from 'react-apollo';
+import { compose, withHandlers, branch, renderNothing } from 'recompose';
+
+import { PageHeader, Translate, Avatar } from '../../common';
 import styled from '../../../styled/styled-components';
-import { getGroupEntities } from '../../groups/store/selectors';
+import { GET_USERS } from '../store/queries';
+import { DELETE_USER, DISABLE_USER, ENABLE_USER } from '../store/mutations';
 
-export interface UserListPageProps {
-  fetchUsersIfNeeded: () => any;
-  disableUser: (userId: number) => any;
-  enableUser: (userId: number) => any;
-  users: User[];
-  groupsById: any;
-}
+type Props = {};
+type DataProps = {
+  users: any[];
+  disableUser(options: any): any;
+  enableUser(options: any): any;
+  deleteUser(options: any): any;
+};
+type HandlerProps = {
+  onRemove(userId: string): any;
+  onDisableUser(userId: string, disable: boolean): any;
+};
+type EnhancedProps = Props & DataProps & HandlerProps;
 
-class UserListPage extends React.Component<UserListPageProps> {
-  componentWillMount() {
-    this.props.fetchUsersIfNeeded();
-  }
+const UserListPage: React.SFC<EnhancedProps> = ({ users, onDisableUser }) => (
+  <div>
+    <PageHeader
+      options={() => (
+        <Button to="/users/add" color="purple">
+          <Translate text="users.labels.NEW_USER" />
+        </Button>
+      )}
+    >
+      <Translate text="users.labels.USERS" />
+    </PageHeader>
 
-  handleDisableUser = (user: User) => {
-    if (user.disabled) {
-      this.props.enableUser(user.id);
-    } else {
-      this.props.disableUser(user.id);
-    }
-  };
-
-  render() {
-    const { users, groupsById } = this.props;
-
-    return (
-      <div>
-        <PageHeader
-          options={() => (
-            <Button to="/users/add" color="purple">
-              <Translate text="users.labels.NEW_USER" />
-            </Button>
-          )}
-        >
-          <Translate text="users.labels.USERS" />
-        </PageHeader>
-
-        <TableBuilder
-          selectable
-          items={users}
-          filters={[
+    <TableBuilder
+      selectable
+      items={users}
+      filters={[
+        {
+          label: 'Status',
+          placeholder: 'Filter by status',
+          property: 'disabled',
+          filterAs: (item: any, filterState: any) => {
+            return item.disabled === filterState.disabled;
+          },
+          options: [
             {
-              label: 'Status',
-              placeholder: 'Filter by status',
-              property: 'disabled',
-              filterAs: (item: any, filterState: any) => {
-                return item.disabled === filterState.disabled;
-              },
-              options: [
-                {
-                  label: 'Disabled',
-                  value: true,
-                },
-                {
-                  label: 'Active',
-                  value: false,
-                },
-              ],
+              label: 'Disabled',
+              value: true,
             },
             {
-              label: 'Name',
-              placeholder: 'Filter by name',
-              inputType: 'text',
-              property: 'fullName',
-              filterAs: (item: any, filterState: any) => {
-                const regex = new RegExp(filterState.fullName, 'i');
-                return item.fullName.match(regex);
-              },
-              options: [
-                {
-                  label: 'Disabled',
-                  value: true,
-                },
-                {
-                  label: 'Active',
-                  value: false,
-                },
-              ],
+              label: 'Active',
+              value: false,
             },
-          ]}
-          itemsOptions={(item: any) => [
+          ],
+        },
+        {
+          label: 'Name',
+          placeholder: 'Filter by name',
+          inputType: 'text',
+          property: 'fullName',
+          filterAs: (item: any, filterState: any) => {
+            const regex = new RegExp(filterState.fullName, 'i');
+            return item.fullName.match(regex);
+          },
+          options: [
             {
-              label: 'View user',
-              icon: 'fas fa-eye',
-              to: `/user/${item.id}`,
+              label: 'Disabled',
+              value: true,
             },
-          ]}
-          renderHeaders={
-            <>
-              <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
-              <Table.HeaderCell sortableBy="fullName">User</Table.HeaderCell>
-              <Table.HeaderCell sortableBy="disabled">Status</Table.HeaderCell>
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-            </>
-          }
-          renderItem={(item: any) => (
-            <>
-              <Table.Cell>
-                <Link to={`/user/${item.id}`}>#{item.id}</Link>
-              </Table.Cell>
-              <UserCell>
-                <Avatar view="sm" avatar={item.image} gender={item.gender} />
-                <div>
-                  <Link to={`/user/${item.id}`}>{item.fullName}</Link>
-                  {item.group && <span>{groupsById[item.group].name}</span>}
-                  {!item.group && <em>No group</em>}
-                </div>
-              </UserCell>
-              <Table.Cell>
-                <StatusColor
-                  style={{ marginRight: 5 }}
-                  positive={!item.disabled}
-                  negative={item.disabled}
-                />
-              </Table.Cell>
-              <Table.Cell
-                option={{
-                  icon: 'fas fa-pencil-alt',
-                  to: `/user/${item.id}/edit`,
-                }}
-              />
-              <Table.Cell
-                option={{
-                  icon: item.disabled
-                    ? 'fas fa-toggle-off'
-                    : 'fas fa-toggle-on',
-                  onClick: () => this.handleDisableUser(item),
-                }}
-              />
-            </>
-          )}
-        />
+            {
+              label: 'Active',
+              value: false,
+            },
+          ],
+        },
+      ]}
+      itemsOptions={(item: any) => [
+        {
+          label: 'View user',
+          icon: 'fas fa-eye',
+          to: `/user/${item.id}`,
+        },
+      ]}
+      renderHeaders={
+        <>
+          <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+          <Table.HeaderCell sortableBy="fullName">User</Table.HeaderCell>
+          <Table.HeaderCell sortableBy="disabled">Status</Table.HeaderCell>
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+        </>
+      }
+      renderItem={(item: any) => (
+        <>
+          <Table.Cell>
+            <Link to={`/user/${item.id}`}>#{item.id}</Link>
+          </Table.Cell>
+          <UserCell>
+            <Avatar view="sm" avatar={item.image} gender={item.gender} />
+            <div>
+              <Link to={`/user/${item.id}`}>{`${item.firstName} ${
+                item.lastName
+              }`}</Link>
+              {item.group && <span>{item.group.name}</span>}
+              {!item.group && <em>No group</em>}
+            </div>
+          </UserCell>
+          <Table.Cell>
+            <StatusColor
+              style={{ marginRight: 5 }}
+              positive={!item.disabled}
+              negative={item.disabled}
+            />
+          </Table.Cell>
+          <Table.Cell
+            option={{
+              icon: 'fas fa-pencil-alt',
+              to: `/user/${item.id}/edit`,
+            }}
+          />
+          <Table.Cell
+            option={{
+              icon: item.disabled ? 'fas fa-toggle-off' : 'fas fa-toggle-on',
+              onClick: () => onDisableUser(item.id, !item.disabled),
+            }}
+          />
+        </>
+      )}
+    />
+  </div>
+);
 
-        {/* <UserList users={users} /> */}
-      </div>
-    );
-  }
-}
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_USERS, {
+    props: ({ data }: any) => ({
+      users: data.allUsers,
+      loading: data.loading,
+    }),
+  }),
+  graphql(DELETE_USER, {
+    name: 'deleteUser',
+    options: {
+      update: (proxy, { data: { deleteUser } }: { data: any }) => {
+        const { allUsers }: any = proxy.readQuery({
+          query: GET_USERS,
+        });
 
-const mapStateToProps = (state: any) => ({
-  users: getUsers(state),
-  groupsById: getGroupEntities(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchUsersIfNeeded,
-      disableUser,
-      enableUser,
+        proxy.writeQuery({
+          query: GET_USERS,
+          data: {
+            allUsers: allUsers.filter((user: any) => user.id !== deleteUser.id),
+          },
+        });
+      },
     },
-    dispatch
-  );
+  }),
+  graphql(DISABLE_USER, {
+    name: 'disableUser',
+  }),
+  graphql(ENABLE_USER, {
+    name: 'enableUser',
+  }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onRemove: ({ deleteUser }) => (userId: string) => {
+      deleteUser({ variables: { id: userId } });
+    },
+    onDisableUser: ({ disableUser, enableUser }) => (
+      userId: string,
+      disable: boolean
+    ) => {
+      if (disable) {
+        disableUser({ variables: { id: userId } });
+      } else {
+        enableUser({ variables: { id: userId } });
+      }
+    },
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UserListPage);
+export default enhance(UserListPage);
 
 const UserCell = styled(Table.Cell)`
   display: flex;

@@ -1,18 +1,44 @@
 import React, { Component } from 'react';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
 
 import { TimesheetTemplateForm } from '../components';
 import { PageHeader } from '../../common';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { createTimesheetTemplate } from '../store/actions';
+import { CREATE_TEMPLATE } from '../store/mutations';
 
 type Props = {
-  createTimesheetTemplate: (template: any) => any;
+  history: any;
 };
+type DataProps = {
+  createTemplate(options: any): any;
+};
+type EnhancedProps = Props & DataProps;
 
-class TimesheetTemplateCreatePage extends Component<Props> {
+class TimesheetTemplateCreatePage extends Component<EnhancedProps> {
   handleSubmit = (data: any) => {
-    this.props.createTimesheetTemplate(data);
+    const days = [
+      data.hoursDays.monday,
+      data.hoursDays.tuesday,
+      data.hoursDays.wednesday,
+      data.hoursDays.thursday,
+      data.hoursDays.friday,
+      data.hoursDays.saturday,
+      data.hoursDays.sunday,
+    ];
+
+    this.props
+      .createTemplate({
+        variables: {
+          hoursDays: days,
+          name: data.name,
+          shiftEndTime: data.shiftEndTime,
+          shiftStartTime: data.shiftStartTime,
+          workHoursPerDay: data.workHoursPerDay,
+        },
+      })
+      .then(() => {
+        this.props.history.goBack();
+      });
   };
 
   render() {
@@ -26,13 +52,8 @@ class TimesheetTemplateCreatePage extends Component<Props> {
   }
 }
 
-export default connect(
-  undefined,
-  (dispatch: any) =>
-    bindActionCreators(
-      {
-        createTimesheetTemplate,
-      },
-      dispatch
-    )
-)(TimesheetTemplateCreatePage);
+const enhance = compose<EnhancedProps, Props>(
+  graphql(CREATE_TEMPLATE, { name: 'createTemplate' })
+);
+
+export default enhance(TimesheetTemplateCreatePage);

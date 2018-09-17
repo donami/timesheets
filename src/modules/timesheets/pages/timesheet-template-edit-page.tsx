@@ -1,68 +1,88 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { compose, branch, renderNothing, withHandlers } from 'recompose';
 
 import { TimesheetTemplateForm } from '../components';
 import { PageHeader } from '../../common';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import {
   updateTimesheetTemplate,
   selectTemplate,
   fetchTemplateById,
 } from '../store/actions';
-import { getSelectedTemplate } from '../store/selectors';
-import { TimesheetTemplateItem } from '../store/models';
+import { GET_TEMPLATE } from '../store/queries';
+import { UPDATE_TEMPLATE, UPDATE_HOURS_DAYS } from '../store/mutations';
 
 type Props = {
-  updateTimesheetTemplate: (templateId: number, template: any) => any;
   match: any;
-  template: TimesheetTemplateItem;
-  selectTemplate: (templateId: number) => any;
-  fetchTemplateById: (templateId: number) => any;
+  history: any;
 };
+type DataProps = {
+  template: any;
+  loading: boolean;
+  updateTemplate(options: any): any;
+  updateHoursDays(options: any): any;
+};
+type HandlerProps = {
+  onSubmit(data: any): any;
+};
+type EnhancedProps = Props & DataProps & HandlerProps;
 
-class TimesheetTemplateEditPage extends Component<Props> {
-  componentWillMount() {
-    const { match, selectTemplate, fetchTemplateById } = this.props;
+const TimesheetTemplateEditPage: React.SFC<EnhancedProps> = ({
+  template,
+  onSubmit,
+}) => (
+  <div>
+    <PageHeader>Edit Timesheet Template</PageHeader>
 
-    if (match && match.params.id) {
-      selectTemplate(+match.params.id);
-      fetchTemplateById(+match.params.id);
-    }
-  }
+    <TimesheetTemplateForm initialValues={template} onSubmit={onSubmit} />
+  </div>
+);
 
-  handleSubmit = (data: any) => {
-    this.props.updateTimesheetTemplate(data.id, data);
-  };
-
-  render() {
-    if (!this.props.template) {
-      return null;
-    }
-
-    return (
-      <div>
-        <PageHeader>Edit Timesheet Template</PageHeader>
-
-        <TimesheetTemplateForm
-          initialValues={this.props.template}
-          onSubmit={this.handleSubmit}
-        />
-      </div>
-    );
-  }
-}
-
-export default connect(
-  (state: any) => ({
-    template: getSelectedTemplate(state),
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_TEMPLATE, {
+    options: (props: any) => ({
+      variables: { id: props.match.params.id },
+    }),
+    props: ({ data }: any) => ({
+      loading: data.loading,
+      template: data.Template,
+    }),
   }),
-  (dispatch: any) =>
-    bindActionCreators(
-      {
-        updateTimesheetTemplate,
-        selectTemplate,
-        fetchTemplateById,
-      },
-      dispatch
-    )
-)(TimesheetTemplateEditPage);
+  graphql(UPDATE_TEMPLATE, { name: 'updateTemplate' }),
+  graphql(UPDATE_HOURS_DAYS, { name: 'updateHoursDays' }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onSubmit: props => data => {
+      const updateDays = data.hoursDays.map((day: any) => {
+        return props.updateHoursDays({
+          variables: {
+            id: day.id,
+            break: day.break,
+            holiday: day.holiday,
+            inTime: day.inTime,
+            outTime: day.outTime,
+            totalHours: day.totalHours,
+          },
+        });
+      });
+
+      Promise.all(updateDays)
+        .then(() => {
+          props.updateTemplate({
+            variables: {
+              id: data.id,
+              name: data.name,
+              workHoursPerDay: data.workHoursPerDay,
+              shiftStartTime: data.shiftStartTime,
+              shiftEndTime: data.shiftEndTime,
+            },
+          });
+        })
+        .then(() => {
+          props.history.goBack();
+        });
+    },
+  }),
+  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+);
+
+export default enhance(TimesheetTemplateEditPage);

@@ -1,59 +1,38 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
 
-import { TimesheetTemplateItem } from '../store/models';
-import { selectTemplate, fetchTemplateById } from '../store/actions';
-import { getSelectedTemplate } from '../store/selectors';
 import { TemplateInfo } from '../components';
 import { PageHeader } from '../../common';
+import { GET_TEMPLATE } from '../store/queries';
 
-export interface TemplateViewPageProps {
+type Props = {
   match: any;
-  template: TimesheetTemplateItem;
-  selectTemplate: (templateId: number) => any;
-  fetchTemplateById: (templateId: number) => any;
-}
+};
+type DataProps = {
+  template: any;
+  loading: boolean;
+};
+type EnhancedProps = Props & DataProps;
 
-class TemplateViewPage extends React.Component<TemplateViewPageProps> {
-  componentWillMount() {
-    const { match, selectTemplate, fetchTemplateById } = this.props;
+const TemplateViewPage: React.SFC<EnhancedProps> = ({ template }) => (
+  <div>
+    <PageHeader>View Template: {template.name}</PageHeader>
+    <TemplateInfo template={template} />
+  </div>
+);
 
-    if (match && match.params.id) {
-      selectTemplate(+match.params.id);
-      fetchTemplateById(+match.params.id);
-    }
-  }
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_TEMPLATE, {
+    options: (props: any) => ({
+      variables: { id: props.match.params.id },
+    }),
+    props: ({ data }: any) => ({
+      loading: data.loading,
+      template: data.Template,
+    }),
+  }),
+  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+);
 
-  render() {
-    const { template } = this.props;
-
-    if (!template) {
-      return null;
-    }
-    return (
-      <div>
-        <PageHeader>View Template: {template.name}</PageHeader>
-        <TemplateInfo template={template} />
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state: any) => ({
-  template: getSelectedTemplate(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      selectTemplate,
-      fetchTemplateById,
-    },
-    dispatch
-  );
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TemplateViewPage);
+export default enhance(TemplateViewPage);

@@ -19,6 +19,9 @@ import Attention from './attention';
 import Search from './search';
 import { HasAccess } from '../components';
 import { withProps } from '../../../styled/styled-components';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {
   containerHeight: number;
@@ -26,6 +29,18 @@ type Props = {
   unreadNotifications: Notification[];
   clearNotifications: () => any;
 };
+
+type DataProps = {
+  loggedInUser: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    image: string | null;
+    gender?: string;
+  } | null;
+};
+
+type EnhancedProps = Props & DataProps;
 
 type DropdownItem = {
   label: string;
@@ -51,7 +66,7 @@ const items: DropdownItem[] = [
   },
 ];
 
-class Header extends React.Component<Props> {
+class Header extends React.Component<EnhancedProps> {
   handleNotificationsClick = () => {
     if (this.props.unreadNotifications.length > 0) {
       this.props.clearNotifications();
@@ -59,7 +74,16 @@ class Header extends React.Component<Props> {
   };
 
   render() {
-    const { containerHeight, user, unreadNotifications } = this.props;
+    const {
+      containerHeight,
+      user,
+      unreadNotifications,
+      loggedInUser,
+    } = this.props;
+
+    if (!loggedInUser) {
+      return null;
+    }
 
     return (
       <Container>
@@ -94,7 +118,11 @@ class Header extends React.Component<Props> {
               </Link>
             )}
           >
-            <Avatar view="sm" avatar={user.image} gender={user.gender} />
+            <Avatar
+              view="sm"
+              avatar={loggedInUser.image || ''}
+              gender={loggedInUser.gender || 'unknown'}
+            />
           </StyledDropdown>
         </RightNode>
       </Container>
@@ -180,7 +208,21 @@ const mapDispatchToProps = (dispatch: any) =>
     dispatch
   );
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Header);
+const enhance = compose<any, any>(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      loggedInUser: data.loggedInUser || null,
+    }),
+  }),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
+);
+
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(Header);
+
+export default enhance(Header);

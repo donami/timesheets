@@ -16,6 +16,7 @@ export { default as SearchResult } from './search-result';
 export { default as List } from './list';
 export { default as PageHeader } from './page-header';
 export { default as Popup } from './popup';
+export { default as Toastr } from './toastr';
 export { default as ToggleView } from './toggle-view';
 export { default as Feed } from './feed';
 export { default as Modal } from './modal';

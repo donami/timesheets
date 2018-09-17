@@ -125,7 +125,7 @@ export const monthsBetween = (from: string, to: string): any => {
   return months;
 };
 
-const paddEmptyDates = (dates: any[]) => {
+export const paddEmptyDates = (dates: any[]) => {
   const firstWeek: any[] = dates[0];
   const lastWeek = dates[dates.length - 1];
 

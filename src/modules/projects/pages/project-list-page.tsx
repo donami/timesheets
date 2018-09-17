@@ -1,113 +1,121 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { Link } from 'react-router-dom';
+import { compose, branch, renderNothing, withHandlers } from 'recompose';
+import { graphql } from 'react-apollo';
 import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
-import { fetchProjects, removeProject } from '../store/actions';
 import { Project } from '../store/models';
-import { getAuthedUserProjects } from '../../auth/store/selectors';
 import { PageHeader, Translate } from '../../common';
-import { Link } from 'react-router-dom';
+import { GET_PROJECTS } from '../store/queries';
+import { DELETE_PROJECT } from '../store/mutations';
 
-export interface ProjectListPageProps {
-  fetchProjects(): any;
-  removeProject(projectId: number): any;
+type Props = {};
+type DataProps = {
   projects: Project[];
-}
+  deleteProject(options: any): any;
+};
+type HandlerProps = {
+  onRemove(projectId: string): any;
+};
+type EnhancedProps = Props & DataProps & HandlerProps;
 
-class ProjectListPage extends React.Component<ProjectListPageProps> {
-  componentWillMount() {
-    this.props.fetchProjects();
-  }
+const ProjectListPage: React.SFC<EnhancedProps> = ({ projects, onRemove }) => (
+  <div>
+    <PageHeader
+      options={() => (
+        <Button to="/projects/add" color="purple">
+          <Translate text="projects.labels.NEW_PROJECT" />
+        </Button>
+      )}
+    >
+      <Translate text="projects.labels.PROJECTS" />
+    </PageHeader>
 
-  handleRemove = (projectId: number) => {
-    this.props.removeProject(projectId);
-  };
+    <TableBuilder
+      selectable
+      items={projects}
+      itemsOptions={(item: any) => [
+        {
+          label: 'View project',
+          icon: 'fas fa-eye',
+          to: `/project/${item.id}`,
+        },
+      ]}
+      renderHeaders={
+        <>
+          <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+          <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+        </>
+      }
+      renderItem={(item: any) => (
+        <>
+          <Table.Cell>
+            <Link to={`/project/${item.id}`}>#{item.id}</Link>
+          </Table.Cell>
+          <Table.Cell>{item.name}</Table.Cell>
+          <Table.Cell
+            option={{
+              icon: 'fas fa-pencil-alt',
+              to: `/project/${item.id}/edit`,
+            }}
+          />
+          <Table.Cell
+            option={{
+              confirm: {
+                trigger: <Icon name="fas fa-trash" title="Remove" />,
+                content: `Do you really want to remove "${item.name}"?`,
+                onActionClick: (
+                  e: React.MouseEvent<HTMLElement>,
+                  actionProps: ActionProps
+                ) => {
+                  if (actionProps.positive) {
+                    onRemove(item.id);
+                  }
+                },
+              },
+            }}
+          />
+        </>
+      )}
+    />
+  </div>
+);
 
-  render() {
-    const { projects } = this.props;
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_PROJECTS, {
+    props: ({ data }: any) => ({
+      projects: data.allProjects,
+      loading: data.loading,
+    }),
+  }),
+  graphql(DELETE_PROJECT, {
+    name: 'deleteProject',
+    options: {
+      update: (proxy, { data: { deleteProject } }: { data: any }) => {
+        const { allProjects }: any = proxy.readQuery({
+          query: GET_PROJECTS,
+        });
 
-    return (
-      <div>
-        <PageHeader
-          options={() => (
-            <Button to="/projects/add" color="purple">
-              <Translate text="projects.labels.NEW_PROJECT" />
-            </Button>
-          )}
-        >
-          <Translate text="projects.labels.PROJECTS" />
-        </PageHeader>
-
-        <TableBuilder
-          selectable
-          items={projects}
-          itemsOptions={(item: any) => [
-            {
-              label: 'View project',
-              icon: 'fas fa-eye',
-              to: `/project/${item.id}`,
-            },
-          ]}
-          renderHeaders={
-            <>
-              <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
-              <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-            </>
-          }
-          renderItem={(item: any) => (
-            <>
-              <Table.Cell>
-                <Link to={`/project/${item.id}`}>#{item.id}</Link>
-              </Table.Cell>
-              <Table.Cell>{item.name}</Table.Cell>
-              <Table.Cell
-                option={{
-                  icon: 'fas fa-pencil-alt',
-                  to: `/project/${item.id}/edit`,
-                }}
-              />
-              <Table.Cell
-                option={{
-                  confirm: {
-                    trigger: <Icon name="fas fa-trash" title="Remove" />,
-                    content: `Do you really want to remove "${item.name}"?`,
-                    onActionClick: (
-                      e: React.MouseEvent<HTMLElement>,
-                      actionProps: ActionProps
-                    ) => {
-                      if (actionProps.positive) {
-                        this.handleRemove(item.id);
-                      }
-                    },
-                  },
-                }}
-              />
-            </>
-          )}
-        />
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state: any) => ({
-  projects: getAuthedUserProjects(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchProjects,
-      removeProject,
+        proxy.writeQuery({
+          query: GET_PROJECTS,
+          data: {
+            allProjects: allProjects.filter(
+              (project: any) => project.id !== deleteProject.id
+            ),
+          },
+        });
+      },
     },
-    dispatch
-  );
+  }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onRemove: ({ deleteProject }) => (projectId: string) => {
+      deleteProject({ variables: { id: projectId } });
+    },
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProjectListPage);
+export default enhance(ProjectListPage);

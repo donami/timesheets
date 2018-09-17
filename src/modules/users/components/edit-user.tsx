@@ -1,96 +1,113 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React from 'react';
 import { Input, Button, Select } from 'genui';
+import { compose, withHandlers } from 'recompose';
+import { graphql } from 'react-apollo';
 
-import { User } from '../store/models';
 import { Form, BackButton } from '../../common';
-import { getProjects } from '../../projects/store/selectors';
 import { Project } from '../../projects/store/models';
-import { updateUser } from '../store/actions';
+import { CREATE_PROJECT_MEMBER } from '../../../store/mutations';
+import { UPDATE_USER } from '../store/mutations';
 
 type Props = {
-  user: User;
+  user: any;
   projects: Project[];
   userProject: Project[];
-  updateUser(userId: number, data: any): any;
 };
+type DataProps = {
+  createProjectMember(options: any): any;
+  updateUser(options: any): any;
+};
+type HandlerProps = { onSubmit(model: any): any };
+type EnhancedProps = Props & DataProps & HandlerProps;
 
-class EditUser extends Component<Props> {
-  handleSubmit = (model: any) => {
-    const data = {
-      ...model,
-      project: +model.project,
-    };
+const EditUser: React.SFC<EnhancedProps> = ({
+  user,
+  projects,
+  userProject,
+  onSubmit,
+}) => (
+  <div>
+    <Form onValidSubmit={onSubmit}>
+      {formState => (
+        <>
+          <Form.Field
+            name="email"
+            label="Email"
+            defaultValue={user.email}
+            validations={{ isEmail: true, isRequired: true }}
+          >
+            <Input placeholder="john@email.com" />
+          </Form.Field>
 
-    this.props.updateUser(this.props.user.id, data);
-  };
+          <Form.Field
+            name="firstname"
+            label="First name"
+            defaultValue={user.firstName}
+            validations={{ isRequired: true }}
+          >
+            <Input placeholder="John" />
+          </Form.Field>
 
-  render() {
-    const { user, projects, userProject } = this.props;
+          <Form.Field
+            name="lastname"
+            label="Last name"
+            defaultValue={user.lastName}
+            validations={{ isRequired: true }}
+          >
+            <Input placeholder="Doe" name="lastname" />
+          </Form.Field>
 
-    return (
-      <div>
-        <Form onValidSubmit={this.handleSubmit}>
-          {formState => (
-            <>
-              <Form.Field
-                name="email"
-                label="Email"
-                defaultValue={user.email}
-                validations={{ isEmail: true, isRequired: true }}
-              >
-                <Input placeholder="john@email.com" />
-              </Form.Field>
+          <Form.Field
+            name="project"
+            label="Assign to project"
+            defaultValue={
+              (userProject[0] && userProject[0].id.toString()) || undefined
+            }
+            validations={{ isRequired: true }}
+          >
+            <Select
+              options={projects.map(project => ({
+                value: project.id,
+                label: project.name,
+              }))}
+              placeholder="Select Project"
+            />
+          </Form.Field>
 
-              <Form.Field
-                name="firstname"
-                label="First name"
-                defaultValue={user.firstname}
-                validations={{ isRequired: true }}
-              >
-                <Input placeholder="John" />
-              </Form.Field>
+          <Button type="submit" disabled={!formState.isValid} color="green">
+            Save
+          </Button>
+          <BackButton>Cancel</BackButton>
+        </>
+      )}
+    </Form>
+  </div>
+);
 
-              <Form.Field
-                name="lastname"
-                label="Last name"
-                defaultValue={user.lastname}
-                validations={{ isRequired: true }}
-              >
-                <Input placeholder="Doe" name="lastname" />
-              </Form.Field>
+const enhance = compose<EnhancedProps, Props>(
+  graphql(CREATE_PROJECT_MEMBER, { name: 'createProjectMember' }),
+  graphql(UPDATE_USER, { name: 'updateUser' }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onSubmit: ({
+      updateUser,
+      createProjectMember,
+      user,
+      userProject,
+    }) => model => {
+      updateUser({
+        variables: {
+          id: user.id,
+          firstName: model.firstname,
+          lastName: model.lastname,
+        },
+      });
+      if (!userProject.find(project => project.id === model.project)) {
+        createProjectMember({
+          variables: { userId: user.id, projectId: model.project },
+        });
+      }
+    },
+  })
+);
 
-              <Form.Field
-                name="project"
-                label="Assign to project"
-                defaultValue={
-                  (userProject[0] && userProject[0].id.toString()) || undefined
-                }
-                validations={{ isRequired: true }}
-              >
-                <Select
-                  options={projects.map(project => ({
-                    value: project.id,
-                    label: project.name,
-                  }))}
-                  placeholder="Select Project"
-                />
-              </Form.Field>
-
-              <Button type="submit" disabled={!formState.isValid} color="green">
-                Save
-              </Button>
-              <BackButton>Cancel</BackButton>
-            </>
-          )}
-        </Form>
-      </div>
-    );
-  }
-}
-
-export default connect(
-  (state: any) => ({ projects: getProjects(state) }),
-  (dispatch: any) => bindActionCreators({ updateUser }, dispatch)
-)(EditUser);
+export default enhance(EditUser);

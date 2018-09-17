@@ -1,64 +1,55 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 import { Button, Select } from 'genui';
-import { bindActionCreators } from 'redux';
 
 import { User, UserRole } from '../store/models';
 import { Form, BackButton } from '../../common';
-import { getProjects } from '../../projects/store/selectors';
-import { updateUser } from '../store/actions';
+import { compose, withHandlers } from 'recompose';
+import { graphql } from 'react-apollo';
+import { UPDATE_USER } from '../store/mutations';
 
-type Props = {
-  user: User;
-  updateUser(userId: number, data: any): any;
-};
+type Props = { user: User };
+type HandlerProps = { onSubmit(model: any): any };
+type DataProps = { updateUser(options: any): any };
+type EnhancedProps = Props & HandlerProps & DataProps;
 
-class EditUserStatus extends Component<Props> {
-  handleSubmit = (model: any) => {
-    const data = {
-      ...model,
-    };
+const EditUserStatus: React.SFC<EnhancedProps> = ({ user, onSubmit }) => (
+  <div>
+    <Form onValidSubmit={onSubmit}>
+      {formState => (
+        <>
+          <Form.Field
+            name="role"
+            label="User type"
+            defaultValue={user.role}
+            validations={{ isRequired: true }}
+          >
+            <Select
+              options={[
+                { value: UserRole.User, label: 'User' },
+                { value: UserRole.Manager, label: 'Manager' },
+                { value: UserRole.Admin, label: 'Admin' },
+              ]}
+              placeholder="User Type"
+            />
+          </Form.Field>
 
-    this.props.updateUser(this.props.user.id, data);
-  };
+          <Button type="submit" disabled={!formState.isValid} color="green">
+            Save
+          </Button>
+          <BackButton>Cancel</BackButton>
+        </>
+      )}
+    </Form>
+  </div>
+);
 
-  render() {
-    const { user } = this.props;
+const enhance = compose<EnhancedProps, Props>(
+  graphql(UPDATE_USER, { name: 'updateUser' }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onSubmit: ({ updateUser, user }) => model => {
+      updateUser({ variables: { id: user.id, role: model.role } });
+    },
+  })
+);
 
-    return (
-      <div>
-        <Form onValidSubmit={this.handleSubmit}>
-          {formState => (
-            <>
-              <Form.Field
-                name="role"
-                label="User type"
-                defaultValue={user.role}
-                validations={{ isRequired: true }}
-              >
-                <Select
-                  options={[
-                    { value: UserRole.User, label: 'User' },
-                    { value: UserRole.Manager, label: 'Manager' },
-                    { value: UserRole.Admin, label: 'Admin' },
-                  ]}
-                  placeholder="User Type"
-                />
-              </Form.Field>
-
-              <Button type="submit" disabled={!formState.isValid} color="green">
-                Save
-              </Button>
-              <BackButton>Cancel</BackButton>
-            </>
-          )}
-        </Form>
-      </div>
-    );
-  }
-}
-
-export default connect(
-  (state: any) => ({ projects: getProjects(state) }),
-  (dispatch: any) => bindActionCreators({ updateUser }, dispatch)
-)(EditUserStatus);
+export default enhance(EditUserStatus);

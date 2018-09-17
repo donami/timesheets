@@ -14,6 +14,7 @@ import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
 import { getAuthedUser } from '../../auth/store/selectors';
 import { User } from '../../users/store/models';
 import { PageHeader } from '../../common';
+import TestComp from './test-comp';
 
 type Props = {
   timesheets: TimesheetItem[];
@@ -37,6 +38,7 @@ class DashboardUserPage extends React.Component<Props> {
         <PageHeader>Welcome {user.firstname}!</PageHeader>
         <Row>
           <Column xs={12} sm={6}>
+            <TestComp />
             <Box title="Timesheets">
               <TimesheetList
                 limit={20}

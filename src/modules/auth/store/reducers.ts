@@ -37,7 +37,7 @@ const authReducer = (state = initialState, action: any) => {
     }
 
     case types.AUTH.FAILURE: {
-      localStorage.removeItem('token');
+      // localStorage.removeItem('token');
 
       return {
         ...newState,
