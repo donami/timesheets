@@ -1,8 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Link } from 'react-router-dom';
 import { Button, Icon } from 'genui';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
 
 import { Row, Column, Box } from '../../ui';
 import {
@@ -10,32 +10,16 @@ import {
   TimesheetsPastDueDate,
   TimesheetsRecentlyUpdated,
 } from '../../timesheets';
-import { fetchTimesheets } from '../../timesheets/store/actions';
-import { fetchExpenses } from '../../expenses/store/actions';
-import { getExpenses } from '../../expenses/store/selectors';
 import { Translate, PageHeader } from '../../common';
-import { getAuthedUser } from '../../auth/store/selectors';
-import { User } from '../../users/store/models';
-import { compose } from 'recompose';
-import { graphql } from 'react-apollo';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
 
-type Props = {
-  fetchTimesheets: () => any;
-  fetchExpenses: () => any;
-};
-
+type Props = {};
 type DataProps = {
   user: any;
 };
 type EnhancedProps = Props & DataProps;
 
 class DashboardManagerPage extends React.Component<EnhancedProps> {
-  // componentWillMount() {
-  //   this.props.fetchTimesheets();
-  //   this.props.fetchExpenses();
-  // }
-
   render() {
     const { user } = this.props;
 
@@ -107,34 +91,12 @@ class DashboardManagerPage extends React.Component<EnhancedProps> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  expenseReports: getExpenses(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchTimesheets,
-      fetchExpenses,
-    },
-    dispatch
-  );
-
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(DashboardManagerPage);
-
 const enhance = compose(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
       user: data.loggedInUser || null,
     }),
-  }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  })
 );
 
 export default enhance(DashboardManagerPage);

@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { bindActionCreators } from 'redux';
 import { ConnectedRouter } from 'connected-react-router';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 import {
   TimesheetsPage,
@@ -14,7 +16,6 @@ import {
 } from '../../timesheets';
 import ProtectedRoute from './protected-route';
 import { ExpenseReportPage, ExpensesPage } from '../../expenses';
-import { connect } from 'react-redux';
 import { DashboardPage } from '../../dashboard';
 import { AuthPage, LogoutPage, ProfilePage } from '../../auth';
 import { UserListPage, UserViewPage, UserAddPage } from '../../users';
@@ -39,16 +40,12 @@ import {
   ArticleEditPage,
 } from '../../help';
 import categoryEditPage from '../../help/pages/category-edit-page';
-import withLoading from './with-loading';
 import { ThemeProvider } from '../../../styled/styled-components';
 import { theme } from '../../../styled/theme';
-import { compose } from 'recompose';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
+import { StatusNotifier } from '../../../App';
+import { Loader } from '../../ui';
 
-type Props = {
-  initialize: () => any;
-};
+type Props = {};
 
 export const TextManagerContext = React.createContext(textManager);
 
@@ -61,21 +58,21 @@ class Routing extends React.Component<Props> {
     this.textManager = textManager;
   }
 
-  componentWillMount() {
-    this.props.initialize();
-  }
-
   render() {
     return (
       <ThemeProvider theme={theme}>
         <TextManagerContext.Provider value={this.textManager}>
+          <StatusNotifier
+            render={({ loading, error }: any) => (
+              <div>
+                {loading && <Loader />}
+                {/* {error && <p>Error: {JSON.stringify(error)}</p>} */}
+              </div>
+            )}
+          />
           <ConnectedRouter history={history}>
             <Switch>
-              <ProtectedRoute
-                exact
-                path="/"
-                component={withLoading(DashboardPage)}
-              />
+              <ProtectedRoute exact path="/" component={DashboardPage} />
               <Route path="/auth" component={AuthPage} />
               <Route path="/logout" component={LogoutPage} />
               <Route path="/setup-wizard/step/:step" component={Wizard} />
@@ -85,32 +82,32 @@ class Routing extends React.Component<Props> {
               />
               <ProtectedRoute
                 path="/search"
-                component={withLoading(SearchPage)}
+                component={SearchPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help/manage/add-category"
-                component={withLoading(CategoryAddPage)}
+                component={CategoryAddPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help/manage/edit-category/:id"
-                component={withLoading(categoryEditPage)}
+                component={categoryEditPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help/manage/add-article"
-                component={withLoading(ArticleAddPage)}
+                component={ArticleAddPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help/manage/edit-article/:id"
-                component={withLoading(ArticleEditPage)}
+                component={ArticleEditPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help/manage"
-                component={withLoading(ManageHelpPage)}
+                component={ManageHelpPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
@@ -120,108 +117,105 @@ class Routing extends React.Component<Props> {
               />
               <ProtectedRoute
                 path="/help/category/:id"
-                component={withLoading(CategoryViewPage)}
+                component={CategoryViewPage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help/:id"
-                component={withLoading(ArticleViewPage)}
+                component={ArticleViewPage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help"
-                component={withLoading(HelpPage)}
+                component={HelpPage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/timesheet/:id"
-                component={withLoading(TimesheetViewPage)}
+                component={TimesheetViewPage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
-              <ProtectedRoute
-                path="/timesheets"
-                component={withLoading(TimesheetsPage)}
-              />
+              <ProtectedRoute path="/timesheets" component={TimesheetsPage} />
               <ProtectedRoute
                 path="/expense-report/:id/:page?"
-                component={withLoading(ExpenseReportPage)}
+                component={ExpenseReportPage}
               />
               <ProtectedRoute
                 path="/expense-reports/:page?"
-                component={withLoading(ExpensesPage)}
+                component={ExpensesPage}
               />
               <ProtectedRoute
                 path="/profile/:page?"
-                component={withLoading(ProfilePage)}
+                component={ProfilePage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/user/:id/:page?"
-                component={withLoading(UserViewPage)}
+                component={UserViewPage}
               />
               <ProtectedRoute
                 path="/users/add"
-                component={withLoading(UserAddPage)}
+                component={UserAddPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/projects/add"
-                component={withLoading(ProjectAddPage)}
+                component={ProjectAddPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/groups/add"
-                component={withLoading(GroupAddPage)}
+                component={GroupAddPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/users"
-                component={withLoading(UserListPage)}
+                component={UserListPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/manage-timesheets"
-                component={withLoading(ManageTimesheets)}
+                component={ManageTimesheets}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/timesheet-template/:id/edit"
-                component={withLoading(TimesheetTemplateEditPage)}
+                component={TimesheetTemplateEditPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/timesheet-template/:id"
-                component={withLoading(TemplateViewPage)}
+                component={TemplateViewPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/timesheet-templates/create"
-                component={withLoading(TimesheetTemplateCreatePage)}
+                component={TimesheetTemplateCreatePage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/timesheet-templates"
-                component={withLoading(TimesheetTemplatesPage)}
+                component={TimesheetTemplatesPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/project/:id/:page?"
-                component={withLoading(ProjectViewPage)}
+                component={ProjectViewPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/projects"
-                component={withLoading(ProjectListPage)}
+                component={ProjectListPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/group/:id/:page?"
-                component={withLoading(GroupViewPage)}
+                component={GroupViewPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/groups"
-                component={withLoading(GroupListPage)}
+                component={GroupListPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
               />
               <Route path="*" component={NotFoundPage} />
@@ -233,7 +227,7 @@ class Routing extends React.Component<Props> {
   }
 }
 
-export const LOGGED_IN_USER = gql`
+const LOGGED_IN_USER = gql`
   query loggedInUser {
     loggedInUser {
       id
@@ -241,26 +235,6 @@ export const LOGGED_IN_USER = gql`
   }
 `;
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      initialize: () => ({
-        type: 'INITIALIZE_ROUTING',
-      }),
-    },
-    dispatch
-  );
-
-const enhance = compose(
-  graphql(LOGGED_IN_USER),
-  connect(
-    undefined,
-    mapDispatchToProps
-  )
-);
-// export default connect(
-//   undefined,
-//   mapDispatchToProps
-// )(Routing);
+const enhance = compose(graphql(LOGGED_IN_USER));
 
 export default enhance(Routing);

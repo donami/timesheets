@@ -1,35 +1,17 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { compose, branch, renderNothing, renderComponent } from 'recompose';
+import { graphql } from 'react-apollo';
 
-import { getAuthedUserRole } from '../../auth/store/selectors';
 import { UserRole } from '../../users/store/models';
 import DashboardManagerPage from './dashboard-manager-page';
 import DashboardUserPage from './dashboard-user-page';
-import { compose, branch, renderNothing, renderComponent } from 'recompose';
-import { graphql } from 'react-apollo';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
-
-export interface DashboardPageProps {
-  userRole: UserRole;
-}
 
 class DashboardPage extends React.Component<EnhancedProps> {
   render() {
-    // const { userRole } = this.props;
-
-    // if (userRole === UserRole.Admin || userRole === UserRole.Manager) {
-    //   return <DashboardManagerPage />;
-    // }
-    // return <DashboardUserPage />;
     return null;
   }
 }
-
-// const mapStateToProps = (state: any) => ({
-//   userRole: getAuthedUserRole(state),
-// });
-
-// export default connect(mapStateToProps)(DashboardPage);
 
 type Props = {};
 type DataProps = { userRole: UserRole; loading: boolean };

@@ -1,11 +1,7 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 
-import { auth } from '../store/actions';
 import { AuthForm } from '../components';
-import { getIsAuthed } from '../store/selectors';
 import { Redirect, Switch, Route } from 'react-router';
 import ForgottenPasswordPage from './forgotten-password-page';
 import { Link } from 'react-router-dom';
@@ -13,6 +9,7 @@ import RecoverPasswordPage from './recover-password-page';
 import { compose } from 'recompose';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { WithToastrProps, withToastr } from '../../common/components/toastr';
 
 type Props = {
   auth: (email: string, password: string) => any;
@@ -22,29 +19,35 @@ type Props = {
   history: any;
   loggedInUser: any;
 };
+type EnhancedProps = Props & WithToastrProps;
 
-class AuthPage extends React.Component<Props> {
-  handleAuth = (email: string, password: string): void => {
-    // this.props.auth(email, password);
-    this.props.authenticateUser().then((res: any) => {
+class AuthPage extends React.Component<EnhancedProps> {
+  handleAuth = async (email: string, password: string): Promise<void> => {
+    const { authenticateUser, addToast, history } = this.props;
+    try {
+      const res = await authenticateUser({
+        variables: {
+          email,
+          password,
+        },
+      });
       if (res.data.authenticateUser && res.data.authenticateUser.token) {
-        console.log('TOKEN', res.data.authenticateUser.token);
         localStorage.setItem('token', res.data.authenticateUser.token);
-        // this.props.data.refetch().then((auth: any) => console.log(auth));
-        this.props.history.replace('/');
+        history.replace('/');
       }
-    });
+    } catch (error) {
+      addToast(
+        'Invalid credentials',
+        'No user with that email and password exists.',
+        'negative'
+      );
+    }
   };
 
   render() {
-    // if (this.props.authed) {
-    //   return <Redirect to="/" />;
-    // }
-
     // redirect if user is logged in
     if (this.props.loggedInUser && this.props.loggedInUser.id) {
-      console.warn('already logged in');
-      this.props.history.replace('/');
+      return <Redirect to="/" />;
     }
 
     return (
@@ -150,36 +153,13 @@ const LogoContainer = styled.div`
 `;
 
 const Title = styled.h3`
-  // margin: 30px 0;
+  /* margin: 30px 0; */
   text-transform: uppercase;
 `;
 
-const mapStateToProps = (state: any) => ({
-  authed: getIsAuthed(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      auth,
-    },
-    dispatch
-  );
-
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(AuthPage);
-
-// mutation {
-//   authenticateUser(email: "__EMAIL__", password: "__PASSWORD__") {
-//     token
-//   }
-// }
-
 export const AUTHENTICATE_USER = gql`
-  mutation authenticateUser {
-    authenticateUser(email: "markus@gmail.com", password: "password") {
+  mutation authenticateUser($email: String!, $password: String!) {
+    authenticateUser(email: $email, password: $password) {
       token
     }
   }
@@ -194,17 +174,14 @@ export const LOGGED_IN_USER = gql`
 `;
 
 const enhance = compose(
+  withToastr,
   graphql(AUTHENTICATE_USER, { name: 'authenticateUser' }),
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
       loggedInUser: data.loggedInUser || null,
     }),
     options: { fetchPolicy: 'network-only' },
-  }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  })
 );
 
 export default enhance(AuthPage);

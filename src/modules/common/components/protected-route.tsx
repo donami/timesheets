@@ -1,53 +1,31 @@
 import * as React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
-
-import { LayoutDefault, HasAccess } from '../components';
-import { getIsAuthed } from '../../auth/store/selectors';
-import { UserRole } from '../../users/store/models';
-import { getIsInitialized, getAppIsLoading } from '../store/selectors';
-import { Loader } from '../../ui';
-import { compose } from 'recompose';
-import { LOGGED_IN_USER } from '../../auth/store/queries';
 import { graphql } from 'react-apollo';
 
-export interface ProtectedRouteProps {
+import { LayoutDefault, HasAccess } from '../components';
+import { UserRole } from '../../users/store/models';
+import { compose, renderNothing, branch } from 'recompose';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+
+type Props = {
   component: any;
-  appIsLoading: boolean;
-  isAuthed: boolean;
   exact?: boolean;
-  initialized: boolean;
   path: string;
   roles?: UserRole[];
   loggedInUser: { id: string } | null;
   loading: boolean;
-}
+};
 
-const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
+const ProtectedRoute: React.SFC<Props> = ({
   component: Component,
   roles,
-  isAuthed,
-  initialized,
   loggedInUser,
-  appIsLoading,
   loading,
   ...rest
 }) => {
-  if (!initialized) {
-    return <Loader />;
-  }
-
   if (!loggedInUser) {
     <Redirect to="/auth" />;
   }
-
-  if (loading) {
-    return <div>Loading</div>;
-  }
-
-  // return (
-  //   <Route {...rest} render={props => <LayoutDefault>hej</LayoutDefault>} />
-  // );
 
   return (
     <Route
@@ -57,7 +35,7 @@ const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
           <LayoutDefault>
             {roles ? (
               <HasAccess roles={roles}>
-                <Component isLoading={appIsLoading} {...props} />
+                <Component {...props} />
               </HasAccess>
             ) : (
               <Component {...props} />
@@ -71,14 +49,6 @@ const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
   );
 };
 
-const mapStateToProps = (state: any) => ({
-  isAuthed: getIsAuthed(state),
-  initialized: getIsInitialized(state),
-  appIsLoading: getAppIsLoading(state),
-});
-
-// export default connect(mapStateToProps)(ProtectedRoute);
-
 const enhance = compose<any, any>(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
@@ -87,7 +57,7 @@ const enhance = compose<any, any>(
     }),
     options: { fetchPolicy: 'network-only' },
   }),
-  connect(mapStateToProps)
+  branch(({ loading }) => loading, renderNothing)
 );
 
 export default enhance(ProtectedRoute);

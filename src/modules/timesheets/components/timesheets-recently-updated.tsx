@@ -21,6 +21,7 @@ class TimesheetsRecentlyUpdated extends Component<EnhancedProps> {
       <TimesheetList
         sortFunction={sortByRecentUpdatedDates}
         items={timesheets}
+        includeUser
         {...rest}
       />
     );

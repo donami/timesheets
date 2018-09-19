@@ -1,33 +1,27 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Dropdown, Icon } from 'genui';
 
 import {
   getAuthedUser,
   getUnreadNotifications,
 } from '../../auth/store/selectors';
-import { User, UserRole } from '../../users/store/models';
+import { UserRole } from '../../users/store/models';
 import Avatar from './avatar';
 import Popup from './popup';
 import Notifications from './notifications';
-import { bindActionCreators } from 'redux';
-import { clearNotifications } from '../../auth/store/actions';
-import { Notification } from '../../auth/store/models';
 import Attention from './attention';
 import Search from './search';
 import { HasAccess } from '../components';
 import { withProps } from '../../../styled/styled-components';
-import { compose } from 'recompose';
-import { graphql } from 'react-apollo';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {
   containerHeight: number;
-  user: User;
-  unreadNotifications: Notification[];
-  clearNotifications: () => any;
 };
 
 type DataProps = {
@@ -38,6 +32,10 @@ type DataProps = {
     image: string | null;
     gender?: string;
   } | null;
+  notifications: any[];
+  loading: boolean;
+  unreadNotificationsCount: number;
+  clearNotification(options: any): any;
 };
 
 type EnhancedProps = Props & DataProps;
@@ -67,18 +65,22 @@ const items: DropdownItem[] = [
 ];
 
 class Header extends React.Component<EnhancedProps> {
-  handleNotificationsClick = () => {
-    if (this.props.unreadNotifications.length > 0) {
-      this.props.clearNotifications();
-    }
+  handleNotificationsClick = async () => {
+    const { notifications, clearNotification } = this.props;
+
+    const updates = notifications.map(notification => {
+      return clearNotification({ variables: { id: notification.id } });
+    });
+
+    await Promise.all(updates);
   };
 
   render() {
     const {
       containerHeight,
-      user,
-      unreadNotifications,
+      unreadNotificationsCount,
       loggedInUser,
+      notifications,
     } = this.props;
 
     if (!loggedInUser) {
@@ -99,12 +101,13 @@ class Header extends React.Component<EnhancedProps> {
           <HeaderAction>
             <Popup
               trigger={
-                <TriggerAction onClick={this.handleNotificationsClick}>
-                  {unreadNotifications.length > 0 && <Attention />}
+                <TriggerAction>
+                  {unreadNotificationsCount > 0 && <Attention />}
                   <Icon name="far fa-bell" />
                 </TriggerAction>
               }
-              content={<Notifications />}
+              onClose={this.handleNotificationsClick}
+              content={<Notifications notifications={notifications} />}
             />
           </HeaderAction>
 
@@ -195,18 +198,32 @@ const RightNode = styled.div`
   }
 `;
 
-const mapStateToProps = (state: any) => ({
-  user: getAuthedUser(state),
-  unreadNotifications: getUnreadNotifications(state),
-});
+const UNREAD_NOTIFICATIONS = gql`
+  query($userId: ID!) {
+    allNotifications(filter: { unread: true, owner: { id: $userId } }) {
+      id
+      message
+      notificationType
+      unread
+      icon
+      image
+      createdAt
+      updatedAt
+    }
+    _allNotificationsMeta(filter: { unread: true, owner: { id: $userId } }) {
+      count
+    }
+  }
+`;
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      clearNotifications,
-    },
-    dispatch
-  );
+const CLEAR_NOTIFICATION = gql`
+  mutation($id: ID!) {
+    updateNotification(id: $id, unread: false) {
+      id
+      unread
+    }
+  }
+`;
 
 const enhance = compose<any, any>(
   graphql(LOGGED_IN_USER, {
@@ -214,15 +231,50 @@ const enhance = compose<any, any>(
       loggedInUser: data.loggedInUser || null,
     }),
   }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
-);
+  graphql(UNREAD_NOTIFICATIONS, {
+    options: (props: any) => ({
+      variables: { userId: props.loggedInUser.id },
+    }),
+    props: ({ data }: any) => ({
+      notifications: data.allNotifications,
+      unreadNotificationsCount:
+        (data._allNotificationsMeta && data._allNotificationsMeta.count) || 0,
+      loading: data.loading,
+    }),
+  }),
+  graphql(CLEAR_NOTIFICATION, {
+    name: 'clearNotification',
+    options: (props: any) => ({
+      update: (proxy, { data }: any) => {
+        const variables = { userId: props.loggedInUser.id };
+        const query = UNREAD_NOTIFICATIONS;
 
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(Header);
+        const {
+          allNotifications,
+          _allNotificationsMeta,
+        }: any = proxy.readQuery({
+          variables,
+          query,
+        });
+
+        const updatedAllNotifications = allNotifications.filter(
+          (item: any) => item.id !== data.updateNotification.id
+        );
+        proxy.writeQuery({
+          variables,
+          query,
+          data: {
+            _allNotificationsMeta: {
+              ..._allNotificationsMeta,
+              count: updatedAllNotifications.length,
+            },
+            allNotifications: updatedAllNotifications,
+          },
+        });
+      },
+    }),
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
 export default enhance(Header);

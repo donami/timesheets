@@ -4,6 +4,7 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 type Props = {
   trigger: any;
   content: any;
+  onClose?: any;
 };
 
 type State = Readonly<{
@@ -33,6 +34,9 @@ class Popup extends Component<Props, State> {
     }
 
     this.setState({ open: false });
+    if (this.props.onClose) {
+      this.props.onClose();
+    }
   };
 
   handleTriggerClick = () => {

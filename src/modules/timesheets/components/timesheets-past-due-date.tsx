@@ -1,39 +1,59 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+import { compose, renderNothing, branch } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 import { TimesheetList } from '../components';
-import { TimesheetItem } from '../store/models';
-import { getTimesheetsPastDueDate } from '../store/selectors';
-import { getUserEntities } from '../../users/store/selectors';
-import { User } from '../../users/store/models';
+import { TIMESHEET_LIST_ITEM_FRAGMENT } from '../store/queries';
+import { monthIsInPast } from '../../../utils/calendar';
+import { TimesheetStatus } from '../store/models';
 
 type Props = {
-  timesheets: TimesheetItem[];
-  users: { [key: number]: User };
   limit?: number;
 };
+type DataProps = {
+  timesheets: any;
+  loading: boolean;
+};
+type EnhancedProps = Props & DataProps;
 
-class TimesheetsPastDueDate extends Component<Props> {
-  render() {
-    const { timesheets, users, ...rest } = this.props;
+const TimesheetsPastDueDate: React.SFC<EnhancedProps> = ({
+  timesheets,
+  ...rest
+}) => (
+  <div>
+    <TimesheetList
+      items={timesheets}
+      noItemsText="No timesheets past due date."
+      disableFilter={true}
+      includeUser={true}
+      {...rest}
+    />
+  </div>
+);
 
-    return (
-      <div>
-        <TimesheetList
-          items={timesheets}
-          users={users}
-          disableFilter={true}
-          includeUser={true}
-          {...rest}
-        />
-      </div>
-    );
+/* TODO: Filter out timesheets past due date in query */
+const GET_TIMESHEETS_PAST_DUE_DATE = gql`
+  query allTimesheets {
+    allTimesheets {
+      ...TimesheetListItem
+    }
   }
-}
+  ${TIMESHEET_LIST_ITEM_FRAGMENT}
+`;
 
-const mapStateToProps = (state: any) => ({
-  timesheets: getTimesheetsPastDueDate(state),
-  users: getUserEntities(state),
-});
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_TIMESHEETS_PAST_DUE_DATE, {
+    props: ({ data }: any) => ({
+      timesheets: ([] || data.allTimesheets).filter(
+        (timesheet: any) =>
+          monthIsInPast(timesheet.periodStart) &&
+          timesheet.status !== TimesheetStatus.Approved
+      ),
+      loading: data.loading,
+    }),
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-export default connect(mapStateToProps)(TimesheetsPastDueDate);
+export default enhance(TimesheetsPastDueDate);

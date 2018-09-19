@@ -13,6 +13,8 @@ export const UPDATE_USER = gql`
     $id: ID!
     $firstName: String
     $lastName: String
+    $email: String
+    $gender: String
     $role: String
     $groupId: ID
   ) {
@@ -20,12 +22,16 @@ export const UPDATE_USER = gql`
       id: $id
       firstName: $firstName
       lastName: $lastName
+      email: $email
+      gender: $gender
       role: $role
       groupId: $groupId
     ) {
       id
       firstName
       lastName
+      email
+      gender
       role
       group {
         id

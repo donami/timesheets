@@ -29,18 +29,18 @@ class EditProfileForm extends Component<Props> {
             <h3>Personal Info</h3>
 
             <Form.Field
-              name="firstname"
+              name="firstName"
               label="Firstname"
-              defaultValue={initialValues.firstname}
+              defaultValue={initialValues.firstName}
               validations={{ isRequired: true }}
             >
               <Input placeholder="John" />
             </Form.Field>
 
             <Form.Field
-              name="lastname"
+              name="lastName"
               label="Lastname"
-              defaultValue={initialValues.lastname}
+              defaultValue={initialValues.lastName}
               validations={{ isRequired: true }}
             >
               <Input placeholder="Doe" />

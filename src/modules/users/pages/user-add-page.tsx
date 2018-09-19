@@ -10,6 +10,10 @@ import { getAuthedUserProjectsWhereAdmin } from '../../auth/store/selectors';
 import { PageHeader } from '../../common';
 import { getGroups } from '../../groups/store/selectors';
 import { Group } from '../../groups/store/models';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
+import { GET_PROJECTS } from '../../projects/store/queries';
+import gql from 'graphql-tag';
 
 type Props = {
   createUser: (user: UserFormData) => any;
@@ -33,7 +37,8 @@ class UserAddPage extends React.Component<Props> {
   }
 
   handleAdd = (data: UserFormData) => {
-    this.props.createUser(data);
+    // this.props.createUser(data);
+    console.log(data);
   };
 
   render() {
@@ -52,11 +57,6 @@ class UserAddPage extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  projects: getAuthedUserProjectsWhereAdmin(state),
-  groups: getGroups(state),
-});
-
 const mapDispatchToProps = (dispatch: any) =>
   bindActionCreators(
     {
@@ -66,7 +66,42 @@ const mapDispatchToProps = (dispatch: any) =>
     dispatch
   );
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UserAddPage);
+const query = gql`
+  query {
+    allProjects {
+      id
+      name
+    }
+    allGroups {
+      id
+      name
+    }
+  }
+`;
+
+const mutation = gql`
+  mutation signUp {
+    createUser(
+      authProvider: { email: { email: "liv@gmail.com", password: "123" } }
+    ) {
+      id
+    }
+  }
+`;
+
+const enhance = compose(
+  graphql(query, {
+    props: ({ data }: any) => ({
+      projects: data.allProjects,
+      groups: data.allGroups,
+      loading: data.loading,
+    }),
+  }),
+  connect(
+    undefined,
+    mapDispatchToProps
+  ),
+  branch(({ loading }) => loading, renderNothing)
+);
+
+export default enhance(UserAddPage);

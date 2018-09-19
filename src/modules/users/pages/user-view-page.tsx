@@ -9,15 +9,6 @@ import {
 } from '../store/selectors';
 import { Group } from '../../groups/store/models';
 import { Box, Row, Column } from '../../ui';
-import {
-  generateTimesheets,
-  confirmTemplates,
-} from '../../timesheets/store/actions';
-import { Project } from '../../projects/store/models';
-import {
-  getSelectedUserProjects,
-  getSelectedUserTimesheets,
-} from '../../common/store/selectors';
 import { TimesheetGenerator, TimesheetList } from '../../timesheets';
 import { PageHeader, Translate, Avatar } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
@@ -233,33 +224,6 @@ class UserViewPage extends React.Component<EnhancedProps> {
     );
   }
 }
-
-// const mapStateToProps = (state: any) => ({
-//   user: getSelectedUser(state),
-// projects: getSelectedUserProjects(state),
-//   groups: getGroups(state),
-//   group: getSelectedUserGroup(state),
-//   timesheets: getSelectedUserTimesheets(state),
-//   disabled: getSelectedUserDisabled(state),
-// });
-
-// const mapDispatchToProps = (dispatch: any) =>
-//   bindActionCreators(
-//     {
-//       selectUser,
-//       updateGroupMember,
-//       generateTimesheets,
-//       confirmTemplates,
-//       disableUser,
-//       enableUser,
-//     },
-//     dispatch
-//   );
-
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(UserViewPage);
 
 const enhance = compose(
   graphql(GET_USER, {
