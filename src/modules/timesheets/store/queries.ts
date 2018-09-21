@@ -51,6 +51,15 @@ export const GET_TIMESHEET = gql`
           message
         }
       }
+      project {
+        id
+        name
+      }
+      logs {
+        id
+        message
+        createdAt
+      }
       owner {
         id
         firstName

@@ -263,7 +263,6 @@ function* resolveTimesheetConflict(action: any) {
   }
 
   if (payload.resolve === ConflictResolve.DISCARD_OLD) {
-    // TODO: api call to remove old timesheet
     yield put({
       type: types.REMOVE_TIMESHEET.REQUEST,
       payload: {

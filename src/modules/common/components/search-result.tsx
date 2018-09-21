@@ -22,7 +22,9 @@ const SearchResult: React.SFC<Props> = ({ item }) => {
           <StatusColor positive={!item.disabled} negative={item.disabled} />
         </StatusWrapper>
         <h3>
-          <Link to={`/user/${item.id}`}>{item.fullName}</Link>
+          <Link to={`/user/${item.id}`}>{`${item.firstName} ${
+            item.lastName
+          }`}</Link>
         </h3>
         <div>
           Member since: <em>{parseDate(item.createdAt)}</em>

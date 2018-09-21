@@ -4,7 +4,7 @@ export { default as Footer } from './footer';
 export { default as LayoutDefault } from './layout-default';
 export { default as ProtectedRoute } from './protected-route';
 export { default as Routing } from './routing';
-export { default as LanguageSelector } from './language-selector';
+// export { default as LanguageSelector } from './language-selector';
 export { default as withTextManager } from './with-text-manager';
 export { default as Translate } from './translate';
 export { default as HasAccess } from './has-access';

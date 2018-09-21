@@ -52,7 +52,12 @@ export const GET_CATEGORY = gql`
           id
           firstName
           lastName
-          image
+          image {
+            __typename
+            id
+            name
+            url
+          }
         }
         createdAt
         updatedAt
@@ -74,7 +79,12 @@ export const GET_ARTICLE = gql`
         id
         firstName
         lastName
-        image
+        image {
+          __typename
+          id
+          name
+          url
+        }
       }
       category {
         id
@@ -86,6 +96,15 @@ export const GET_ARTICLE = gql`
         negative
         neutral
       }
+    }
+  }
+`;
+
+export const SEARCH_QUERY = gql`
+  query {
+    helpSearch @client {
+      __typename
+      value
     }
   }
 `;

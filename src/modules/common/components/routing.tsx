@@ -228,8 +228,8 @@ class Routing extends React.Component<Props> {
 }
 
 const LOGGED_IN_USER = gql`
-  query loggedInUser {
-    loggedInUser {
+  query user {
+    user {
       id
     }
   }

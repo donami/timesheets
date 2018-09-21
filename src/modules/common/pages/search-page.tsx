@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
-import { getUsers } from '../../users/store/selectors';
-import { getSearchQuery } from '../store/selectors';
 import { PageHeader, SearchResult } from '../components';
-import { User } from '../../users/store/models';
 import styled from '../../../styled/styled-components';
 
-type Props = {
-  query: string;
-  users: User[];
+type Props = {};
+type DataProps = {
+  loading: boolean;
+  query: any;
+  users: any;
 };
-type State = {};
+type EnhancedProps = Props & DataProps;
 
-class SearchPage extends Component<Props, State> {
+type State = {};
+class SearchPage extends Component<EnhancedProps, State> {
   render() {
     const { users, query } = this.props;
-
     const regex = new RegExp(query, 'i');
 
-    const results = users.filter(user => {
+    const results = users.filter((user: any) => {
       return user.email.match(regex);
     });
 
@@ -35,16 +36,43 @@ class SearchPage extends Component<Props, State> {
         )}
 
         {query.length > 0 &&
-          results.map(result => <SearchResult key={result.id} item={result} />)}
+          results.map((result: any) => (
+            <SearchResult key={result.id} item={result} />
+          ))}
       </div>
     );
   }
 }
 
-export default connect((state: any) => ({
-  users: getUsers(state),
-  query: getSearchQuery(state),
-}))(SearchPage);
+const SEARCH_QUERY = gql`
+  query {
+    search @client {
+      __typename
+      value
+    }
+    allUsers {
+      id
+      firstName
+      lastName
+      email
+      disabled
+      image
+    }
+  }
+`;
+
+const enhance = compose(
+  graphql(SEARCH_QUERY, {
+    props: ({ data }: any) => ({
+      query: data.search && data.search.value,
+      users: data.allUsers || [],
+      loading: data.loading,
+    }),
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
+
+export default enhance(SearchPage);
 
 const SearchResultsInfo = styled.div`
   background: #fff;

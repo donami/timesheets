@@ -16,20 +16,10 @@ type EnhancedProps = Props & DataProps;
 
 class TimesheetTemplateCreatePage extends Component<EnhancedProps> {
   handleSubmit = (data: any) => {
-    const days = [
-      data.hoursDays.monday,
-      data.hoursDays.tuesday,
-      data.hoursDays.wednesday,
-      data.hoursDays.thursday,
-      data.hoursDays.friday,
-      data.hoursDays.saturday,
-      data.hoursDays.sunday,
-    ];
-
     this.props
       .createTemplate({
         variables: {
-          hoursDays: days,
+          hoursDays: data.hoursDays,
           name: data.name,
           shiftEndTime: data.shiftEndTime,
           shiftStartTime: data.shiftStartTime,

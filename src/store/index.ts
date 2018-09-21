@@ -31,41 +31,41 @@ function createTranslationsMiddleware(service: any) {
 
 const myTranslationsMiddleware = createTranslationsMiddleware(textManager);
 
-function checkAuthMiddleware() {
-  return ({ dispatch, getState }: any) => (next: any) => async (
-    action: any
-  ) => {
-    const { auth: authState, common: commonState } = getState();
+// function checkAuthMiddleware() {
+//   return ({ dispatch, getState }: any) => (next: any) => async (
+//     action: any
+//   ) => {
+//     const { auth: authState, common: commonState } = getState();
 
-    if (
-      authState.isAuthed === false &&
-      localStorage.getItem('token') &&
-      action.type !== 'AUTH_REQUEST' &&
-      action.type !== 'ON_INIT'
-    ) {
-      const response = await Api.verifyToken();
+//     if (
+//       authState.isAuthed === false &&
+//       localStorage.getItem('token') &&
+//       action.type !== 'AUTH_REQUEST' &&
+//       action.type !== 'ON_INIT'
+//     ) {
+//       const response = await Api.verifyToken();
 
-      if (!response.result) {
-        next({
-          type: 'AUTH_FAILURE',
-        });
-      } else {
-        next({
-          payload: { ...response },
-          type: 'AUTH_SUCCESS',
-        });
-      }
-    }
+//       if (!response.result) {
+//         next({
+//           type: 'AUTH_FAILURE',
+//         });
+//       } else {
+//         next({
+//           payload: { ...response },
+//           type: 'AUTH_SUCCESS',
+//         });
+//       }
+//     }
 
-    if (action.type !== 'ON_INIT' && commonState.initialized === false) {
-      next({
-        type: 'ON_INIT',
-      });
-    }
+//     if (action.type !== 'ON_INIT' && commonState.initialized === false) {
+//       next({
+//         type: 'ON_INIT',
+//       });
+//     }
 
-    return next(action);
-  };
-}
+//     return next(action);
+//   };
+// }
 
 const store = createStore(
   connectRouter(history)(rootReducer),
@@ -75,7 +75,7 @@ const store = createStore(
     applyMiddleware(
       routerMiddleware(history),
       myTranslationsMiddleware,
-      checkAuthMiddleware(),
+      // checkAuthMiddleware(),
       sagaMiddleware,
       loggerMiddleware
     )

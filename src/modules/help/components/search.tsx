@@ -6,12 +6,22 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { searchArticlesClear, searchArticles } from '../store/actions';
 import { getArticleSearchQuery } from '../store/selectors';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { withRouter } from 'react-router';
+import { Location } from 'history';
 
 type Props = {
-  query: any;
-  clearSearch: () => any;
-  searchArticles: (query: string) => any;
+  query: string;
 };
+type DataProps = {
+  history: any;
+  location: Location;
+  searchMutation(options: any): any;
+};
+type EnhancedProps = Props & DataProps;
+
 type State = Readonly<{
   focused: boolean;
   value: string;
@@ -22,7 +32,7 @@ const initialState: State = {
   value: '',
 };
 
-class Search extends Component<Props, State> {
+class Search extends Component<EnhancedProps, State> {
   readonly state = initialState;
 
   componentWillMount() {
@@ -35,7 +45,17 @@ class Search extends Component<Props, State> {
     e.preventDefault();
 
     if (this.state.value.length) {
-      this.props.searchArticles(this.state.value);
+      this.props
+        .searchMutation({
+          variables: {
+            value: this.state.value,
+          },
+        })
+        .then(() => {
+          if (this.props.location.pathname !== '/help/search') {
+            this.props.history.push('/help/search');
+          }
+        });
     }
   };
 
@@ -53,7 +73,16 @@ class Search extends Component<Props, State> {
 
   handleClear = (e: any) => {
     this.setState({ value: '' });
-    this.props.clearSearch();
+
+    this.props
+      .searchMutation({
+        variables: {
+          value: '',
+        },
+      })
+      .then(() => {
+        this.props.history.push('/help');
+      });
   };
 
   render() {
@@ -86,6 +115,18 @@ class Search extends Component<Props, State> {
     );
   }
 }
+
+const SEARCH = gql`
+  mutation($value: string) {
+    helpSearch(value: $value) @client
+  }
+`;
+
+const enhance = compose<EnhancedProps, Props>(
+  withRouter,
+  graphql(SEARCH, { name: 'searchMutation' })
+);
+export default enhance(Search);
 
 const Container = styled.div`
   background-color: #9088d9;
@@ -193,14 +234,3 @@ const Input = styled.input`
     color: #3a3c4c;
   }
 `;
-
-export default connect(
-  (state: any) => ({
-    query: getArticleSearchQuery(state),
-  }),
-  (dispatch: any) =>
-    bindActionCreators(
-      { searchArticles, clearSearch: searchArticlesClear },
-      dispatch
-    )
-)(Search);

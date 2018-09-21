@@ -174,10 +174,10 @@ export const generateCalendarFromTemplate = (
 
     let expectedWorkHours = 0;
 
-    const weekDay = current.format('dddd').toLowerCase();
+    const weekDay = current.isoWeekday();
 
-    if (hoursDay[weekDay]) {
-      expectedWorkHours = hoursDay[weekDay];
+    if (hoursDay[weekDay - 1]) {
+      expectedWorkHours = hoursDay[weekDay - 1];
     }
 
     dates[weekIndex].push({

@@ -10,6 +10,12 @@ export const USER_LIST_ITEM_FRAGMENT = gql`
       id
       name
     }
+    image {
+      __typename
+      id
+      name
+      url
+    }
   }
 `;
 
@@ -30,6 +36,12 @@ export const GET_USER = gql`
       lastName
       disabled
       email
+      image {
+        __typename
+        id
+        name
+        url
+      }
       role
       timesheets {
         id

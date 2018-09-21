@@ -26,7 +26,7 @@ const HasAccess: React.SFC<EnhancedProps> = ({ children }) => {
 const enhance = compose<EnhancedProps, Props>(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      userRole: (data.loggedInUser && data.loggedInUser.role) || null,
+      userRole: (data.user && data.user.role) || null,
     }),
   }),
   branch<EnhancedProps>(

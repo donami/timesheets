@@ -8,21 +8,22 @@ import {
   Search,
   ArticleFeedback,
 } from '../components';
-import { GET_ARTICLE } from '../store/queries';
+import { GET_ARTICLE, SEARCH_QUERY } from '../store/queries';
 
 type Props = {
   match: any;
   giveFeedback: (articleId: number, response: string) => any;
 };
 type DataProps = {
+  query: string;
   loading: boolean;
   article: any;
 };
 type EnhancedProps = Props & DataProps;
 
-const ArticleViewPage: React.SFC<EnhancedProps> = ({ article }) => (
+const ArticleViewPage: React.SFC<EnhancedProps> = ({ article, query }) => (
   <div>
-    <Search />
+    <Search query={query} />
 
     {article.category && (
       <Breadcrumb category={article.category} article={article} />
@@ -35,6 +36,11 @@ const ArticleViewPage: React.SFC<EnhancedProps> = ({ article }) => (
 );
 
 const enhance = compose(
+  graphql(SEARCH_QUERY, {
+    props: ({ data }: any) => ({
+      query: (data.helpSearch && data.helpSearch.value) || '',
+    }),
+  }),
   graphql(GET_ARTICLE, {
     options: ({ match }: Props) => ({
       variables: { id: match.params.id },

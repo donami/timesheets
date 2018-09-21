@@ -3,7 +3,6 @@ import React from 'react';
 import {
   DEFAULT_USER_IMAGE,
   DEFAULT_USER_IMAGE_FEMALE,
-  STATICS_URL,
 } from '../../../config/constants';
 import withDefaultProps from './with-default-props';
 import styled, { withProps, css } from '../../../styled/styled-components';
@@ -12,7 +11,7 @@ type Props = {} & DefaultProps;
 
 type DefaultProps = {
   circular: boolean;
-  avatar: string;
+  avatar: any;
   gender: string;
   view: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 };
@@ -27,8 +26,8 @@ const defaultProps: DefaultProps = {
 const Avatar: React.SFC<Props> = ({ avatar, gender, ...rest }) => {
   let imageUrl = DEFAULT_USER_IMAGE;
 
-  if (avatar) {
-    imageUrl = avatar;
+  if (avatar && avatar.url) {
+    imageUrl = avatar.url;
   } else if (gender) {
     if (gender === 'female') {
       imageUrl = DEFAULT_USER_IMAGE_FEMALE;
@@ -38,10 +37,8 @@ const Avatar: React.SFC<Props> = ({ avatar, gender, ...rest }) => {
   }
 
   if (!imageUrl.startsWith('http')) {
-    imageUrl = `${STATICS_URL}/static/uploads/${imageUrl}`;
+    imageUrl = `/images/${imageUrl}`;
   }
-
-  imageUrl = imageUrl.replace('uploads//', 'uploads/');
 
   return (
     <StyledAvatar

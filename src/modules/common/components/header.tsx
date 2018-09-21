@@ -25,7 +25,7 @@ type Props = {
 };
 
 type DataProps = {
-  loggedInUser: {
+  user: {
     id: string;
     firstName: string;
     lastName: string;
@@ -79,11 +79,11 @@ class Header extends React.Component<EnhancedProps> {
     const {
       containerHeight,
       unreadNotificationsCount,
-      loggedInUser,
+      user,
       notifications,
     } = this.props;
 
-    if (!loggedInUser) {
+    if (!user) {
       return null;
     }
 
@@ -123,8 +123,8 @@ class Header extends React.Component<EnhancedProps> {
           >
             <Avatar
               view="sm"
-              avatar={loggedInUser.image || ''}
-              gender={loggedInUser.gender || 'unknown'}
+              avatar={user.image || ''}
+              gender={user.gender || 'unknown'}
             />
           </StyledDropdown>
         </RightNode>
@@ -200,7 +200,7 @@ const RightNode = styled.div`
 
 const UNREAD_NOTIFICATIONS = gql`
   query($userId: ID!) {
-    allNotifications(filter: { unread: true, owner: { id: $userId } }) {
+    allNotifications(filter: { unread: true, user: { id: $userId } }) {
       id
       message
       notificationType
@@ -210,7 +210,7 @@ const UNREAD_NOTIFICATIONS = gql`
       createdAt
       updatedAt
     }
-    _allNotificationsMeta(filter: { unread: true, owner: { id: $userId } }) {
+    _allNotificationsMeta(filter: { unread: true, user: { id: $userId } }) {
       count
     }
   }
@@ -228,12 +228,12 @@ const CLEAR_NOTIFICATION = gql`
 const enhance = compose<any, any>(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      loggedInUser: data.loggedInUser || null,
+      user: data.user || null,
     }),
   }),
   graphql(UNREAD_NOTIFICATIONS, {
     options: (props: any) => ({
-      variables: { userId: props.loggedInUser.id },
+      variables: { userId: props.user.id },
     }),
     props: ({ data }: any) => ({
       notifications: data.allNotifications,
@@ -246,7 +246,7 @@ const enhance = compose<any, any>(
     name: 'clearNotification',
     options: (props: any) => ({
       update: (proxy, { data }: any) => {
-        const variables = { userId: props.loggedInUser.id };
+        const variables = { userId: props.user.id };
         const query = UNREAD_NOTIFICATIONS;
 
         const {

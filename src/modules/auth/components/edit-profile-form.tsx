@@ -62,7 +62,7 @@ class EditProfileForm extends Component<Props> {
               />
             </Form.Field>
 
-            <h3>Contact Info</h3>
+            {/* <h3>Contact Info</h3>
             <Form.Field
               name="email"
               label="Email"
@@ -70,7 +70,7 @@ class EditProfileForm extends Component<Props> {
               validations={{ isRequired: true, isEmail: true }}
             >
               <Input placeholder="your@email.com" />
-            </Form.Field>
+            </Form.Field> */}
 
             <Button type="submit" color="green" disabled={!formState.isValid}>
               Save

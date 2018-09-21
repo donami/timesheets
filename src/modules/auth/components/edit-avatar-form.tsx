@@ -1,33 +1,42 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-// import { Input, Button } from 'genui';
+import { graphql } from 'react-apollo';
+import { compose } from 'recompose';
 
-// import { Form, ImageUploader } from '../../common';
 import { User } from '../../users/store/models';
-import { uploadProfileImage } from '../store/actions';
 import { Uploader } from '../../common';
+import { UPDATE_USER } from '../../users/store/mutations';
+import { API_ENDPOINT_FILE } from '../../../config/constants';
 
 type Props = {
   initialValues: User;
-  uploadProfileImage(image: File): any;
-  onUpdateProfile(data: any): any;
 };
+type DataProps = {
+  updateUser(options: any): any;
+};
+type EnhancedProps = Props & DataProps;
 
-class EditAvatarForm extends Component<Props> {
-  // handleSubmit = (model: any) => {
-  //   const data = {
-  //     ...model,
-  //     id: this.props.initialValues.id,
-  //   };
-
-  //   this.props.onUpdateProfile(data);
-  // };
-
+class EditAvatarForm extends Component<EnhancedProps> {
   onDrop = () => {};
 
   handleUpload = (image: File) => {
-    this.props.uploadProfileImage(image);
+    const data = new FormData();
+    data.append('data', image);
+
+    fetch(API_ENDPOINT_FILE, {
+      method: 'POST',
+      body: data,
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(file => {
+        this.props.updateUser({
+          variables: {
+            imageId: file.id,
+            id: this.props.initialValues.id,
+          },
+        });
+      });
   };
 
   render() {
@@ -43,32 +52,11 @@ class EditAvatarForm extends Component<Props> {
         maxFileSize={5242880}
       />
     );
-
-    // return (
-    //   <div>
-    //     <Form onValidSubmit={this.handleSubmit}>
-    //       {formState => (
-    //         <>
-    //           <Form.Field
-    //             name="image"
-    //             label="Image URL"
-    //             validations={{ isRequired: true }}
-    //           >
-    //             <Input placeholder="http://" />
-    //           </Form.Field>
-
-    //           <Button type="submit" color="green" disabled={!formState.isValid}>
-    //             Save
-    //           </Button>
-    //         </>
-    //       )}
-    //     </Form>
-    //   </div>
-    // );
   }
 }
 
-export default connect(
-  undefined,
-  (dispatch: any) => bindActionCreators({ uploadProfileImage }, dispatch)
-)(EditAvatarForm);
+const enhance = compose<EnhancedProps, Props>(
+  graphql(UPDATE_USER, { name: 'updateUser' })
+);
+
+export default enhance(EditAvatarForm);

@@ -4,6 +4,7 @@ export const DELETE_TIMESHEET = gql`
   mutation deleteTimesheet($id: ID!) {
     deleteTimesheet(id: $id) {
       id
+      __typename
     }
   }
 `;

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Icon } from 'genui';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-
-import { search } from '../store/actions';
-import styled, { withProps, css } from '../../../styled/styled-components';
+import { withRouter } from 'react-router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { compose, withHandlers, withState } from 'recompose';
+
+import styled, { withProps, css } from '../../../styled/styled-components';
 
 type Props = {};
 
@@ -13,6 +13,10 @@ type State = {
   value: string;
 };
 
+type DataProps = {
+  history: any;
+  searchMutation(options: any): any;
+};
 type ActionCreatorProps = {
   search(query: string): any;
 };
@@ -28,6 +32,7 @@ type StateHandlerProps = {
 
 type EnhancedProps = Props &
   State &
+  DataProps &
   ActionCreatorProps &
   StateHandlerProps &
   HandlerProps;
@@ -47,22 +52,27 @@ const Search: React.SFC<EnhancedProps> = ({
   </Container>
 );
 
+const SEARCH = gql`
+  mutation($value: string) {
+    search(value: $value) @client
+  }
+`;
+
 const enhance = compose<EnhancedProps, Props>(
-  connect(
-    undefined,
-    (dispatch: any) => bindActionCreators({ search }, dispatch)
-  ),
+  withRouter,
+  graphql(SEARCH, { name: 'searchMutation' }),
   withState<Props, string, 'value', 'setValue'>('value', 'setValue', ''),
   withHandlers<EnhancedProps, HandlerProps>({
-    handleSubmit: props => (event: any) => {
+    handleSubmit: props => async (event: any) => {
       event.preventDefault();
 
       if (!props.value.length) {
         return;
       }
 
-      props.search(props.value);
+      await props.searchMutation({ variables: { value: props.value } });
       props.setValue('');
+      props.history.push('/search');
     },
     onChange: props => (event: any) => {
       const { value } = event.target;

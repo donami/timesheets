@@ -12,18 +12,18 @@ type Props = {
   exact?: boolean;
   path: string;
   roles?: UserRole[];
-  loggedInUser: { id: string } | null;
+  user: { id: string } | null;
   loading: boolean;
 };
 
 const ProtectedRoute: React.SFC<Props> = ({
   component: Component,
   roles,
-  loggedInUser,
+  user,
   loading,
   ...rest
 }) => {
-  if (!loggedInUser) {
+  if (!user) {
     <Redirect to="/auth" />;
   }
 
@@ -31,7 +31,7 @@ const ProtectedRoute: React.SFC<Props> = ({
     <Route
       {...rest}
       render={props =>
-        loggedInUser ? (
+        user ? (
           <LayoutDefault>
             {roles ? (
               <HasAccess roles={roles}>
@@ -52,7 +52,7 @@ const ProtectedRoute: React.SFC<Props> = ({
 const enhance = compose<any, any>(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      loggedInUser: data.loggedInUser || null,
+      user: data.user || null,
       loading: data.loading,
     }),
     options: { fetchPolicy: 'network-only' },

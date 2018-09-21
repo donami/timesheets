@@ -6,7 +6,7 @@ import { PageHeader } from '../../common';
 import { GET_CATEGORIES } from '../store/queries';
 import { CREATE_ARTICLE } from '../store/mutations';
 import { ArticleForm } from '../components';
-import { GET_AUTHED_USER, LOGGED_IN_USER } from '../../auth/store/queries';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
 type Props = {
@@ -43,7 +43,7 @@ const enhance = compose<EnhancedProps, Props>(
   withToastr,
   graphql(CREATE_ARTICLE, { name: 'createArticle' }),
   graphql(LOGGED_IN_USER, {
-    props: ({ data }: any) => ({ user: data.loggedInUser }),
+    props: ({ data }: any) => ({ user: data.user }),
   }),
   graphql(GET_CATEGORIES, {
     props: ({ data }: any) => ({ categories: data.allCategories || [] }),

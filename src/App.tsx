@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import { injectGlobal } from 'styled-components';
 import ReduxToastr from 'react-redux-toastr';
-// import ApolloClient, { gql } from 'apollo-boost';
 import { ApolloClient } from 'apollo-client';
 import { ApolloProvider } from 'react-apollo';
 import uuidv4 from 'uuid/v4';
@@ -12,12 +11,13 @@ import { onError } from 'apollo-link-error';
 import { ApolloLink, Observable } from 'apollo-link';
 import { withClientState } from 'apollo-link-state';
 import { createNetworkStatusNotifier } from 'react-apollo-network-status';
+import gql from 'graphql-tag';
 
 import store from './store';
 import { Routing, Toastr } from './modules/common';
 import { theme } from './styled/theme';
 import { resolvers, defaults } from './resolvers';
-import gql from 'graphql-tag';
+import { API_ENDPOINT } from './config/constants';
 
 const {
   NetworkStatusNotifier,
@@ -69,6 +69,14 @@ const stateLink = withClientState({
       __typename: 'Toasts',
       items: [],
     },
+    search: {
+      __typename: 'Search',
+      value: '',
+    },
+    helpSearch: {
+      __typename: 'HelpSearch',
+      value: '',
+    },
   },
   resolvers: {
     Mutation: {
@@ -78,6 +86,28 @@ const stateLink = withClientState({
             networkStatus: {
               isConnected,
               __typename: 'NetworkStatus',
+            },
+          },
+        });
+        return null;
+      },
+      search: (_: any, { value }: any, { cache }: any) => {
+        cache.writeData({
+          data: {
+            search: {
+              value,
+              __typename: 'Search',
+            },
+          },
+        });
+        return null;
+      },
+      helpSearch: (_: any, { value }: any, { cache }: any) => {
+        cache.writeData({
+          data: {
+            helpSearch: {
+              value,
+              __typename: 'HelpSearch',
             },
           },
         });
@@ -171,120 +201,12 @@ const client = new ApolloClient({
     networkStatusNotifierLink,
     stateLink,
     new HttpLink({
-      uri: 'https://api.graph.cool/simple/v1/cjm8wc3kb0fyb0179vjvepbts',
-      // uri: 'https://api.graph.cool/simple/v1/cjm0xg5hy3mgf0179l9ffcdoc',
+      uri: API_ENDPOINT,
       credentials: 'same-origin',
     }),
   ]),
   cache: new InMemoryCache(),
 });
-
-// TODO: Apollo Boost, remove
-// const client = new ApolloClient({
-//   uri: 'https://api.graph.cool/simple/v1/cjm0xg5hy3mgf0179l9ffcdoc',
-//   clientState: {
-//     defaults: {
-//       networkStatus: {
-//         __typename: 'NetworkStatus',
-//         isConnected: true,
-//       },
-//       toasts: {
-//         __typename: 'Toasts',
-//         items: [],
-//       },
-//     },
-//     resolvers: {
-//       Mutation: {
-//         updateNetworkStatus: (_: any, { isConnected }: any, { cache }: any) => {
-//           cache.writeData({
-//             data: {
-//               networkStatus: {
-//                 isConnected,
-//                 __typename: 'NetworkStatus',
-//               },
-//             },
-//           });
-//           return null;
-//         },
-//         addToast: (
-//           _: any,
-//           {
-//             title,
-//             message,
-//             type,
-//           }: { title: string; message: string; type: string },
-//           { cache }: any
-//         ) => {
-//           const query = gql`
-//             query {
-//               toasts @client {
-//                 __typename
-//                 items {
-//                   id
-//                   title
-//                   message
-//                   type
-//                 }
-//               }
-//             }
-//           `;
-//           const previous = cache.readQuery({ query });
-//           cache.writeData({
-//             data: {
-//               toasts: {
-//                 items: previous.toasts.items.concat({
-//                   title,
-//                   message,
-//                   type,
-//                   id: uuidv4(),
-//                   __typename: 'ToastItem',
-//                 }),
-//                 __typename: 'Toasts',
-//               },
-//             },
-//           });
-//           return null;
-//         },
-//         removeToast: (_: any, { id }: { id: string }, { cache }: any) => {
-//           const query = gql`
-//             query {
-//               toasts @client {
-//                 __typename
-//                 items {
-//                   id
-//                   title
-//                   message
-//                   type
-//                 }
-//               }
-//             }
-//           `;
-//           const previous = cache.readQuery({ query });
-//           cache.writeData({
-//             data: {
-//               toasts: {
-//                 items: previous.toasts.items.filter(
-//                   (item: any) => item.id !== id
-//                 ),
-//                 __typename: 'Toasts',
-//               },
-//             },
-//           });
-//           return null;
-//         },
-//       },
-//     },
-//   },
-//   request: async operation => {
-//     const token = localStorage.getItem('token');
-//     const authorizationHeader = token ? `Bearer ${token}` : null;
-//     operation.setContext({
-//       headers: {
-//         authorization: authorizationHeader,
-//       },
-//     });
-//   },
-// });
 
 injectGlobal`
   html {

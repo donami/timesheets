@@ -17,7 +17,7 @@ type Props = {
   authenticateUser: any;
   authed: boolean;
   history: any;
-  loggedInUser: any;
+  user: any;
 };
 type EnhancedProps = Props & WithToastrProps;
 
@@ -31,8 +31,8 @@ class AuthPage extends React.Component<EnhancedProps> {
           password,
         },
       });
-      if (res.data.authenticateUser && res.data.authenticateUser.token) {
-        localStorage.setItem('token', res.data.authenticateUser.token);
+      if (res.data.signinUser && res.data.signinUser.token) {
+        localStorage.setItem('token', res.data.signinUser.token);
         history.replace('/');
       }
     } catch (error) {
@@ -46,7 +46,7 @@ class AuthPage extends React.Component<EnhancedProps> {
 
   render() {
     // redirect if user is logged in
-    if (this.props.loggedInUser && this.props.loggedInUser.id) {
+    if (this.props.user && this.props.user.id) {
       return <Redirect to="/" />;
     }
 
@@ -159,15 +159,18 @@ const Title = styled.h3`
 
 export const AUTHENTICATE_USER = gql`
   mutation authenticateUser($email: String!, $password: String!) {
-    authenticateUser(email: $email, password: $password) {
+    signinUser(email: { email: $email, password: $password }) {
       token
+      user {
+        id
+      }
     }
   }
 `;
 
 export const LOGGED_IN_USER = gql`
-  query loggedInUser {
-    loggedInUser {
+  query user {
+    user {
       id
     }
   }
@@ -178,7 +181,7 @@ const enhance = compose(
   graphql(AUTHENTICATE_USER, { name: 'authenticateUser' }),
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      loggedInUser: data.loggedInUser || null,
+      user: data.user || null,
     }),
     options: { fetchPolicy: 'network-only' },
   })

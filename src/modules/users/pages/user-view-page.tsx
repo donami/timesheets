@@ -2,23 +2,22 @@ import * as React from 'react';
 import { Button, Dropdown, Message, Icon } from 'genui';
 
 import { UserInfo, UserGroups, EditUser, EditUserStatus } from '../components';
-import {
-  getSelectedUser,
-  getSelectedUserGroup,
-  getSelectedUserDisabled,
-} from '../store/selectors';
 import { Group } from '../../groups/store/models';
 import { Box, Row, Column } from '../../ui';
 import { TimesheetGenerator, TimesheetList } from '../../timesheets';
 import { PageHeader, Translate, Avatar } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
 import { Link, Switch, Route } from 'react-router-dom';
-import { compose, withHandlers } from 'recompose';
+import { compose, withHandlers, renderNothing, branch } from 'recompose';
 import { graphql } from 'react-apollo';
 import { DISABLE_USER, ENABLE_USER } from '../store/mutations';
 import { GET_USER } from '../store/queries';
-import { GET_GROUPS } from '../../groups/store/queries';
+import {
+  GET_GROUPS,
+  GROUP_LIST_ITEM_FRAGMENT,
+} from '../../groups/store/queries';
 import { GET_PROJECTS } from '../../projects/store/queries';
+import gql from 'graphql-tag';
 
 type DropdownItem = {
   label: string;
@@ -36,7 +35,7 @@ type Props = {
 type DataProps = {
   user: any;
   groups: any[];
-  allProjects: any[];
+  projects: any[];
   disableUser(options: any): any;
   enableUser(options: any): any;
 };
@@ -55,7 +54,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
     const {
       user,
       groups,
-      allProjects,
+      projects,
       match,
       onEnableUser,
       onDisableUser,
@@ -163,6 +162,12 @@ class UserViewPage extends React.Component<EnhancedProps> {
                   >
                     <TimesheetGenerator
                       userId={user.id}
+                      group={user.group}
+                      userProjectId={
+                        (user.projectMember || []).map(
+                          (member: any) => member.project.id
+                        )[0]
+                      }
                       projects={(user.projectMember || []).map(
                         (member: any) => member.project
                       )}
@@ -194,7 +199,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
                       userProject={(user.projectMember || []).map(
                         (member: any) => member.project
                       )}
-                      projects={allProjects}
+                      projects={projects}
                     />
                     <h3>Change user type</h3>
                     <EditUserStatus user={user} />
@@ -225,24 +230,78 @@ class UserViewPage extends React.Component<EnhancedProps> {
   }
 }
 
+export const USER_VIEW_PAGE_QUERY = gql`
+  query($id: ID!) {
+    User(id: $id) {
+      __typename
+      id
+      firstName
+      lastName
+      disabled
+      email
+      role
+      image {
+        __typename
+        id
+        name
+        url
+      }
+      timesheets {
+        __typename
+        id
+        status
+        periodStart
+      }
+      projectMember {
+        id
+        role
+        project {
+          id
+          name
+        }
+      }
+      group {
+        id
+        name
+        template {
+          id
+          name
+          hoursDays {
+            id
+            break
+            holiday
+            inTime
+            outTime
+            totalHours
+          }
+        }
+      }
+    }
+    allGroups {
+      id
+      name
+      project {
+        id
+        name
+      }
+    }
+    allProjects {
+      id
+      name
+    }
+  }
+`;
+
 const enhance = compose(
-  graphql(GET_USER, {
+  graphql(USER_VIEW_PAGE_QUERY, {
     options: (props: any) => ({
       variables: { id: props.match.params.id },
     }),
     props: ({ data }: any) => ({
       loading: data.loading,
-      user: data.User,
-    }),
-  }),
-  graphql(GET_GROUPS, {
-    props: ({ data }: any) => ({
       groups: data.allGroups || [],
-    }),
-  }),
-  graphql(GET_PROJECTS, {
-    props: ({ data }: any) => ({
-      allProjects: data.allProjects || [],
+      projects: data.allProjects || [],
+      user: data.User,
     }),
   }),
   graphql(DISABLE_USER, {
@@ -261,7 +320,8 @@ const enhance = compose(
     onEnableUser: ({ enableUser, user }) => () => {
       enableUser({ variables: { id: user.id } });
     },
-  })
+  }),
+  branch(({ loading }) => loading, renderNothing)
 );
 
 export default enhance(UserViewPage);

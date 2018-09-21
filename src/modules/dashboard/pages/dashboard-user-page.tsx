@@ -43,7 +43,7 @@ const DashboardUserPage: React.SFC<EnhancedProps> = ({ expenses, user }) => (
 const enhance = compose(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      user: data.loggedInUser || null,
+      user: data.user || null,
     }),
   }),
   graphql(GET_EXPENSES, {

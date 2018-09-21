@@ -31,7 +31,7 @@ const enhance = compose<EnhancedProps, Props>(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
       loading: data.loading,
-      user: data.loggedInUser,
+      user: data.user,
     }),
   }),
   withHandlers<EnhancedProps, HandlerProps>({

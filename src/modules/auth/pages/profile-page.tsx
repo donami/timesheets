@@ -35,7 +35,7 @@ class ProfilePage extends React.Component<EnhancedProps> {
     await this.props.updateUser({
       variables: {
         id: data.id,
-        email: data.email,
+        // email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
         gender: data.gender,
@@ -100,10 +100,7 @@ class ProfilePage extends React.Component<EnhancedProps> {
                     </Box> */}
 
                     <Box title="Change profile image">
-                      <EditAvatarForm
-                        initialValues={user}
-                        onUpdateProfile={this.handleUpdateProfile}
-                      />
+                      <EditAvatarForm initialValues={user} />
                     </Box>
                   </>
                 )}
@@ -138,13 +135,18 @@ class ProfilePage extends React.Component<EnhancedProps> {
 }
 
 const GET_PROFILE = gql`
-  query loggedInUser {
-    loggedInUser {
+  query user {
+    user {
       id
       firstName
       lastName
       email
-      image
+      image {
+        __typename
+        id
+        name
+        url
+      }
       role
       gender
     }
@@ -155,7 +157,7 @@ const enhance = compose(
   withToastr,
   graphql(GET_PROFILE, {
     props: ({ data }: any) => ({
-      user: data.loggedInUser,
+      user: data.user,
       loading: data.loading,
     }),
   }),

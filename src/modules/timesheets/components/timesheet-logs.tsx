@@ -1,9 +1,7 @@
 import React from 'react';
 import { List } from 'genui';
-import { connect } from 'react-redux';
 
 import { Log } from '../../logs/store/models';
-import { getLogsOfSelectedTimesheet } from '../../common/store/selectors';
 import { parseDate, sortByRecentCreatedDates } from '../../../utils/helpers';
 import styled from '../../../styled/styled-components';
 
@@ -37,6 +35,4 @@ const LogDate = styled.span`
   margin-right: 5px;
 `;
 
-export default connect((state: any) => ({
-  logs: getLogsOfSelectedTimesheet(state),
-}))(TimesheetLogs);
+export default TimesheetLogs;

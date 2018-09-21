@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { QuestionArticle } from '../store/models';
 import styled from '../../../styled/styled-components';
 import { DEFAULT_USER_IMAGE } from '../../../config/constants';
 import MetaInfo from './meta-info';

@@ -24,7 +24,7 @@ const TimesheetsPage: React.SFC<EnhancedProps> = ({ user }) => (
 const enhance = compose<EnhancedProps, Props>(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      user: data.loggedInUser,
+      user: data.user,
       loading: data.loading,
     }),
   }),

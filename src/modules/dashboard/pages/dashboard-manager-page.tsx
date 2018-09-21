@@ -94,7 +94,7 @@ class DashboardManagerPage extends React.Component<EnhancedProps> {
 const enhance = compose(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      user: data.loggedInUser || null,
+      user: data.user || null,
     }),
   })
 );

@@ -60,7 +60,7 @@ const enhance = compose<EnhancedProps, Props>(
   withToastr,
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
-      user: data.loggedInUser,
+      user: data.user,
       userLoading: data.loading,
     }),
   }),
