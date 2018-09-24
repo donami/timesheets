@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
 import { Column, Row } from '../../ui';
 import { Button } from 'genui';
-import { toastr } from 'react-redux-toastr';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { Route, Link, Switch } from 'react-router-dom';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { Route, Link, Switch } from 'react-router-dom';
 import {
   WizardStepOne,
   WizardStepTwo,
   WizardStepThree,
 } from '../components/wizard';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
 import { setup, checkConfiguration } from '../store/actions';
 import WizardComplete from '../components/wizard/complete';
 import { validateEmail } from '../../../utils/helpers';
+import { CREATE_GROUP } from '../../groups/store/mutations';
+import { CREATE_PROJECT } from '../../projects/store/mutations';
+import { withToastr, WithToastrProps } from '../components/toastr';
 
 const steps = [
   {
@@ -60,11 +62,14 @@ type State = Readonly<{
 type Props = {
   match: any;
   push: any;
-  setup: (data: any) => any;
-  checkConfiguration: () => any;
-  isConfigured: boolean | undefined;
-  checkedConfiguration: boolean;
+  history: any;
 };
+type DataProps = {
+  createGroup(options: any): any;
+  createUser(options: any): any;
+  createProject(options: any): any;
+};
+type EnhancedProps = Props & DataProps & WithToastrProps;
 
 const initialState: State = {
   complete: false,
@@ -82,11 +87,11 @@ const initialState: State = {
   },
 };
 
-class Wizard extends Component<Props, State> {
+class Wizard extends Component<EnhancedProps, State> {
   readonly state = initialState;
 
   componentWillMount() {
-    this.props.checkConfiguration();
+    // this.props.checkConfiguration();
 
     const { match } = this.props;
 
@@ -110,8 +115,9 @@ class Wizard extends Component<Props, State> {
     }
   }
 
-  handleSubmit = () => {
+  handleSubmit = async () => {
     const { form } = this.state;
+    const { addToast } = this.props;
 
     const data = {
       user: form['1'],
@@ -131,27 +137,59 @@ class Wizard extends Component<Props, State> {
     }, false);
 
     if (hasEmptyFields) {
-      toastr.error(
+      addToast(
         'Empty fields',
-        'You need to fill out all the mandatory fields before proceeding.'
+        'You need to fill out all the mandatory fields before proceeding.',
+        'negative'
       );
       return;
     }
 
     if (!validateEmail(form[1].email)) {
-      toastr.error(
+      addToast(
         'Invalid email address.',
-        'The email address provided for the master admin account is not a valid email.'
+        'The email address provided for the master admin account is not a valid email.',
+        'negative'
       );
       return;
     }
 
     if (form[1].password !== form[1].confirmPassword) {
-      toastr.error('Password mismatch.', 'The passwords does not match.');
+      addToast(
+        'Password mismatch.',
+        'The passwords does not match.',
+        'negative'
+      );
       return;
     }
 
-    this.props.setup(data);
+    const user = await this.props.createUser({
+      variables: {
+        email: data.user.email,
+        password: data.user.password,
+        firstName: data.user.firstname,
+        lastName: data.user.lastname,
+      },
+    });
+    const project = await this.props.createProject({
+      variables: {
+        name: data.project.name,
+        userId: user.data.createUser.id,
+        role: 'ADMIN',
+      },
+    });
+    const group = await this.props.createGroup({
+      variables: {
+        name: data.group.name,
+        projectId: project.data.createProject.id,
+        usersIds: [user.data.createUser.id],
+        // template: 'TEMPLATE_ID' // TODO: fix?
+      },
+    });
+
+    this.props.history.push('/setup-wizard/step/complete');
+
+    // this.props.setup(data);
   };
 
   handleInputChange = (e: React.FormEvent<HTMLInputElement>, step: number) => {
@@ -173,15 +211,14 @@ class Wizard extends Component<Props, State> {
 
   render() {
     const { step, complete } = this.state;
-    const { checkedConfiguration, isConfigured } = this.props;
 
     const numberOfSteps = steps.length;
     const currentStep = steps[step - 1];
 
     // Should not be able to run wizard if projects already exists
-    if (!checkedConfiguration || isConfigured) {
-      return null;
-    }
+    // if (!this.props.checkedConfiguration || this.props.isConfigured) {
+    //   return null;
+    // }
 
     return (
       <Container>
@@ -260,7 +297,9 @@ class Wizard extends Component<Props, State> {
                       <Button
                         color="blue"
                         onClick={() =>
-                          this.props.push(`/setup-wizard/step/${step + 1}`)
+                          this.props.history.push(
+                            `/setup-wizard/step/${step + 1}`
+                          )
                         }
                       >
                         Next Step
@@ -282,21 +321,32 @@ class Wizard extends Component<Props, State> {
   }
 }
 
-export default connect(
-  (state: any) => ({
-    isConfigured: state.common.isConfigured,
-    checkedConfiguration: state.common.checkedConfiguration,
-  }),
-  (dispatch: any) =>
-    bindActionCreators(
-      {
-        checkConfiguration,
-        push,
-        setup,
-      },
-      dispatch
-    )
-)(Wizard);
+const CREATE_USER = gql`
+  mutation createUser(
+    $email: String!
+    $password: String!
+    $firstName: String!
+    $lastName: String!
+  ) {
+    createUser(
+      authProvider: { email: { email: $email, password: $password } }
+      firstName: $firstName
+      lastName: $lastName
+    ) {
+      id
+      email
+    }
+  }
+`;
+
+const enhance = compose(
+  withToastr,
+  graphql(CREATE_GROUP, { name: 'createGroup' }),
+  graphql(CREATE_PROJECT, { name: 'createProject' }),
+  graphql(CREATE_USER, { name: 'createUser' })
+);
+
+export default enhance(Wizard);
 
 const Container = styled.div`
   background: rgba(243, 101, 70, 1);

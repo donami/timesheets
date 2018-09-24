@@ -14,12 +14,14 @@ export const UPDATE_GROUP = gql`
     $name: String!
     $projectId: ID
     $templateId: ID
+    $usersIds: [ID!]
   ) {
     updateGroup(
       id: $id
       name: $name
       projectId: $projectId
       templateId: $templateId
+      usersIds: $usersIds
     ) {
       id
       name
@@ -31,13 +33,28 @@ export const UPDATE_GROUP = gql`
         id
         name
       }
+      users {
+        id
+        firstName
+        lastName
+      }
     }
   }
 `;
 
 export const CREATE_GROUP = gql`
-  mutation createGroup($name: String!, $projectId: ID, $templateId: ID) {
-    createGroup(name: $name, projectId: $projectId, templateId: $templateId) {
+  mutation createGroup(
+    $name: String!
+    $projectId: ID
+    $templateId: ID
+    $usersIds: [ID!]
+  ) {
+    createGroup(
+      name: $name
+      projectId: $projectId
+      templateId: $templateId
+      usersIds: $usersIds
+    ) {
       id
       name
       project {
@@ -47,6 +64,11 @@ export const CREATE_GROUP = gql`
       template {
         id
         name
+      }
+      users {
+        id
+        firstName
+        lastName
       }
     }
   }
