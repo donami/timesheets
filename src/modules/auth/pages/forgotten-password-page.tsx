@@ -1,21 +1,29 @@
 import React from 'react';
+import { Query } from 'react-apollo';
 import { compose, withHandlers, withState } from 'recompose';
-import { Input, Button } from 'genui';
+import { Input, Button, Message } from 'genui';
+import gql from 'graphql-tag';
 
 import { Form, BackButton } from '../../common';
-// import { recoverPassword } from '../store/actions';
+import ForgottenPassword from '../components/forgotten-password';
 
-type Props = {
-  // recoverPassword(email: string): any;
-};
+type Props = {};
 type HandlerProps = {
   onSubmit(model: { email: string }): void;
 };
-type StateProps = {
-  submitted: boolean;
+type DataProps = {
+  sendMail(options: any): any;
+  createRecoveryCode(options: any): any;
 };
-type StateHandlers = { setSubmitted(submitted: boolean): void };
-type EnhancedProps = Props & HandlerProps & StateProps & StateHandlers;
+type StateProps = {
+  submitted: string | null;
+};
+type StateHandlers = { setSubmitted(submitted: string): void };
+type EnhancedProps = Props &
+  HandlerProps &
+  StateProps &
+  StateHandlers &
+  DataProps;
 
 const ForgottenPasswordPage: React.SFC<EnhancedProps> = ({
   submitted,
@@ -25,15 +33,21 @@ const ForgottenPasswordPage: React.SFC<EnhancedProps> = ({
     <h3>Recover Password</h3>
 
     {submitted ? (
-      <>
-        <p>
-          An email with a verification link and information on how to reset your
-          password has been sent to your email.
-        </p>
-        <Button to="/" color="green">
-          Go Back
-        </Button>
-      </>
+      <Query query={GET_USER_BY_EMAIL} variables={{ email: submitted }}>
+        {({ loading, data }) => {
+          if (loading) {
+            return null;
+          }
+          if (data && data.allUsers.length) {
+            return <ForgottenPassword user={data.allUsers[0]} />;
+          }
+          return (
+            <Message negative>
+              We could not find any user with that email address.
+            </Message>
+          );
+        }}
+      </Query>
     ) : (
       <Form onValidSubmit={onSubmit}>
         {formState => (
@@ -57,21 +71,23 @@ const ForgottenPasswordPage: React.SFC<EnhancedProps> = ({
   </div>
 );
 
-const enhance = compose<EnhancedProps, Props>(
-  withState('submitted', 'setSubmitted', false),
-  withHandlers<EnhancedProps, HandlerProps>({
-    onSubmit: ({ setSubmitted }) => model => {
-      // this.props.recoverPassword(model.email);
-      console.log(model);
+const GET_USER_BY_EMAIL = gql`
+  query($email: String!) {
+    allUsers(filter: { email: $email }) {
+      id
+      firstName
+      email
+    }
+  }
+`;
 
-      setSubmitted(true);
+const enhance = compose<EnhancedProps, Props>(
+  withState('submitted', 'setSubmitted', null),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onSubmit: ({ setSubmitted }) => async model => {
+      setSubmitted(model.email);
     },
   })
 );
 
 export default enhance(ForgottenPasswordPage);
-
-// export default connect(
-//   undefined,
-//   (dispatch: any) => bindActionCreators({ recoverPassword }, dispatch)
-// )(ForgottenPasswordPage);
