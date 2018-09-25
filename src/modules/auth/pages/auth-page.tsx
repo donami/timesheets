@@ -31,8 +31,8 @@ class AuthPage extends React.Component<EnhancedProps> {
           password,
         },
       });
-      if (res.data.signinUser && res.data.signinUser.token) {
-        localStorage.setItem('token', res.data.signinUser.token);
+      if (res.data.authenticateUser && res.data.authenticateUser.token) {
+        localStorage.setItem('token', res.data.authenticateUser.token);
         history.replace('/');
       }
     } catch (error) {
@@ -159,11 +159,9 @@ const Title = styled.h3`
 
 export const AUTHENTICATE_USER = gql`
   mutation authenticateUser($email: String!, $password: String!) {
-    signinUser(email: { email: $email, password: $password }) {
+    authenticateUser(email: $email, password: $password) {
+      id
       token
-      user {
-        id
-      }
     }
   }
 `;

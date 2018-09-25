@@ -1,26 +1,20 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { Message } from 'genui';
+import { Redirect } from 'react-router';
 import { compose } from 'recompose';
 import gql from 'graphql-tag';
 import { Query, graphql } from 'react-apollo';
 
-import { verifyRecoverCode, recoverPasswordChange } from '../store/actions';
-import { Redirect } from 'react-router';
-import { getPasswordRecoveryState } from '../store/selectors';
 import styled from '../../../styled/styled-components';
 import { RecoverPassword } from '../components';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
 type Props = {
-  verifyRecoverCode(userID: number, code: string): any;
-  recoverPasswordChange(data: any, code: string): any;
-  passwordRecovery: any;
   match: any;
 };
 type DataProps = {
-  updateUserPassword(options: any): any;
+  changePassword(options: any): any;
 };
+type EnhancedProps = Props & DataProps & WithToastrProps;
 
 type State = Readonly<{
   submitted: boolean;
@@ -30,25 +24,32 @@ const initialState: State = {
   submitted: false,
 };
 
-class RecoverPasswordPage extends Component<Props, State> {
+class RecoverPasswordPage extends Component<EnhancedProps, State> {
   readonly state = initialState;
 
-  handleSubmit = (model: any) => {
-    console.log('model', model);
-    const data = {
-      ...model,
-      id: +this.props.passwordRecovery.userId,
-    };
-    // delete data.passwordConfirm;
+  handleSubmit = async (model: any) => {
+    const {
+      match: { params },
+    } = this.props;
 
-    // TODO: update password mutation
+    await this.props.changePassword({
+      variables: {
+        password: model.password,
+        code: params.code,
+      },
+    });
+    this.props.addToast(
+      'Password changed!',
+      'You can now login using your new password',
+      'positive'
+    );
+
     this.setState({ submitted: true });
   };
 
   render() {
     const {
       match: { params },
-      passwordRecovery,
     } = this.props;
 
     if (!params.userId || !params.code) {
@@ -59,17 +60,11 @@ class RecoverPasswordPage extends Component<Props, State> {
       <Container>
         <h3>Recover Password</h3>
 
-        {passwordRecovery.error && (
-          <Message negative className="password-recover-message">
-            {passwordRecovery.error}
-          </Message>
-        )}
-
         <Query
           query={VERIFY_CODE}
           variables={{ code: params.code, userId: params.userId }}
         >
-          {({ loading, error, data }) => {
+          {({ loading, data }) => {
             if (loading) {
               return null;
             }
@@ -102,23 +97,16 @@ const VERIFY_CODE = gql`
 `;
 
 const UPDATE_USER_PASSWORD = gql`
-  mutation($userId: ID!) {
-    updateUser(id: $userId) {
-      __typename
+  mutation($password: String!, $code: String!) {
+    resetPassword(password: $password, code: $code) {
       id
     }
   }
 `;
 
 const enhance = compose(
-  connect(
-    (state: any) => ({
-      passwordRecovery: getPasswordRecoveryState(state),
-    }),
-    (dispatch: any) =>
-      bindActionCreators({ verifyRecoverCode, recoverPasswordChange }, dispatch)
-  ),
-  graphql(UPDATE_USER_PASSWORD, { name: 'updateUserPassword' })
+  withToastr,
+  graphql(UPDATE_USER_PASSWORD, { name: 'changePassword' })
 );
 
 export default enhance(RecoverPasswordPage);

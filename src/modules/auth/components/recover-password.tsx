@@ -38,7 +38,7 @@ const RecoverPassword: React.SFC<EnhancedProps> = ({ userId, onSubmit }) => {
             <Button type="submit" disabled={!formState.isValid} color="green">
               Change password
             </Button>
-            {/* <BackButton>Cancel</BackButton> */}
+            <Button to="/">Cancel</Button>
           </>
         )}
       </Form>

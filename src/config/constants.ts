@@ -21,6 +21,6 @@ export const DEFAULT_USER_IMAGE_FEMALE = 'user_female.png';
 export const DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET = true;
 
 export const API_ENDPOINT_FILE =
-  'https://api.graph.cool/file/v1/cjm8wc3kb0fyb0179vjvepbts';
+  'https://api.graph.cool/file/v1/cjmhdh572edi30115p6cqqfjc';
 export const API_ENDPOINT =
-  'https://api.graph.cool/simple/v1/cjm8wc3kb0fyb0179vjvepbts';
+  'https://api.graph.cool/simple/v1/cjmhdh572edi30115p6cqqfjc';
