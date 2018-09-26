@@ -1,15 +1,10 @@
 import * as React from 'react';
 import { graphql } from 'react-apollo';
+import { Link } from 'react-router-dom';
 import { compose, branch, renderNothing, withHandlers } from 'recompose';
 import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
-import {
-  getGroups,
-  getGroupListPageState,
-  getTotalCount,
-} from '../store/selectors';
 import { PageHeader, Translate } from '../../common';
-import { Link } from 'react-router-dom';
 import { GET_GROUPS } from '../store/queries';
 import { DELETE_GROUP } from '../store/mutations';
 import {

@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { Icon } from 'genui';
+import { compose } from 'recompose';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { searchArticlesClear, searchArticles } from '../store/actions';
-import { getArticleSearchQuery } from '../store/selectors';
-import { compose } from 'recompose';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';

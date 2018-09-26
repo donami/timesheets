@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Provider } from 'react-redux';
+// import { Provider } from 'react-redux';
 import { injectGlobal } from 'styled-components';
-import ReduxToastr from 'react-redux-toastr';
 import { ApolloClient } from 'apollo-client';
 import { ApolloProvider } from 'react-apollo';
 import uuidv4 from 'uuid/v4';
@@ -13,7 +12,7 @@ import { withClientState } from 'apollo-link-state';
 import { createNetworkStatusNotifier } from 'react-apollo-network-status';
 import gql from 'graphql-tag';
 
-import store from './store';
+// import store from './store';
 import { Routing, Toastr } from './modules/common';
 import { theme } from './styled/theme';
 import { resolvers, defaults } from './resolvers';
@@ -232,10 +231,10 @@ class App extends React.Component {
   render() {
     return (
       <ApolloProvider client={client}>
-        <Provider store={store}>
-          <React.Fragment>
-            <Toastr />
-            <ReduxToastr
+        {/* <Provider store={store}> */}
+        <React.Fragment>
+          <Toastr />
+          {/* <ReduxToastr
               timeOut={4000}
               newestOnTop={false}
               preventDuplicates
@@ -243,10 +242,10 @@ class App extends React.Component {
               transitionIn="fadeIn"
               transitionOut="fadeOut"
               progressBar
-            />
-            <Routing />
-          </React.Fragment>
-        </Provider>
+            /> */}
+          <Routing />
+        </React.Fragment>
+        {/* </Provider> */}
       </ApolloProvider>
     );
   }

@@ -23,6 +23,7 @@ export const GET_PROJECT = gql`
       id
       name
       groups {
+        id
         name
         users {
           id
@@ -33,6 +34,7 @@ export const GET_PROJECT = gql`
       members {
         user {
           id
+          email
           firstName
           lastName
         }

@@ -4,11 +4,6 @@ import { compose, branch, renderNothing, withHandlers } from 'recompose';
 
 import { TimesheetTemplateForm } from '../components';
 import { PageHeader } from '../../common';
-import {
-  updateTimesheetTemplate,
-  selectTemplate,
-  fetchTemplateById,
-} from '../store/actions';
 import { GET_TEMPLATE } from '../store/queries';
 import { UPDATE_TEMPLATE, UPDATE_HOURS_DAYS } from '../store/mutations';
 

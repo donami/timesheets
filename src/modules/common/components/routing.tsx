@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
-import { ConnectedRouter } from 'connected-react-router';
+import { Switch, Route, Redirect, HashRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -26,7 +25,6 @@ import {
 } from '../../projects';
 import { GroupViewPage, GroupListPage, GroupAddPage } from '../../groups';
 import textManager from '../../../services/text-manager';
-import { history } from '../../../store';
 import { NotFoundPage, Wizard, SearchPage } from '../pages';
 import { UserRole } from '../../users/store/models';
 import {
@@ -70,7 +68,7 @@ class Routing extends React.Component<Props> {
               </div>
             )}
           />
-          <ConnectedRouter history={history}>
+          <HashRouter>
             <Switch>
               <ProtectedRoute exact path="/" component={DashboardPage} />
               <Route path="/auth" component={AuthPage} />
@@ -220,7 +218,7 @@ class Routing extends React.Component<Props> {
               />
               <Route path="*" component={NotFoundPage} />
             </Switch>
-          </ConnectedRouter>
+          </HashRouter>
         </TextManagerContext.Provider>
       </ThemeProvider>
     );

@@ -1,10 +1,8 @@
 import React from 'react';
+
 import { QuestionArticle } from '../store/models';
 import styled from '../../../styled/styled-components';
 import ArticleListItem from './article-list-item';
-import { connect } from 'react-redux';
-import { getUserEntities } from '../../users/store/selectors';
-import { User } from '../../users/store/models';
 
 type Props = {
   articles: QuestionArticle[];

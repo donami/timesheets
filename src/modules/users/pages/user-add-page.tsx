@@ -76,7 +76,7 @@ const QUERY = gql`
 `;
 
 const CREATE_USER = gql`
-  mutation createUser(
+  mutation(
     $email: String!
     $password: String!
     $firstName: String!
@@ -84,15 +84,20 @@ const CREATE_USER = gql`
     $projectId: ID!
     $groupId: ID!
   ) {
-    createUser(
-      authProvider: { email: { email: $email, password: $password } }
+    createAuthUser(
+      email: $email
+      password: $password
       firstName: $firstName
       lastName: $lastName
       groupId: $groupId
-      projectMember: { role: "USER", projectId: $projectId }
+      projectId: $projectId
+      projectRole: "USER"
+      role: "USER"
     ) {
       id
       email
+      firstName
+      lastName
     }
   }
 `;

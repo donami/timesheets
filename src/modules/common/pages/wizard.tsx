@@ -12,7 +12,6 @@ import {
   WizardStepTwo,
   WizardStepThree,
 } from '../components/wizard';
-import { setup, checkConfiguration } from '../store/actions';
 import WizardComplete from '../components/wizard/complete';
 import { validateEmail } from '../../../utils/helpers';
 import { CREATE_GROUP } from '../../groups/store/mutations';
@@ -174,7 +173,7 @@ class Wizard extends Component<EnhancedProps, State> {
     const project = await this.props.createProject({
       variables: {
         name: data.project.name,
-        userId: user.data.createUser.id,
+        userId: user.data.createAuthUser.id,
         role: 'ADMIN',
       },
     });
@@ -182,14 +181,12 @@ class Wizard extends Component<EnhancedProps, State> {
       variables: {
         name: data.group.name,
         projectId: project.data.createProject.id,
-        usersIds: [user.data.createUser.id],
+        usersIds: [user.data.createAuthUser.id],
         // template: 'TEMPLATE_ID' // TODO: fix?
       },
     });
 
     this.props.history.push('/setup-wizard/step/complete');
-
-    // this.props.setup(data);
   };
 
   handleInputChange = (e: React.FormEvent<HTMLInputElement>, step: number) => {
@@ -322,16 +319,18 @@ class Wizard extends Component<EnhancedProps, State> {
 }
 
 const CREATE_USER = gql`
-  mutation createUser(
+  mutation(
     $email: String!
     $password: String!
     $firstName: String!
     $lastName: String!
   ) {
-    createUser(
-      authProvider: { email: { email: $email, password: $password } }
+    createAuthUser(
+      email: $email
+      password: $password
       firstName: $firstName
       lastName: $lastName
+      role: "ADMIN"
     ) {
       id
       email

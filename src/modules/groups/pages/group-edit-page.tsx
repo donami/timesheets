@@ -6,10 +6,6 @@ import { withRouter } from 'react-router';
 import { GroupForm } from '../components';
 import { PageHeader } from '../../common';
 import { Group } from '../store/models';
-import {
-  getAuthedUserId,
-  getAuthedUserProjectsWhereAdmin,
-} from '../../auth/store/selectors';
 import { Project } from '../../projects/store/models';
 import { GET_PROJECTS } from '../../projects/store/queries';
 import { GET_TEMPLATES } from '../../timesheets/store/queries';

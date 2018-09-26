@@ -1,30 +1,17 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Button, List, Confirm, ActionProps } from 'genui';
+import { compose, withHandlers, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
 
-import { selectGroup, removeGroup } from '../store/actions';
 import { GroupInfo, GroupMemberList } from '../components';
-import {
-  getSelectedGroup,
-  getSelectedGroupTimesheetTemplate,
-  getSelectedGroupId,
-} from '../store/selectors';
 import { Group } from '../store/models';
-import {
-  getSelectedGroupMembers,
-  getSelectedGroupProject,
-} from '../../common/store/selectors';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
 import { Box, Row, Column } from '../../ui';
-import { capitalize } from '../../../utils/helpers';
 import { Switch, Route } from 'react-router-dom';
 import { GroupEditPage } from '../pages';
 import { Project } from '../../projects/store/models';
 import { PageHeader } from '../../common';
-import { compose, withHandlers, branch, renderNothing } from 'recompose';
 import { GET_GROUP, GET_GROUPS } from '../store/queries';
-import { graphql } from 'react-apollo';
 import { DELETE_GROUP } from '../store/mutations';
 
 type Props = {

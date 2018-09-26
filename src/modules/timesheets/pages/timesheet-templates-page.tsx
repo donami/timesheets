@@ -4,10 +4,6 @@ import { graphql } from 'react-apollo';
 import { Link } from 'react-router-dom';
 import { compose, withHandlers, branch, renderNothing } from 'recompose';
 
-import {
-  fetchTimesheetTemplatesIfNeeded,
-  removeTimesheetTemplate,
-} from '../store/actions';
 import { PageHeader, Translate } from '../../common';
 import { GET_TEMPLATES } from '../store/queries';
 import { DELETE_TEMPLATE } from '../store/mutations';

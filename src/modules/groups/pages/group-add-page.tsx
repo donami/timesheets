@@ -4,10 +4,6 @@ import { graphql } from 'react-apollo';
 
 import { GroupForm } from '../components';
 import { PageHeader } from '../../common';
-import {
-  getAuthedUserId,
-  getAuthedUserProjectsWhereAdmin,
-} from '../../auth/store/selectors';
 import { Project } from '../../projects/store/models';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
 import { CREATE_GROUP } from '../store/mutations';

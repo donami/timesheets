@@ -9,8 +9,8 @@ import {
 } from 'recompose';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { gql } from 'apollo-boost';
 import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 type Props = {
   feedback: any;

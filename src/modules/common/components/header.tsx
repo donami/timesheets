@@ -6,10 +6,6 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Dropdown, Icon } from 'genui';
 
-import {
-  getAuthedUser,
-  getUnreadNotifications,
-} from '../../auth/store/selectors';
 import { UserRole } from '../../users/store/models';
 import Avatar from './avatar';
 import Popup from './popup';

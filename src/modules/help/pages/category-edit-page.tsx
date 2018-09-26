@@ -1,20 +1,9 @@
 import React from 'react';
-import {
-  compose,
-  withHandlers,
-  lifecycle,
-  renderComponent,
-  branch,
-} from 'recompose';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { compose, withHandlers, renderComponent, branch } from 'recompose';
+import { graphql } from 'react-apollo';
 
 import { CategoryForm } from '../components';
-import { QuestionCategory } from '../store/models';
-import { updateCategory, selectCategory } from '../store/actions';
-import { getSelectedCategory } from '../store/selectors';
 import { PageHeader } from '../../common';
-import { graphql } from 'react-apollo';
 import { GET_CATEGORY } from '../store/queries';
 import { UPDATE_CATEGORY } from '../store/mutations';
 

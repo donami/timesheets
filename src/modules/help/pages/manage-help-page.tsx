@@ -3,11 +3,6 @@ import { Icon } from 'genui';
 
 import { Row, Column, Box } from '../../ui';
 import { PageHeader } from '../../common';
-import {
-  fetchCategoriesIfNeeded,
-  removeCategory,
-  removeArticle,
-} from '../store/actions';
 import styled from '../../../styled/styled-components';
 import { Link } from 'react-router-dom';
 import ManageCategoriesList from '../components/manage-categories-list';
