@@ -119,7 +119,15 @@ const enhance = compose<EnhancedProps, Props>(
   }),
   withHandlers<EnhancedProps, HandlerProps>({
     onRemoveTemplate: ({ deleteTemplate }) => (id: string) => {
-      deleteTemplate({ variables: { id } });
+      deleteTemplate({
+        variables: { id },
+        optimisticResponse: {
+          deleteTemplate: {
+            id,
+            __typename: 'Template',
+          },
+        },
+      });
     },
   }),
   branch<EnhancedProps>(({ loading }) => loading, renderNothing)

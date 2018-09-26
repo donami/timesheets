@@ -79,8 +79,16 @@ export default compose(
       ...props,
       articles: (props.articles || []).map((article: any) => ({
         ...article,
-        onDeleteAction: (id: string) => {
-          props.deleteArticle({ variables: { id } });
+        onDeleteAction: async (id: string) => {
+          props.deleteArticle({
+            variables: { id },
+            optimisticResponse: {
+              deleteArticle: {
+                id,
+                __typename: 'Article',
+              },
+            },
+          });
         },
       })),
     };

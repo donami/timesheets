@@ -8,9 +8,12 @@ import styled, { withProps } from '../../../styled/styled-components';
 
 type Props = {
   onSubmit: (data: State, categoryId: number) => any;
+  createArticle?(options: any): any;
   article?: QuestionArticle;
   categories: QuestionCategory[];
   category?: QuestionCategory;
+  updateArticle?: any;
+  user?: any;
 };
 
 type State = Readonly<{
@@ -57,17 +60,42 @@ class ArticleForm extends React.Component<Props, State> {
     });
   }
 
-  handleSubmit = (model: any) => {
+  handleSubmit = async (model: any) => {
     const data = {
       ...model,
       categoryId: model.categoryId,
     };
 
-    if (this.props.article && this.props.article.id) {
+    if (
+      this.props.article &&
+      this.props.article.id &&
+      this.props.updateArticle
+    ) {
       data.id = this.props.article.id;
+
+      await this.props.updateArticle({
+        variables: {
+          id: data.id,
+          title: data.title,
+          body: data.body,
+          teaser: data.teaser,
+          categoryId: data.categoryId,
+        },
+      });
+
+      return this.props.onSubmit(data, data.categoryId);
     }
 
-    this.props.onSubmit(data, data.categoryId);
+    if (this.props.createArticle) {
+      await this.props.createArticle({
+        variables: {
+          ...data,
+          authorId: this.props.user.id,
+        },
+      });
+
+      this.props.onSubmit(data, data.categoryId);
+    }
   };
 
   render() {

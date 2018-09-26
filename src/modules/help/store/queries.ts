@@ -1,32 +1,25 @@
 import gql from 'graphql-tag';
-import { Query } from 'react-apollo';
 
-export interface AllCategoriesData {
-  // allPeople: {
-  //   // tslint:disable-next-line:prefer-array-literal
-  //   people: Array<{ name: string }>;
-  // };
-}
-
-export interface AllCategoriesVariables {}
-
-export class GetCategoriesQuery extends Query<
-  AllCategoriesData,
-  AllCategoriesVariables
-> {}
+export const CATEGORY_ITEM_FRAGMENT = gql`
+  fragment categoryItemFragment on Category {
+    __typename
+    id
+    title
+    icon
+    articles {
+      id
+      title
+    }
+  }
+`;
 
 export const GET_CATEGORIES = gql`
   query allCategories {
     allCategories {
-      id
-      title
-      icon
-      articles {
-        id
-        title
-      }
+      ...categoryItemFragment
     }
   }
+  ${CATEGORY_ITEM_FRAGMENT}
 `;
 
 export const GET_ARTICLES = gql`
@@ -34,6 +27,9 @@ export const GET_ARTICLES = gql`
     allArticles {
       id
       title
+      feedback {
+        id
+      }
     }
   }
 `;
@@ -96,6 +92,38 @@ export const GET_ARTICLE = gql`
         negative
         neutral
       }
+    }
+  }
+`;
+
+export const ARTICLE_FRAGMENT = gql`
+  fragment articleFragment on Article {
+    id
+    title
+    teaser
+    body
+    createdAt
+    updatedAt
+    author {
+      id
+      firstName
+      lastName
+      image {
+        __typename
+        id
+        name
+        url
+      }
+    }
+    category {
+      id
+      title
+    }
+    feedback {
+      id
+      positive
+      negative
+      neutral
     }
   }
 `;

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { TEMPLATE_LIST_ITEM_FRAGMENT } from './fragments';
 
 export const TIMESHEET_LIST_ITEM_FRAGMENT = gql`
   fragment TimesheetListItem on Timesheet {
@@ -69,24 +70,6 @@ export const GET_TIMESHEET = gql`
       status
       updatedAt
       createdAt
-    }
-  }
-`;
-
-export const TEMPLATE_LIST_ITEM_FRAGMENT = gql`
-  fragment TemplateListItem on Template {
-    id
-    name
-    workHoursPerDay
-    shiftStartTime
-    shiftEndTime
-    hoursDays {
-      id
-      inTime
-      outTime
-      break
-      totalHours
-      holiday
     }
   }
 `;

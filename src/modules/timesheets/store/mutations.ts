@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { TEMPLATE_LIST_ITEM_FRAGMENT } from './fragments';
 
 export const DELETE_TIMESHEET = gql`
   mutation deleteTimesheet($id: ID!) {
@@ -39,6 +40,7 @@ export const ADD_REPORTED_TO_DATE = gql`
 export const DELETE_TEMPLATE = gql`
   mutation deleteTemplate($id: ID!) {
     deleteTemplate(id: $id) {
+      __typename
       id
     }
   }
@@ -59,10 +61,10 @@ export const CREATE_TEMPLATE = gql`
       shiftEndTime: $shiftEndTime
       hoursDays: $hoursDays
     ) {
-      id
-      name
+      ...TemplateListItem
     }
   }
+  ${TEMPLATE_LIST_ITEM_FRAGMENT}
 `;
 
 export const UPDATE_TEMPLATE = gql`

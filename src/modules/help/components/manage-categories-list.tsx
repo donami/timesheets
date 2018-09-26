@@ -1,6 +1,6 @@
 import React from 'react';
 import { compose, branch, renderComponent, mapProps } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Query } from 'react-apollo';
 import { Link } from 'react-router-dom';
 import { Icon, Confirm, ActionProps } from 'genui';
 
@@ -10,8 +10,6 @@ import { DELETE_CATEGORY } from '../store/mutations';
 import { GET_CATEGORIES } from '../store/queries';
 
 type Props = {
-  categories: any[];
-  loading: boolean;
   deleteCategory: (options: any) => void;
 };
 
@@ -41,20 +39,34 @@ const itemRenderer = (item: any, index: number) => {
   );
 };
 
-const ManageCategoriesList: React.SFC<Props> = ({ categories }) => (
+const ManageCategoriesList: React.SFC<Props> = ({ deleteCategory }) => (
   <div>
-    <List items={categories} renderItem={itemRenderer} />
+    <Query query={GET_CATEGORIES}>
+      {({ data, loading }) => {
+        if (loading) {
+          return null;
+        }
+        const categories = data.allCategories.map((category: any) => ({
+          ...category,
+          onDeleteAction: (id: string) => {
+            deleteCategory({
+              variables: { id },
+              optimisticResponse: {
+                deleteCategory: {
+                  id,
+                  __typename: 'Category',
+                },
+              },
+            });
+          },
+        }));
+        return <List items={categories} renderItem={itemRenderer} />;
+      }}
+    </Query>
   </div>
 );
 
 export default compose(
-  graphql(GET_CATEGORIES, {
-    options: { fetchPolicy: 'cache-and-network' },
-    props: ({ data }: any) => ({
-      categories: data.allCategories || [],
-      loading: data.loading,
-    }),
-  }),
   graphql(DELETE_CATEGORY, {
     name: 'deleteCategory',
     options: {
@@ -73,17 +85,6 @@ export default compose(
         });
       },
     },
-  }),
-  mapProps((props: any) => {
-    return {
-      ...props,
-      categories: (props.categories || []).map((category: any) => ({
-        ...category,
-        onDeleteAction: (id: string) => {
-          props.deleteCategoryMutation({ variables: { id } });
-        },
-      })),
-    };
   }),
   branch((props: any) => props.loading, renderComponent(IsLoading))
 )(ManageCategoriesList);

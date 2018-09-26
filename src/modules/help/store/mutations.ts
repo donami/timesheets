@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { CATEGORY_ITEM_FRAGMENT } from './queries';
 
 export const DELETE_CATEGORY = gql`
   mutation deleteCategory($id: ID!) {
@@ -11,16 +12,16 @@ export const DELETE_CATEGORY = gql`
 export const CREATE_CATEGORY = gql`
   mutation createCategory($title: String!, $icon: String!) {
     createCategory(title: $title, icon: $icon) {
-      id
-      title
-      icon
+      ...categoryItemFragment
     }
   }
+  ${CATEGORY_ITEM_FRAGMENT}
 `;
 
 export const DELETE_ARTICLE = gql`
   mutation deleteArticle($id: ID!) {
     deleteArticle(id: $id) {
+      __typename
       id
     }
   }

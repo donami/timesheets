@@ -5,18 +5,22 @@ import { PageHeader } from '../../common';
 import { compose } from 'recompose';
 import { graphql } from 'react-apollo';
 import { CREATE_CATEGORY } from '../store/mutations';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import { GET_CATEGORIES } from '../store/queries';
 
 type Props = {
-  // createCategory: (data: Partial<QuestionCategory>) => any;
   createCategory(options: any): void;
+  history: any;
 };
+type EnhancedProps = Props & WithToastrProps;
 
-class CategoryAddPage extends Component<Props> {
-  handleSubmit = (data: Partial<QuestionCategory>) => {
-    // this.props.createCategory(data);
-    this.props.createCategory({
+class CategoryAddPage extends Component<EnhancedProps> {
+  handleSubmit = async (data: Partial<QuestionCategory>) => {
+    await this.props.createCategory({
       variables: { title: data.title, icon: data.icon },
     });
+    this.props.addToast('Created', 'Category was created.', 'positive');
+    this.props.history.goBack();
   };
 
   render() {
@@ -29,6 +33,25 @@ class CategoryAddPage extends Component<Props> {
   }
 }
 
-const enhance = compose(graphql(CREATE_CATEGORY, { name: 'createCategory' }));
+const enhance = compose(
+  withToastr,
+  graphql(CREATE_CATEGORY, {
+    name: 'createCategory',
+    options: {
+      update: (proxy, { data: { createCategory } }: { data: any }) => {
+        const { allCategories }: any = proxy.readQuery({
+          query: GET_CATEGORIES,
+        });
+
+        proxy.writeQuery({
+          query: GET_CATEGORIES,
+          data: {
+            allCategories: allCategories.concat(createCategory),
+          },
+        });
+      },
+    },
+  })
+);
 
 export default enhance(CategoryAddPage);

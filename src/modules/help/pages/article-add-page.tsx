@@ -1,6 +1,6 @@
 import React from 'react';
 import { compose, withHandlers } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Mutation } from 'react-apollo';
 
 import { PageHeader } from '../../common';
 import { GET_CATEGORIES } from '../store/queries';
@@ -25,23 +25,34 @@ type HandlerProps = {
 };
 
 type DataProps = {
-  createArticle(options: any): Promise<any>;
   categories: any[];
   user: any;
 };
 
 type EnhancedProps = Props & DataProps & HandlerProps & WithToastrProps;
 
-const ArticleAddPage: React.SFC<EnhancedProps> = ({ categories, onSubmit }) => (
+const ArticleAddPage: React.SFC<EnhancedProps> = ({
+  categories,
+  onSubmit,
+  user,
+}) => (
   <div>
     <PageHeader>Publish new article</PageHeader>
-    <ArticleForm categories={categories} onSubmit={onSubmit} />
+    <Mutation mutation={CREATE_ARTICLE}>
+      {createArticle => (
+        <ArticleForm
+          user={user}
+          createArticle={createArticle}
+          categories={categories}
+          onSubmit={onSubmit}
+        />
+      )}
+    </Mutation>
   </div>
 );
 
 const enhance = compose<EnhancedProps, Props>(
   withToastr,
-  graphql(CREATE_ARTICLE, { name: 'createArticle' }),
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({ user: data.user }),
   }),
@@ -49,15 +60,9 @@ const enhance = compose<EnhancedProps, Props>(
     props: ({ data }: any) => ({ categories: data.allCategories || [] }),
   }),
   withHandlers<Props, HandlerProps>({
-    onSubmit: ({
-      createArticle,
-      user,
-      history,
-      addToast,
-    }: EnhancedProps) => async (data: any) => {
-      await createArticle({
-        variables: { ...data, authorId: user.id },
-      });
+    onSubmit: ({ user, history, addToast }: EnhancedProps) => async (
+      data: any
+    ) => {
       await addToast('Published', 'Article was published.', 'positive');
       history.goBack();
     },

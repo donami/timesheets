@@ -11,6 +11,7 @@ import { BackButton } from '../../common';
 type Props = {
   onSubmit: (data: State) => any;
   initialValues?: TimesheetTemplateItem;
+  createTemplate?(options: any): any;
 };
 
 type State = Readonly<{
@@ -217,8 +218,23 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     return diff - breakInHours;
   };
 
-  handleSubmit = (e: any) => {
+  handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (this.props.createTemplate) {
+      await this.props.createTemplate({
+        variables: {
+          hoursDays: this.state.hoursDays,
+          name: this.state.name,
+          shiftEndTime: this.state.shiftEndTime,
+          shiftStartTime: this.state.shiftStartTime,
+          workHoursPerDay: this.state.workHoursPerDay,
+        },
+      });
+
+      this.props.onSubmit(this.state);
+      return;
+    }
 
     this.props.onSubmit(this.state);
   };
