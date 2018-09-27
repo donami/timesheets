@@ -11,13 +11,14 @@ import {
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
-import { Calendar, TimesheetInfo, TimesheetLogs } from '../components';
+import { TimesheetInfo, TimesheetLogs, Calendar } from '../components';
 import { TimesheetStatus } from '../store/models';
 import { Box } from '../../ui';
 import { PageHeader, ToggleView } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { User, UserRole } from '../../users/store/models';
+import { UserRole } from '../../users/store/models';
 import { paddEmptyDates } from '../../../utils/calendar';
+import { UPDATE_TIMESHEET } from '../store/mutations';
 
 type Props = {
   match: any;
@@ -26,6 +27,7 @@ type Props = {
 type DataProps = {
   timesheet: any;
   loggedInUser: any;
+  updateTimesheet(options: any): any;
 };
 type HandlerProps = {
   onSaveDraft(dates: any[]): any;
@@ -144,20 +146,16 @@ const TimesheetViewPage: React.SFC<any> = ({
                   timesheet={timesheet}
                   owner={timesheet.owner}
                 />
-
-                {timesheet.dates.length > 0 && (
-                  <Calendar
-                    onSaveDraft={onSaveDraft}
-                    onSubmit={onSubmit}
-                    onApprove={onApprove}
-                    onDecline={onDecline}
-                    status={timesheet.status}
-                    dates={parseDates(timesheet.dates)}
-                    editable={editable}
-                    startOfMonth={timesheet.periodStart}
-                    isAdmin={isAdmin}
-                  />
-                )}
+                <Calendar
+                  dates={parseDates(timesheet.dates)}
+                  editable={editable}
+                  isAdmin={isAdmin}
+                  startOfMonth={timesheet.periodStart}
+                  onSaveDraft={onSaveDraft}
+                  onSubmit={onSubmit}
+                  onApprove={onApprove}
+                  onDecline={onDecline}
+                />
               </>
             ),
           },
@@ -229,43 +227,48 @@ const enhance = compose<EnhancedProps, Props>(
       loggedInUser: data.user,
     }),
   }),
+  graphql(UPDATE_TIMESHEET, { name: 'updateTimesheet' }),
   withState('logView', 'setLogView', false),
   withHandlers<EnhancedProps, HandlerProps>({
     onSaveDraft: props => (dates: any[]) => {
       const { timesheet } = props;
-      const data = Object.assign({}, timesheet, {
-        dates,
-        status: TimesheetStatus.InProgressSaved,
-      });
 
-      // props.updateTimesheet(timesheet.id, data);
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.InProgressSaved,
+        },
+      });
     },
     onSubmit: props => (dates: any[]) => {
       const { timesheet } = props;
-      const data = Object.assign({}, timesheet, {
-        dates,
-        status: TimesheetStatus.WaitingForApproval,
-      });
 
-      // props.updateTimesheet(timesheet.id, data);
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.WaitingForApproval,
+        },
+      });
     },
     onApprove: props => () => {
       const { timesheet } = props;
 
-      const data = Object.assign({}, timesheet, {
-        status: TimesheetStatus.Approved,
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.Approved,
+        },
       });
-
-      // props.updateTimesheet(timesheet.id, data);
     },
     onDecline: props => () => {
       const { timesheet } = props;
 
-      const data = Object.assign({}, timesheet, {
-        status: TimesheetStatus.NeedsRevisement,
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.NeedsRevisement,
+        },
       });
-
-      // props.updateTimesheet(timesheet.id, data);
     },
   }),
   branch(({ loading }) => loading, renderNothing)

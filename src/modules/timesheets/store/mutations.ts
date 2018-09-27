@@ -111,3 +111,13 @@ export const UPDATE_HOURS_DAYS = gql`
     }
   }
 `;
+
+export const UPDATE_TIMESHEET = gql`
+  mutation update($id: ID!, $status: String!) {
+    updateTimesheet(id: $id, status: $status) {
+      __typename
+      id
+      status
+    }
+  }
+`;
