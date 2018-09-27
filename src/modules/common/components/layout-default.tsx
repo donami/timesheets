@@ -4,6 +4,11 @@ import styled from 'styled-components';
 import Footer from './footer';
 import Header from './header';
 import Sidebar from './sidebar';
+import { StatusNotifier } from '../../../App';
+import { Loader } from '../../ui';
+import { TransitionGroup, Transition } from 'react-transition-group';
+
+const loaderDuration = 300;
 
 class LayoutDefault extends React.Component {
   render() {
@@ -21,6 +26,18 @@ class LayoutDefault extends React.Component {
             </HeaderContainer>
 
             <MainContentContainer className="main-content-container">
+              <StatusNotifier
+                render={({ loading, error }: any) => (
+                  <Transition in={loading} timeout={loaderDuration}>
+                    {state => (
+                      <Loader
+                        duration={loaderDuration}
+                        transitionState={state}
+                      />
+                    )}
+                  </Transition>
+                )}
+              />
               <MainContent className="main-content">{children}</MainContent>
             </MainContentContainer>
 
@@ -56,11 +73,11 @@ const ContentContainer = styled.div`
 
 const MainContentContainer = styled.div`
   min-height: calc(100% - ${footerHeight + headerHeight}px);
+  position: relative;
 `;
 
 const MainContent = styled.div`
   padding: 20px;
-  position: relative;
 `;
 
 const SideBarContainer = styled.div`

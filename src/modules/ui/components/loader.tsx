@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
-import styled from '../../../styled/styled-components';
+import styled, { withProps, css } from '../../../styled/styled-components';
 
-class Loader extends Component {
+type Props = {
+  transitionState: string;
+  duration: number;
+};
+
+class Loader extends Component<Props> {
   render() {
     return (
-      <Container>
+      <Container
+        transitionState={this.props.transitionState}
+        duration={this.props.duration}
+      >
         <div className="loader">
           <div className="loader-inner">
             <svg
@@ -128,18 +136,44 @@ class Loader extends Component {
 
 export default Loader;
 
-const Container = styled.div`
-  text-align: center;
+const Container = withProps<Props>(styled.div)`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 25;
+  background: #f8f9fd;
+  transition: opacity ${props => props.duration}ms ease-in-out;
+  opacity: 0;
+
+  ${props => {
+    if (props.transitionState === 'entering') {
+      return css`
+        opacity: 0;
+      `;
+    }
+    if (props.transitionState === 'entered') {
+      return css`
+        opacity: 1;
+      `;
+    }
+    if (props.transitionState === 'exiting') {
+      return css`
+        opacity: 1;
+      `;
+    }
+    if (props.transitionState === 'exited') {
+      return css`
+        opacity: 0;
+      `;
+    }
+    return null;
+  }}
 
   .loader {
-    position: absolute;
-    top: 200px;
-    left: 50%;
-  }
-
-  .loader-inner {
-    position: relative;
-    left: -50%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   svg path,

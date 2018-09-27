@@ -40,8 +40,6 @@ import {
 import categoryEditPage from '../../help/pages/category-edit-page';
 import { ThemeProvider } from '../../../styled/styled-components';
 import { theme } from '../../../styled/theme';
-import { StatusNotifier } from '../../../App';
-import { Loader } from '../../ui';
 
 type Props = {};
 
@@ -60,14 +58,6 @@ class Routing extends React.Component<Props> {
     return (
       <ThemeProvider theme={theme}>
         <TextManagerContext.Provider value={this.textManager}>
-          <StatusNotifier
-            render={({ loading, error }: any) => (
-              <div>
-                {loading && <Loader />}
-                {/* {error && <p>Error: {JSON.stringify(error)}</p>} */}
-              </div>
-            )}
-          />
           <HashRouter>
             <Switch>
               <ProtectedRoute exact path="/" component={DashboardPage} />

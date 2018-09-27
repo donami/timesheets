@@ -231,21 +231,10 @@ class App extends React.Component {
   render() {
     return (
       <ApolloProvider client={client}>
-        {/* <Provider store={store}> */}
         <React.Fragment>
           <Toastr />
-          {/* <ReduxToastr
-              timeOut={4000}
-              newestOnTop={false}
-              preventDuplicates
-              position="top-left"
-              transitionIn="fadeIn"
-              transitionOut="fadeOut"
-              progressBar
-            /> */}
           <Routing />
         </React.Fragment>
-        {/* </Provider> */}
       </ApolloProvider>
     );
   }
