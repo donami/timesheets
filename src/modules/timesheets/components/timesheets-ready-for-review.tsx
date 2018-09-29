@@ -20,7 +20,11 @@ const TimesheetsReadyForReview: React.SFC<EnhancedProps> = ({
   ...rest
 }) => (
   <div>
-    <TimesheetList items={timesheets} {...rest} />
+    <TimesheetList
+      noItemsText="No timesheets waiting for approval."
+      items={timesheets}
+      {...rest}
+    />
   </div>
 );
 

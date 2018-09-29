@@ -11,6 +11,7 @@ type Props = {};
 
 type State = {
   value: string;
+  focused: boolean;
 };
 
 type DataProps = {
@@ -22,12 +23,12 @@ type ActionCreatorProps = {
 };
 
 type HandlerProps = {
-  handleSubmit(event: any): void;
   onChange(event: any): void;
 };
 
 type StateHandlerProps = {
   setValue(value: string): void;
+  setFocused(focused: boolean): void;
 };
 
 type EnhancedProps = Props &
@@ -37,20 +38,44 @@ type EnhancedProps = Props &
   StateHandlerProps &
   HandlerProps;
 
-const Search: React.SFC<EnhancedProps> = ({
-  handleSubmit,
-  value,
-  onChange,
-}) => (
-  <Container>
-    <form onSubmit={handleSubmit}>
-      <InputField value={value} onChange={onChange} />
-      <SearchButton type="submit">
-        <Icon name="fas fa-search" />
-      </SearchButton>
-    </form>
-  </Container>
-);
+class Search extends React.Component<EnhancedProps> {
+  inputElement: any;
+
+  handleSubmit = async (event: any) => {
+    event.preventDefault();
+
+    if (!this.props.value.length) {
+      if (!this.props.focused) {
+        this.inputElement.focus();
+        this.props.setFocused(true);
+      }
+      return;
+    }
+
+    await this.props.searchMutation({ variables: { value: this.props.value } });
+    this.props.setValue('');
+    this.props.history.push('/search');
+  };
+  render() {
+    const { value, onChange, setFocused } = this.props;
+    return (
+      <Container>
+        <form onSubmit={this.handleSubmit}>
+          <InputField
+            value={value}
+            onChange={onChange}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            innerRef={node => (this.inputElement = node)}
+          />
+          <SearchButton type="submit">
+            <Icon name="fas fa-search" />
+          </SearchButton>
+        </form>
+      </Container>
+    );
+  }
+}
 
 const SEARCH = gql`
   mutation($value: string) {
@@ -62,18 +87,12 @@ const enhance = compose<EnhancedProps, Props>(
   withRouter,
   graphql(SEARCH, { name: 'searchMutation' }),
   withState<Props, string, 'value', 'setValue'>('value', 'setValue', ''),
+  withState<Props, boolean, 'focused', 'setFocused'>(
+    'focused',
+    'setFocused',
+    false
+  ),
   withHandlers<EnhancedProps, HandlerProps>({
-    handleSubmit: props => async (event: any) => {
-      event.preventDefault();
-
-      if (!props.value.length) {
-        return;
-      }
-
-      await props.searchMutation({ variables: { value: props.value } });
-      props.setValue('');
-      props.history.push('/search');
-    },
     onChange: props => (event: any) => {
       const { value } = event.target;
 
@@ -105,9 +124,18 @@ const InputField = withProps<{ value: string }, HTMLInputElement>(styled.input)`
   border: none;
   transition: background 0.5s ease;
 
+  width: 0px;
+  cursor: pointer;
+
+  -webkit-transition: width .5s;
+	-moz-transition: width .5s;
+	transition: width .5s;
+
   &:focus {
+    width: 200px;
     background: #fff;
     border: 1px solid rgba(34, 36, 38, 0.15);
+    cursor: initial;
   }
 
   ${({ value }) =>
