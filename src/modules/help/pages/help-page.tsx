@@ -1,25 +1,40 @@
 import React from 'react';
-import { compose, branch, renderNothing } from 'recompose';
-import { graphql } from 'react-apollo';
+import { compose } from 'recompose';
+import { graphql, Query } from 'react-apollo';
 
 import { Search, Category } from '../components';
 import { GET_CATEGORIES, SEARCH_QUERY } from '../store/queries';
+import styled from '../../../styled/styled-components';
 
 type Props = {};
 type DataProps = {
-  categories: any[];
-  loading: boolean;
   query: string;
 };
 type EnhancedProps = Props & DataProps;
 
-const HelpPage: React.SFC<EnhancedProps> = ({ categories, query }) => (
+const HelpPage: React.SFC<EnhancedProps> = ({ query }) => (
   <div>
     <Search query={query} />
 
-    {categories.map(category => (
-      <Category key={category.id} category={category} />
-    ))}
+    <Query query={GET_CATEGORIES}>
+      {({ data, loading }) => {
+        if (loading) {
+          return null;
+        }
+
+        if (data.allCategories.length === 0) {
+          return <NoArticles>No articles published yet.</NoArticles>;
+        }
+
+        return (
+          <>
+            {data.allCategories.map((category: any) => (
+              <Category key={category.id} category={category} />
+            ))}
+          </>
+        );
+      }}
+    </Query>
   </div>
 );
 
@@ -28,14 +43,15 @@ const enhance = compose<any, any>(
     props: ({ data }: any) => ({
       query: (data.helpSearch && data.helpSearch.value) || '',
     }),
-  }),
-  graphql(GET_CATEGORIES, {
-    props: ({ data }: any) => ({
-      categories: data.allCategories,
-      loading: data.loading,
-    }),
-  }),
-  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+  })
 );
 
 export default enhance(HelpPage);
+
+const NoArticles = styled.div`
+  background: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  border: #e8e8e8 1px solid;
+  margin: 10px 0;
+`;
