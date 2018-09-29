@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 import styled, { withProps, css } from '../../../styled/styled-components';
 
 type Props = {
-  transitionState: string;
-  duration: number;
+  // transitionState: string;
+  // duration: number;
 };
 
 class Loader extends Component<Props> {
   render() {
     return (
       <Container
-        transitionState={this.props.transitionState}
-        duration={this.props.duration}
+      // transitionState={this.props.transitionState}
+      // duration={this.props.duration}
       >
         <div className="loader">
           <div className="loader-inner">
@@ -136,17 +136,8 @@ class Loader extends Component<Props> {
 
 export default Loader;
 
-const Container = withProps<Props>(styled.div)`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 25;
-  background: #f8f9fd;
-  transition: opacity ${props => props.duration}ms ease-in-out;
-  opacity: 0;
-  display: block;
-
-  ${props => {
+// const Container = withProps<Props>(styled.div)`
+/* ${props => {
     if (props.transitionState === 'entering') {
       return css`
         opacity: 0;
@@ -169,7 +160,16 @@ const Container = withProps<Props>(styled.div)`
       `;
     }
     return null;
-  }}
+  }} */
+/* transition: opacity ${props => props.duration}ms ease-in-out; */
+const Container = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 25;
+  background: #f8f9fd;
+  /* opacity: 0; */
+  /* display: block; */
 
   .loader {
     height: 100%;

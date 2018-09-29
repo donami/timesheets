@@ -1,47 +1,66 @@
 import React, { Component } from 'react';
 import gql from 'graphql-tag';
-import { compose, renderNothing, branch } from 'recompose';
-import { graphql } from 'react-apollo';
+import { Query } from 'react-apollo';
+import { Redirect } from 'react-router';
 
 import { ArticleList } from '../components';
 import styled from '../../../styled/styled-components';
+import SearchLoader from './search-loader';
 
 type Props = {
   query: string;
 };
-type DataProps = {
-  results: any;
-  loading: boolean;
-};
-type EnhancedProps = Props & DataProps;
 
-class SearchResults extends Component<EnhancedProps> {
+class SearchResults extends Component<Props> {
   render() {
-    const { query, results } = this.props;
+    const { query } = this.props;
 
     if (!query) {
-      return null;
-    }
-
-    if (query && results.length === 0) {
-      return (
-        <SearchLabel>
-          Sorry, we couldn't find any articles for: <strong>{query}</strong>
-        </SearchLabel>
-      );
+      return <Redirect to="/help" />;
     }
 
     return (
-      <>
-        <SearchLabel>
-          Search results for: <strong>{query}</strong>
-        </SearchLabel>
+      <Query query={SEARCH_RESULTS} variables={{ query }}>
+        {({ data, loading }) => {
+          if (loading) {
+            return <SearchLoader />;
+          }
 
-        <ArticleList articles={results} />
-      </>
+          const results = data.allArticles;
+
+          if (results.length === 0) {
+            return (
+              <Box>
+                <SearchLabel>
+                  Sorry, we couldn't find any articles matching:{' '}
+                  <strong>{query}</strong>
+                </SearchLabel>
+              </Box>
+            );
+          }
+
+          return (
+            <>
+              <SearchLabel>
+                Search results for: <strong>{query}</strong>
+              </SearchLabel>
+
+              <ArticleList articles={results} />
+            </>
+          );
+        }}
+      </Query>
     );
   }
 }
+
+const Box = styled.div`
+  border-radius: 5px;
+  background: #fff;
+  border: #e8e8e8 1px solid;
+  padding: 10px;
+  margin: 10px 0;
+`;
 
 const SearchLabel = styled.div`
   color: #8f919d;
@@ -58,7 +77,9 @@ const SEARCH_RESULTS = gql`
       teaser
       author {
         id
-        image
+        image {
+          id
+        }
         firstName
         lastName
       }
@@ -68,19 +89,4 @@ const SEARCH_RESULTS = gql`
   }
 `;
 
-const enhance = compose<EnhancedProps, Props>(
-  graphql(SEARCH_RESULTS, {
-    options: (props: EnhancedProps) => ({
-      variables: {
-        query: props.query || '',
-      },
-    }),
-    props: ({ data }: any) => ({
-      results: data.allArticles,
-      loading: data.loading,
-    }),
-  }),
-  branch(({ loading }) => loading, renderNothing)
-);
-
-export default enhance(SearchResults);
+export default SearchResults;

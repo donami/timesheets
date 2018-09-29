@@ -14,7 +14,7 @@ type EnhancedProps = Props & DataProps;
 
 const HelpPage: React.SFC<EnhancedProps> = ({ query }) => (
   <div>
-    <Search query={query} />
+    <Search />
 
     <Query query={GET_CATEGORIES}>
       {({ data, loading }) => {

@@ -17,7 +17,7 @@ type EnhancedProps = Props & DataProps;
 
 const CategoryViewPage: React.SFC<EnhancedProps> = ({ category, query }) => (
   <>
-    <Search query={query} />
+    <Search />
     <Breadcrumb category={category} />
     <CategoryInfo category={category} articles={category.articles} />
   </>

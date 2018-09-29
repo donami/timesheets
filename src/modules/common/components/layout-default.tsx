@@ -7,12 +7,26 @@ import Sidebar from './sidebar';
 import { StatusNotifier } from '../../../App';
 import { Loader } from '../../ui';
 import { Transition } from 'react-transition-group';
+import { match } from 'react-router';
 
 const loaderDuration = 300;
 
-class LayoutDefault extends React.Component {
+type Props = {
+  match: match<any>;
+};
+
+const shouldRenderLoader = (path: string) => {
+  if (['/help/search'].indexOf(path) > -1) {
+    return false;
+  }
+  return true;
+};
+
+class LayoutDefault extends React.Component<Props> {
   render() {
-    const { children } = this.props;
+    const { children, match } = this.props;
+
+    const renderLoader = shouldRenderLoader(match.path);
 
     return (
       <React.Fragment>
@@ -27,16 +41,18 @@ class LayoutDefault extends React.Component {
 
             <MainContentContainer className="main-content-container">
               <StatusNotifier
-                render={({ loading, error }: any) => (
-                  <Transition in={loading} timeout={loaderDuration}>
-                    {state => (
-                      <Loader
-                        duration={loaderDuration}
-                        transitionState={state}
-                      />
-                    )}
-                  </Transition>
-                )}
+                render={
+                  ({ loading, error }: any) =>
+                    loading && renderLoader ? <Loader /> : null
+                  // <Transition in={loading} timeout={loaderDuration}>
+                  //   {state => (
+                  //     <Loader
+                  //       duration={loaderDuration}
+                  //       transitionState={state}
+                  //     />
+                  //   )}
+                  // </Transition>
+                }
               />
               <MainContent className="main-content">{children}</MainContent>
             </MainContentContainer>

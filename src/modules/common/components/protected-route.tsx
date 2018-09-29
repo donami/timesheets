@@ -32,7 +32,7 @@ const ProtectedRoute: React.SFC<Props> = ({
       {...rest}
       render={props =>
         user ? (
-          <LayoutDefault>
+          <LayoutDefault {...props}>
             {roles ? (
               <HasAccess roles={roles}>
                 <Component {...props} />

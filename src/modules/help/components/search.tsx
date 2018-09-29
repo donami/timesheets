@@ -3,14 +3,13 @@ import { Icon } from 'genui';
 import { compose } from 'recompose';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { graphql } from 'react-apollo';
+import { graphql, Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import { withRouter } from 'react-router';
 import { Location } from 'history';
+import { SEARCH_QUERY } from '../store/queries';
 
-type Props = {
-  query: string;
-};
+type Props = {};
 type DataProps = {
   history: any;
   location: Location;
@@ -30,12 +29,6 @@ const initialState: State = {
 
 class Search extends Component<EnhancedProps, State> {
   readonly state = initialState;
-
-  componentWillMount() {
-    if (this.props.query) {
-      this.setState({ value: this.props.query });
-    }
-  }
 
   handleSubmit = (e: any) => {
     e.preventDefault();
@@ -82,37 +75,48 @@ class Search extends Component<EnhancedProps, State> {
   };
 
   render() {
-    const { focused, value } = this.state;
+    const { focused } = this.state;
 
     return (
-      <Container>
-        <h3>Help Center</h3>
-        <Form onSubmit={this.handleSubmit}>
-          <Input
-            onFocus={this.handleFocus}
-            onBlur={this.handleBlur}
-            onChange={this.handleChange}
-            value={value}
-            placeholder="Search in our Help Center..."
-          />
-          <SearchButton type="submit" focused={focused}>
-            <Icon name="fas fa-search" />
-          </SearchButton>
+      <Query query={SEARCH_QUERY}>
+        {({ data, loading }) => {
+          if (loading) {
+            return null;
+          }
+          const searchValue = data.helpSearch.value;
 
-          <ClearButton
-            focused={focused}
-            hasValue={value.length > 0}
-            onClick={this.handleClear}
-          >
-            <Icon name="fas fa-times" />
-          </ClearButton>
-        </Form>
-      </Container>
+          return (
+            <Container>
+              <h3>Help Center</h3>
+              <Form onSubmit={this.handleSubmit}>
+                <Input
+                  onFocus={this.handleFocus}
+                  onBlur={this.handleBlur}
+                  onChange={this.handleChange}
+                  defaultValue={searchValue}
+                  placeholder="Search in our Help Center..."
+                />
+                <SearchButton type="submit" focused={focused}>
+                  <Icon name="fas fa-search" />
+                </SearchButton>
+
+                <ClearButton
+                  focused={focused}
+                  hasValue={searchValue.length > 0}
+                  onClick={this.handleClear}
+                >
+                  <Icon name="fas fa-times" />
+                </ClearButton>
+              </Form>
+            </Container>
+          );
+        }}
+      </Query>
     );
   }
 }
 
-const SEARCH = gql`
+const SEARCH_MUTATION = gql`
   mutation($value: string) {
     helpSearch(value: $value) @client
   }
@@ -120,7 +124,7 @@ const SEARCH = gql`
 
 const enhance = compose<EnhancedProps, Props>(
   withRouter,
-  graphql(SEARCH, { name: 'searchMutation' })
+  graphql(SEARCH_MUTATION, { name: 'searchMutation' })
 );
 export default enhance(Search);
 

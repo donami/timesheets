@@ -23,7 +23,7 @@ type EnhancedProps = Props & DataProps;
 
 const ArticleViewPage: React.SFC<EnhancedProps> = ({ article, query }) => (
   <div>
-    <Search query={query} />
+    <Search />
 
     {article.category && (
       <Breadcrumb category={article.category} article={article} />

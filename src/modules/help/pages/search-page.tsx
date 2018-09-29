@@ -1,28 +1,28 @@
 import React from 'react';
 import { compose } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Query } from 'react-apollo';
 
 import { Search, SearchResults } from '../components';
 import { SEARCH_QUERY } from '../store/queries';
 
 type Props = {};
-type DataProps = { query: string };
-type EnhancedProps = Props & DataProps;
 
-const SearchPage: React.SFC<EnhancedProps> = ({ query }) => (
+const SearchPage: React.SFC<Props> = () => (
   <div>
-    <Search query={query} />
+    <Search />
 
-    <SearchResults query={query} />
+    <Query query={SEARCH_QUERY}>
+      {({ data, loading }) => {
+        if (loading) {
+          return null;
+        }
+
+        const query = data.helpSearch.value;
+
+        return <SearchResults query={query} />;
+      }}
+    </Query>
   </div>
 );
 
-const enhance = compose(
-  graphql(SEARCH_QUERY, {
-    props: ({ data }: any) => ({
-      query: (data.helpSearch && data.helpSearch.value) || '',
-    }),
-  })
-);
-
-export default enhance(SearchPage);
+export default SearchPage;
