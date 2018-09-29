@@ -6,7 +6,7 @@ import Header from './header';
 import Sidebar from './sidebar';
 import { StatusNotifier } from '../../../App';
 import { Loader } from '../../ui';
-import { TransitionGroup, Transition } from 'react-transition-group';
+import { Transition } from 'react-transition-group';
 
 const loaderDuration = 300;
 

@@ -83,9 +83,7 @@ class ExpenseForm extends Component<Props, State> {
   handleItemUpload = (data: any, index: number) => {
     const item = {
       ...this.state.items[index],
-      files: this.state.items[index].files
-        .filter(file => typeof file === 'string')
-        .concat(data),
+      files: this.state.items[index].files.filter(file => file.id).concat(data),
     };
 
     this.setState({

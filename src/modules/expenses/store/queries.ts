@@ -46,7 +46,11 @@ export const GET_EXPENSE = gql`
         amount
         currency
         attachment
-        files
+        files {
+          id
+          name
+          url
+        }
       }
     }
   }

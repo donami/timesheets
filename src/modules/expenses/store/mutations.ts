@@ -13,8 +13,14 @@ export const CREATE_EXPENSE = gql`
     $description: String!
     $ownerId: ID!
     $items: [ExpenseitemsExpenseItem!]
+    $itemsIds: [ID!]
   ) {
-    createExpense(description: $description, ownerId: $ownerId, items: $items) {
+    createExpense(
+      description: $description
+      ownerId: $ownerId
+      items: $items
+      itemsIds: $itemsIds
+    ) {
       __typename
       id
       description
@@ -57,7 +63,7 @@ export const UPDATE_EXPENSE_ITEM = gql`
     $currency: String
     $expenseDate: String
     $expenseType: String
-    $files: [String!]
+    $filesIds: [ID!]
   ) {
     updateExpenseItem(
       id: $id
@@ -65,7 +71,7 @@ export const UPDATE_EXPENSE_ITEM = gql`
       currency: $currency
       expenseDate: $expenseDate
       expenseType: $expenseType
-      files: $files
+      filesIds: $filesIds
     ) {
       __typename
       id
@@ -73,18 +79,25 @@ export const UPDATE_EXPENSE_ITEM = gql`
         __typename
         id
       }
+      files {
+        __typename
+        id
+        url
+        name
+      }
     }
   }
 `;
 
 export const CREATE_EXPENSE_ITEM = gql`
   mutation createExpenseItem(
-    $expenseId: ID!
+    $expenseId: ID
     $amount: Int!
     $currency: String
     $expenseDate: String!
     $expenseType: String!
-    $files: [String!]
+    $files: [ExpenseItemfilesFile!]
+    $filesIds: [ID!]
   ) {
     createExpenseItem(
       expenseId: $expenseId
@@ -93,6 +106,7 @@ export const CREATE_EXPENSE_ITEM = gql`
       expenseDate: $expenseDate
       expenseType: $expenseType
       files: $files
+      filesIds: $filesIds
     ) {
       __typename
       id

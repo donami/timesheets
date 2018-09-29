@@ -17,7 +17,11 @@ type Props = {
     amount: any;
     expenseDate: string;
     expenseType: any;
-    files: any[];
+    files: {
+      id: string;
+      url: string;
+      name: string;
+    }[];
   };
 };
 
@@ -107,17 +111,20 @@ const ExpenseFormLineItem: React.SFC<EnhancedProps> = ({
           {initialValues &&
             initialValues.files && (
               <PreviousFiles>
-                {initialValues.files.map((file: any) => {
-                  if (typeof file !== 'string') {
+                {initialValues.files.map(file => {
+                  // if (typeof file !== 'string') {
+                  //   return null;
+                  // }
+                  if (!file.id) {
                     return null;
                   }
                   return (
-                    <PreviousFileContainer key={file}>
+                    <PreviousFileContainer key={file.id}>
                       <ExpenseLineItemImage image={file} />
                       <span
                         className="fa-stack fa-2x"
                         title="Remove attachment"
-                        onClick={() => onRemoveUploadedFile(file)}
+                        // onClick={() => onRemoveUploadedFile(file)}
                       >
                         <i className="fas fa-circle fa-stack-2x" />
                         <i className="fas fa-times fa-stack-1x fa-inverse" />

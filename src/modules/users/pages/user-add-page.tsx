@@ -6,6 +6,7 @@ import gql from 'graphql-tag';
 import { UserForm } from '../components';
 import { PageHeader } from '../../common';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import { GET_USERS, USER_LIST_ITEM_FRAGMENT } from '../store/queries';
 
 type Props = {};
 type DataProps = {
@@ -95,9 +96,9 @@ const CREATE_USER = gql`
       role: "USER"
     ) {
       id
-      email
       firstName
       lastName
+      disabled
     }
   }
 `;
@@ -113,6 +114,27 @@ const enhance = compose(
   }),
   graphql(CREATE_USER, {
     name: 'createUser',
+    options: {
+      update: (proxy, { data }: any) => {
+        const { allUsers }: any = proxy.readQuery({
+          query: GET_USERS,
+        });
+
+        const item = {
+          ...data.createAuthUser,
+          __typename: 'User',
+          group: null,
+          image: null,
+        };
+
+        proxy.writeQuery({
+          query: GET_USERS,
+          data: {
+            allUsers: allUsers.concat([item]),
+          },
+        });
+      },
+    },
   }),
   branch(({ loading }) => loading, renderNothing)
 );

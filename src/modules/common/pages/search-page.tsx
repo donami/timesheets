@@ -5,6 +5,7 @@ import gql from 'graphql-tag';
 
 import { PageHeader, SearchResult } from '../components';
 import styled from '../../../styled/styled-components';
+import { Redirect } from 'react-router';
 
 type Props = {};
 type DataProps = {
@@ -19,6 +20,10 @@ class SearchPage extends Component<EnhancedProps, State> {
   render() {
     const { users, query } = this.props;
     const regex = new RegExp(query, 'i');
+
+    if (!query) {
+      return <Redirect to="/" />;
+    }
 
     const results = users.filter((user: any) => {
       return user.email.match(regex);
@@ -56,7 +61,11 @@ const SEARCH_QUERY = gql`
       lastName
       email
       disabled
-      image
+      image {
+        id
+        name
+        url
+      }
     }
   }
 `;

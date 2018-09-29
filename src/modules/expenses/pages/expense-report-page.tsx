@@ -13,6 +13,8 @@ import {
   UPDATE_EXPENSE,
 } from '../store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import { map } from 'async';
+import { API_ENDPOINT_FILE } from '../../../config/constants';
 
 type Props = {
   match: any;
@@ -93,27 +95,37 @@ const enhance = compose<EnhancedProps, Props>(
         id: expense.id,
       };
 
-      const itemUpdates = data.items.map((item: any) => {
-        if (item.id) {
-          return updateExpenseItem({
-            variables: {
-              id: item.id,
-              amount: +item.amount,
-              currency: item.currency,
-              expenseDate: item.expenseDate,
-              expenseType: item.expenseType,
-              files: item.files,
-            },
+      const itemUpdates = data.items.map(async (item: any) => {
+        const previousFileIds = item.files
+          .filter((file: any) => file.id)
+          .map((file: any) => file.id);
+
+        const pendingFiles = item.files
+          .filter((file: any) => !file.id)
+          .map(async (file: any) => {
+            const data = new FormData();
+            data.append('data', file);
+
+            const response = await fetch(API_ENDPOINT_FILE, {
+              method: 'POST',
+              body: data,
+            });
+
+            const image = await response.json();
+
+            return image.id;
           });
-        }
-        return createExpenseItem({
+
+        const newFileIds = await Promise.all(pendingFiles);
+
+        return updateExpenseItem({
           variables: {
-            expenseId: expense.id,
+            id: item.id,
             amount: +item.amount,
             currency: item.currency,
             expenseDate: item.expenseDate,
             expenseType: item.expenseType,
-            files: item.files,
+            filesIds: previousFileIds.concat(newFileIds),
           },
         });
       });

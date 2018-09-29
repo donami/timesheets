@@ -144,6 +144,7 @@ const Container = withProps<Props>(styled.div)`
   background: #f8f9fd;
   transition: opacity ${props => props.duration}ms ease-in-out;
   opacity: 0;
+  display: block;
 
   ${props => {
     if (props.transitionState === 'entering') {
@@ -164,6 +165,7 @@ const Container = withProps<Props>(styled.div)`
     if (props.transitionState === 'exited') {
       return css`
         opacity: 0;
+        display: none;
       `;
     }
     return null;
