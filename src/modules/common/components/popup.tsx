@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import styled, { withProps, css } from '../../../styled/styled-components';
+
+import styled from '../../../styled/styled-components';
+import Animation from './animation';
 
 type Props = {
   trigger: any;
@@ -55,7 +57,13 @@ class Popup extends Component<Props, State> {
           onClick: this.handleTriggerClick,
         })}
 
-        <Content open={open}>{open && <>{this.props.content}</>}</Content>
+        <Animation
+          isVisible={open}
+          animationIn="bounceIn"
+          animationOut="bounceOut"
+        >
+          <Content className="popup-content">{this.props.content}</Content>
+        </Animation>
       </Container>
     );
   }
@@ -65,7 +73,7 @@ const Container = styled.div`
   position: relative;
 `;
 
-const Content = withProps<{ open: boolean }, HTMLDivElement>(styled.div)`
+const Content = styled.div`
   position: absolute;
   z-index: 1900;
   border: 1px solid #d4d4d5;
@@ -82,21 +90,8 @@ const Content = withProps<{ open: boolean }, HTMLDivElement>(styled.div)`
   box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12),
     0 2px 10px 0 rgba(34, 36, 38, 0.15);
 
-  visibility: hidden;
-  opacity: 0;
-
-  -webkit-transition: opacity 1s ease;
-  transition: opacity 1s ease;
-
   left: -290px;
-  width: 300px
-
-  ${({ open }) =>
-    open &&
-    css`
-      visibility: visible;
-      opacity: 1;
-    `}
+  width: 300px;
 `;
 
 export default Popup;

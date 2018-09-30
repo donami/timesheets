@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "animate.css": "^3.7.0",
     "apollo-client": "^2.4.2",
     "apollo-link-http": "^1.5.5",
     "apollo-link-state": "^0.4.2",
