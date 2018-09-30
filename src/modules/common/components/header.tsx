@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { compose, branch, renderNothing } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Dropdown, Icon } from 'genui';
 
@@ -21,17 +21,13 @@ type Props = {
 };
 
 type DataProps = {
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    image: string | null;
-    gender?: string;
-  } | null;
-  notifications: any[];
-  loading: boolean;
-  unreadNotificationsCount: number;
-  clearNotification(options: any): any;
+  // user: {
+  //   id: string;
+  //   firstName: string;
+  //   lastName: string;
+  //   image: string | null;
+  //   gender?: string;
+  // } | null;
 };
 
 type EnhancedProps = Props & DataProps;
@@ -61,70 +57,126 @@ const items: DropdownItem[] = [
 ];
 
 class Header extends React.Component<EnhancedProps> {
-  handleNotificationsClick = async () => {
-    const { notifications, clearNotification } = this.props;
-
-    const updates = notifications.map(notification => {
-      return clearNotification({ variables: { id: notification.id } });
-    });
-
-    await Promise.all(updates);
-  };
-
   render() {
-    const {
-      containerHeight,
-      unreadNotificationsCount,
-      user,
-      notifications,
-    } = this.props;
-
-    if (!user) {
-      return null;
-    }
+    const { containerHeight } = this.props;
 
     return (
-      <Container>
-        <RightNode className="right-node" containerHeight={containerHeight}>
-          {/* <LanguageSelector /> */}
+      <Query query={LOGGED_IN_USER}>
+        {({ data: { user }, loading }) => {
+          if (loading) {
+            return null;
+          }
 
-          <HasAccess roles={[UserRole.Admin, UserRole.Manager]}>
-            <div>
-              <Search />
-            </div>
-          </HasAccess>
+          return (
+            <Container>
+              <RightNode
+                className="right-node"
+                containerHeight={containerHeight}
+              >
+                {/* <LanguageSelector /> */}
 
-          <HeaderAction>
-            <Popup
-              trigger={
-                <TriggerAction>
-                  {unreadNotificationsCount > 0 && <Attention />}
-                  <Icon name="far fa-bell" />
-                </TriggerAction>
-              }
-              onClose={this.handleNotificationsClick}
-              content={<Notifications notifications={notifications} />}
-            />
-          </HeaderAction>
+                <HasAccess roles={[UserRole.Admin, UserRole.Manager]}>
+                  <div>
+                    <Search />
+                  </div>
+                </HasAccess>
 
-          <StyledDropdown
-            className="dropdown"
-            items={items}
-            renderItem={(item: DropdownItem) => (
-              <Link to={item.to}>
-                <i className={item.icon} />
-                {item.label}
-              </Link>
-            )}
-          >
-            <Avatar
-              view="sm"
-              avatar={user.image || ''}
-              gender={user.gender || 'unknown'}
-            />
-          </StyledDropdown>
-        </RightNode>
-      </Container>
+                <HeaderAction>
+                  <Query
+                    query={UNREAD_NOTIFICATIONS}
+                    variables={{ userId: user.id }}
+                  >
+                    {({ data, loading }) => {
+                      if (loading) {
+                        return null;
+                      }
+
+                      const unreadCount = data._allNotificationsMeta.count || 0;
+                      const notifications = data.allNotifications;
+
+                      return (
+                        <Mutation
+                          mutation={CLEAR_NOTIFICATION}
+                          update={(proxy, { data }: any) => {
+                            const variables = { userId: user.id };
+                            const query = UNREAD_NOTIFICATIONS;
+
+                            const {
+                              allNotifications,
+                              _allNotificationsMeta,
+                            }: any = proxy.readQuery({
+                              variables,
+                              query,
+                            });
+
+                            const updatedAllNotifications = allNotifications.filter(
+                              (item: any) =>
+                                item.id !== data.updateNotification.id
+                            );
+                            proxy.writeQuery({
+                              variables,
+                              query,
+                              data: {
+                                _allNotificationsMeta: {
+                                  ..._allNotificationsMeta,
+                                  count: updatedAllNotifications.length,
+                                },
+                                allNotifications: updatedAllNotifications,
+                              },
+                            });
+                          }}
+                        >
+                          {clearNotification => (
+                            <Popup
+                              trigger={
+                                <TriggerAction>
+                                  {unreadCount > 0 && <Attention />}
+                                  <Icon name="far fa-bell" />
+                                </TriggerAction>
+                              }
+                              onClose={async () => {
+                                const updates = notifications.map(
+                                  (notification: any) => {
+                                    return clearNotification({
+                                      variables: { id: notification.id },
+                                    });
+                                  }
+                                );
+
+                                await Promise.all(updates);
+                              }}
+                              content={
+                                <Notifications notifications={notifications} />
+                              }
+                            />
+                          )}
+                        </Mutation>
+                      );
+                    }}
+                  </Query>
+                </HeaderAction>
+
+                <StyledDropdown
+                  className="dropdown"
+                  items={items}
+                  renderItem={(item: DropdownItem) => (
+                    <Link to={item.to}>
+                      <i className={item.icon} />
+                      {item.label}
+                    </Link>
+                  )}
+                >
+                  <Avatar
+                    view="sm"
+                    avatar={user.image || ''}
+                    gender={user.gender || 'unknown'}
+                  />
+                </StyledDropdown>
+              </RightNode>
+            </Container>
+          );
+        }}
+      </Query>
     );
   }
 }
@@ -221,56 +273,4 @@ const CLEAR_NOTIFICATION = gql`
   }
 `;
 
-const enhance = compose<any, any>(
-  graphql(LOGGED_IN_USER, {
-    props: ({ data }: any) => ({
-      user: data.user || null,
-    }),
-  }),
-  graphql(UNREAD_NOTIFICATIONS, {
-    options: (props: any) => ({
-      variables: { userId: props.user.id },
-    }),
-    props: ({ data }: any) => ({
-      notifications: data.allNotifications,
-      unreadNotificationsCount:
-        (data._allNotificationsMeta && data._allNotificationsMeta.count) || 0,
-      loading: data.loading,
-    }),
-  }),
-  graphql(CLEAR_NOTIFICATION, {
-    name: 'clearNotification',
-    options: (props: any) => ({
-      update: (proxy, { data }: any) => {
-        const variables = { userId: props.user.id };
-        const query = UNREAD_NOTIFICATIONS;
-
-        const {
-          allNotifications,
-          _allNotificationsMeta,
-        }: any = proxy.readQuery({
-          variables,
-          query,
-        });
-
-        const updatedAllNotifications = allNotifications.filter(
-          (item: any) => item.id !== data.updateNotification.id
-        );
-        proxy.writeQuery({
-          variables,
-          query,
-          data: {
-            _allNotificationsMeta: {
-              ..._allNotificationsMeta,
-              count: updatedAllNotifications.length,
-            },
-            allNotifications: updatedAllNotifications,
-          },
-        });
-      },
-    }),
-  }),
-  branch(({ loading }) => loading, renderNothing)
-);
-
-export default enhance(Header);
+export default Header;

@@ -19,6 +19,7 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 import { UserRole } from '../../users/store/models';
 import { paddEmptyDates } from '../../../utils/calendar';
 import { UPDATE_TIMESHEET } from '../store/mutations';
+import { CREATE_NOTIFICATION } from '../../auth/store/mutations';
 
 type Props = {
   match: any;
@@ -28,6 +29,7 @@ type DataProps = {
   timesheet: any;
   loggedInUser: any;
   updateTimesheet(options: any): any;
+  createNotification(options: any): any;
 };
 type HandlerProps = {
   onSaveDraft(dates: any[]): any;
@@ -227,6 +229,7 @@ const enhance = compose<EnhancedProps, Props>(
       loggedInUser: data.user,
     }),
   }),
+  graphql(CREATE_NOTIFICATION, { name: 'createNotification' }),
   graphql(UPDATE_TIMESHEET, { name: 'updateTimesheet' }),
   withState('logView', 'setLogView', false),
   withHandlers<EnhancedProps, HandlerProps>({
@@ -257,6 +260,15 @@ const enhance = compose<EnhancedProps, Props>(
         variables: {
           id: timesheet.id,
           status: TimesheetStatus.Approved,
+        },
+      });
+
+      props.createNotification({
+        variables: {
+          message: 'Your timesheet was approved.',
+          icon: 'fas fa-check',
+          notificationType: 'TimesheetApproved',
+          userId: timesheet.owner.id,
         },
       });
     },

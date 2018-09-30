@@ -173,9 +173,27 @@ const enhance = compose<EnhancedProps, Props>(
       disable: boolean
     ) => {
       if (disable) {
-        disableUser({ variables: { id: userId } });
+        disableUser({
+          variables: { id: userId },
+          optimisticResponse: {
+            updateUser: {
+              disabled: true,
+              id: userId,
+              __typename: 'User',
+            },
+          },
+        });
       } else {
-        enableUser({ variables: { id: userId } });
+        enableUser({
+          variables: { id: userId },
+          optimisticResponse: {
+            updateUser: {
+              disabled: false,
+              id: userId,
+              __typename: 'User',
+            },
+          },
+        });
       }
     },
   }),
