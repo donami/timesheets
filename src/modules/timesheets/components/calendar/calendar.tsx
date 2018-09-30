@@ -74,6 +74,8 @@ class Calendar extends React.Component<EnhancedProps, State> {
     const breakInHours = toDuration(data.break, 'minutes', 'hours');
     const workHours = timeDiff(data.inTime, data.outTime, 'HH:mm', 'hours');
 
+    // TODO: handle error if workHours is less than 0
+
     const dates = [...this.state.dates];
     const date = { ...this.state.dates[weekIndex][dayIndex] };
     date.hours = workHours - breakInHours;
