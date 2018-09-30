@@ -12,6 +12,7 @@ import CalendarDay from './calendar-day';
 
 type Props = {
   dates: any;
+  status: TimesheetStatus;
   editable: boolean;
   isAdmin: boolean;
   startOfMonth: string;
@@ -99,7 +100,7 @@ class Calendar extends React.Component<EnhancedProps, State> {
   };
 
   render() {
-    const { dates, editable, isAdmin, startOfMonth } = this.props;
+    const { dates, editable, isAdmin, startOfMonth, status } = this.props;
 
     return (
       <>
@@ -139,10 +140,18 @@ class Calendar extends React.Component<EnhancedProps, State> {
         <div>
           {isAdmin && (
             <React.Fragment>
-              <Button color="green" onClick={this.props.onApprove}>
+              <Button
+                color="green"
+                onClick={this.props.onApprove}
+                disabled={status !== TimesheetStatus.WaitingForApproval}
+              >
                 Approve
               </Button>
-              <Button color="red" onClick={this.props.onDecline}>
+              <Button
+                color="red"
+                onClick={this.props.onDecline}
+                disabled={status !== TimesheetStatus.WaitingForApproval}
+              >
                 Decline, needs revisement
               </Button>
             </React.Fragment>

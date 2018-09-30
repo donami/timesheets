@@ -1,8 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { compose, branch, renderNothing } from 'recompose';
-import { graphql, Query, Mutation } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { Dropdown, Icon } from 'genui';
 

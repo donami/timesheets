@@ -1,4 +1,5 @@
 import React from 'react';
+import { compose, withState, withHandlers } from 'recompose';
 import { Input, Icon, Select } from 'genui';
 
 import { Uploader } from '../../common';
@@ -6,7 +7,7 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 import { Column, Row } from '../../ui';
 import ExpenseLineItemImage from './expense-line-item-image';
 import { ExpenseLineItemType } from '../store/models';
-import { compose, withState, withHandlers } from 'recompose';
+import { DatePicker } from '../../common/components';
 
 type Props = {
   onItemChange(e: any): any;
@@ -72,12 +73,10 @@ const ExpenseFormLineItem: React.SFC<EnhancedProps> = ({
           </InputField>
           <InputField>
             <label>Date of expense</label>
-            <Input
-              type="date"
-              name="expenseDate"
-              value={initialValues.expenseDate}
-              placeholder="Expense date"
+            <DatePicker
+              initialDate={initialValues.expenseDate}
               onChange={onItemChange}
+              name="expenseDate"
             />
           </InputField>
           <InputField>

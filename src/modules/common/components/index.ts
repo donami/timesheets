@@ -18,6 +18,7 @@ export { default as PageHeader } from './page-header';
 export { default as Popup } from './popup';
 export { default as Toastr } from './toastr';
 export { default as ToggleView } from './toggle-view';
+export { default as DatePicker } from './date-picker';
 export { default as Feed } from './feed';
 export { default as Modal } from './modal';
 export { default as Search } from './search';

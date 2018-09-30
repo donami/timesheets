@@ -15,6 +15,7 @@ import { Translate, Form } from '../../common';
 import styled from '../../../styled/styled-components';
 import { DELETE_TIMESHEET } from '../store/mutations';
 import { USER_VIEW_PAGE_QUERY } from '../../users/pages/user-view-page';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
 type Props = {
   userProjectId: any;
@@ -27,7 +28,7 @@ type DataProps = {
   confirmTemplates(options: any): any;
   deleteTimesheet(options: any): any;
 };
-type EnhancedProps = Props & DataProps;
+type EnhancedProps = Props & DataProps & WithToastrProps;
 
 type State = {
   generated: {
@@ -121,6 +122,12 @@ class TimesheetGenerator extends React.Component<EnhancedProps, State> {
     });
 
     await Promise.all(inserts);
+    this.setState({ generated: null });
+    this.props.addToast(
+      'Timesheets generated',
+      'The timesheets were generated.',
+      'positive'
+    );
   };
 
   handleCancelTemplates = (e: any) => {
@@ -345,6 +352,7 @@ const CONFIRM_TEMPLATES_MUTATION = gql`
 `;
 
 const enhance = compose<EnhancedProps, Props>(
+  withToastr,
   graphql(CONFIRM_TEMPLATES_MUTATION, { name: 'confirmTemplates' }),
   graphql(DELETE_TIMESHEET, {
     name: 'deleteTimesheet',

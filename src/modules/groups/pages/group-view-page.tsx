@@ -13,6 +13,7 @@ import { Project } from '../../projects/store/models';
 import { PageHeader } from '../../common';
 import { GET_GROUP, GET_GROUPS } from '../store/queries';
 import { DELETE_GROUP } from '../store/mutations';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
 type Props = {
   match: any;
@@ -23,6 +24,7 @@ type Props = {
   group: Group;
   groupMembers: any;
   project: Project;
+  history: any;
 };
 type DataProps = {
   loading: boolean;
@@ -32,7 +34,7 @@ type DataProps = {
 type HandlerProps = {
   onRemove(): void;
 };
-type EnhancedProps = Props & DataProps & HandlerProps;
+type EnhancedProps = Props & DataProps & HandlerProps & WithToastrProps;
 
 const dayMap = {
   0: 'Monday',
@@ -150,6 +152,7 @@ class GroupViewPage extends React.Component<EnhancedProps> {
 }
 
 const enhance = compose(
+  withToastr,
   graphql(GET_GROUP, {
     options: (props: any) => ({
       variables: { id: props.match.params.id },
@@ -179,8 +182,14 @@ const enhance = compose(
     },
   }),
   withHandlers<EnhancedProps, HandlerProps>({
-    onRemove: ({ deleteGroup, group }) => () => {
-      deleteGroup({ variables: { id: group.id } });
+    onRemove: ({ deleteGroup, group, history, addToast }) => async () => {
+      await deleteGroup({ variables: { id: group.id } });
+      history.goBack();
+      addToast(
+        'Group removed',
+        'The group was removed successfully.',
+        'positive'
+      );
     },
   }),
   branch<EnhancedProps>(({ loading }) => loading, renderNothing)

@@ -20,6 +20,7 @@ import { UserRole } from '../../users/store/models';
 import { paddEmptyDates } from '../../../utils/calendar';
 import { UPDATE_TIMESHEET } from '../store/mutations';
 import { CREATE_NOTIFICATION } from '../../auth/store/mutations';
+import { CREATE_LOG } from '../../common/store/mutations';
 
 type Props = {
   match: any;
@@ -30,6 +31,7 @@ type DataProps = {
   loggedInUser: any;
   updateTimesheet(options: any): any;
   createNotification(options: any): any;
+  createLog(options: any): any;
 };
 type HandlerProps = {
   onSaveDraft(dates: any[]): any;
@@ -149,6 +151,7 @@ const TimesheetViewPage: React.SFC<any> = ({
                   owner={timesheet.owner}
                 />
                 <Calendar
+                  status={timesheet.status}
                   dates={parseDates(timesheet.dates)}
                   editable={editable}
                   isAdmin={isAdmin}
@@ -212,17 +215,17 @@ const GET_TIMESHEET = gql`
     user {
       id
       role
+      firstName
+      lastName
     }
   }
 `;
 
 const enhance = compose<EnhancedProps, Props>(
   graphql(GET_TIMESHEET, {
-    options: (props: any) => {
-      return {
-        variables: { id: props.match.params.id },
-      };
-    },
+    options: (props: any) => ({
+      variables: { id: props.match.params.id },
+    }),
     props: ({ data }: any) => ({
       loading: data.loading,
       timesheet: data.Timesheet,
@@ -230,6 +233,31 @@ const enhance = compose<EnhancedProps, Props>(
     }),
   }),
   graphql(CREATE_NOTIFICATION, { name: 'createNotification' }),
+  graphql(CREATE_LOG, {
+    name: 'createLog',
+    options: (props: any) => ({
+      update: (proxy, { data }: any) => {
+        const { Timesheet, user }: any = proxy.readQuery({
+          query: GET_TIMESHEET,
+          variables: { id: props.timesheet.id },
+        });
+
+        proxy.writeQuery({
+          query: GET_TIMESHEET,
+          data: {
+            user,
+            Timesheet: {
+              ...Timesheet,
+              logs: Timesheet.logs.concat(data.createLog),
+            },
+          },
+          variables: {
+            id: props.timesheet.IDBCursor,
+          },
+        });
+      },
+    }),
+  }),
   graphql(UPDATE_TIMESHEET, { name: 'updateTimesheet' }),
   withState('logView', 'setLogView', false),
   withHandlers<EnhancedProps, HandlerProps>({
@@ -244,7 +272,7 @@ const enhance = compose<EnhancedProps, Props>(
       });
     },
     onSubmit: props => (dates: any[]) => {
-      const { timesheet } = props;
+      const { timesheet, loggedInUser } = props;
 
       props.updateTimesheet({
         variables: {
@@ -254,7 +282,11 @@ const enhance = compose<EnhancedProps, Props>(
       });
     },
     onApprove: props => () => {
-      const { timesheet } = props;
+      const { timesheet, loggedInUser } = props;
+
+      if (timesheet.status === TimesheetStatus.Approved) {
+        return;
+      }
 
       props.updateTimesheet({
         variables: {
@@ -269,6 +301,16 @@ const enhance = compose<EnhancedProps, Props>(
           icon: 'fas fa-check',
           notificationType: 'TimesheetApproved',
           userId: timesheet.owner.id,
+        },
+      });
+
+      props.createLog({
+        variables: {
+          message: `Timesheet was approved by ${loggedInUser.firstName} ${
+            loggedInUser.lastName
+          }`,
+          userId: loggedInUser.id,
+          timesheetId: timesheet.id,
         },
       });
     },

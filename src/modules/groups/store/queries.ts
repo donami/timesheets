@@ -34,6 +34,7 @@ export const GET_GROUP = gql`
         firstName
         lastName
         email
+        role
       }
       template {
         id
