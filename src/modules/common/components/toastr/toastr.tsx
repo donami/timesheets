@@ -61,7 +61,7 @@ class Toastr extends Component<EnhancedProps, State> {
     }
     return (
       <Container>
-        <TransitionGroup className="todo-list">
+        <TransitionGroup>
           {this.state.items.map(item => (
             <CSSTransition key={item.id} timeout={500} classNames="fade">
               <ToastrItem

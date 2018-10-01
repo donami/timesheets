@@ -158,6 +158,8 @@ class Header extends React.Component<EnhancedProps> {
                 <StyledDropdown
                   className="dropdown"
                   items={items}
+                  animationIn="flipInY"
+                  animationOut="flipOutY"
                   renderItem={(item: DropdownItem) => (
                     <Link to={item.to}>
                       <i className={item.icon} />

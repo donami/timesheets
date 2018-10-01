@@ -16,7 +16,12 @@ import {
 import ProtectedRoute from './protected-route';
 import { ExpenseReportPage, ExpensesPage } from '../../expenses';
 import { DashboardPage } from '../../dashboard';
-import { AuthPage, LogoutPage, ProfilePage } from '../../auth';
+import {
+  AuthPage,
+  LogoutPage,
+  ProfilePage,
+  NotificationsPage,
+} from '../../auth';
 import { UserListPage, UserViewPage, UserAddPage } from '../../users';
 import {
   ProjectListPage,
@@ -135,6 +140,11 @@ class Routing extends React.Component<Props> {
               <ProtectedRoute
                 path="/profile/:page?"
                 component={ProfilePage}
+                roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
+              />
+              <ProtectedRoute
+                path="/notifications"
+                component={NotificationsPage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute

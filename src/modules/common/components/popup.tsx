@@ -59,8 +59,8 @@ class Popup extends Component<Props, State> {
 
         <Animation
           isVisible={open}
-          animationIn="bounceIn"
-          animationOut="bounceOut"
+          animationIn="flipInY"
+          animationOut="flipOutY"
         >
           <Content className="popup-content">{this.props.content}</Content>
         </Animation>
@@ -80,7 +80,6 @@ const Content = styled.div`
   line-height: 1.4285em;
   max-width: 350px;
   background: #fff;
-  padding: 0.833em 1em;
   font-weight: 400;
   font-style: normal;
   color: rgba(0, 0, 0, 0.87);
