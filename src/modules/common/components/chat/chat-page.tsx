@@ -48,6 +48,12 @@ class ChatPage extends Component<Props> {
           </Query>
         </LeftNode>
         <RightNode>
+          {!chatId && (
+            <NoSelectedChat>
+              <h3>Hello there!</h3>
+              <p>Start chatting by selecting an open chat to the left</p>
+            </NoSelectedChat>
+          )}
           {chatId && (
             <Query query={CHAT_QUERY} variables={{ id: chatId }}>
               {({ data: { Chat: chat, user }, loading }) => {
@@ -137,20 +143,6 @@ const RightNode = styled.div`
   flex: 2;
 `;
 
-export const ChatTop = styled.div`
-  background: #fff;
-  border-bottom: #e8e8e8 1px solid;
-  font-size: 1.3em;
-  text-transform: uppercase;
-  font-weight: 300;
-  height: 60px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding-left: 10px;
-`;
-
 export const ChatTopActions = styled.div`
   height: 100%;
 
@@ -168,5 +160,24 @@ export const ChatTopActions = styled.div`
     &:hover {
       opacity: 0.8;
     }
+  }
+`;
+
+const NoSelectedChat = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  font-style: italic;
+
+  h3 {
+    font-size: 1.8em;
+    font-weight: 300;
+    margin: 0;
+    font-size: 2.4em;
+  }
+  p {
+    font-size: 1.1em;
   }
 `;

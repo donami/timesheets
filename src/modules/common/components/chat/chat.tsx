@@ -2,14 +2,12 @@ import React from 'react';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { History } from 'history';
-import { Icon } from 'genui';
 
 import ChatBottom from './chat-bottom';
-import { ChatTop, CHAT_QUERY, ChatTopActions } from './chat-page';
+import { CHAT_QUERY, ChatTopActions } from './chat-page';
 import ChatPageMessageList from './chat-page-message-list';
 import styled from '../../../../styled/styled-components';
 import CloseChat from './close-chat';
-import { GET_CHATS } from './chat-page-chats';
 import ChatUserInfoAction from './chat-user-info-action';
 
 type Props = {
@@ -169,6 +167,20 @@ export const UPDATE_CHAT_USER = gql`
 `;
 
 export default Chat;
+
+const ChatTop = styled.div`
+  background: #fff;
+  border-bottom: #e8e8e8 1px solid;
+  font-size: 1.3em;
+  text-transform: uppercase;
+  font-weight: 300;
+  height: 60px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 10px;
+`;
 
 const ChatContent = styled.div`
   height: calc(100% - 61px);

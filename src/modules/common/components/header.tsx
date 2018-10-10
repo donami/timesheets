@@ -89,9 +89,6 @@ class Header extends React.Component<EnhancedProps> {
                         <Icon name="far fa-comment-alt" />
                       </TriggerAction>
                     }
-                    onClose={async () => {
-                      // await Promise.all(updates);
-                    }}
                     content={
                       <Query query={GET_CHATS} variables={{ userId: user.id }}>
                         {({ data: { allChats }, loading }) => {

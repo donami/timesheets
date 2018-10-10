@@ -26,6 +26,13 @@ const ChatList: React.SFC<Props> = ({
   return (
     <Feed className="feed chat-list">
       {!noTitle && <Feed.Title>Messages</Feed.Title>}
+      {chats.length === 0 && (
+        <Feed.Item>
+          <NoActiveChats className="chat-list-empty">
+            You have no active chats
+          </NoActiveChats>
+        </Feed.Item>
+      )}
       {chats.map((chat: any) => (
         <Feed.Item key={chat.id} noPadding>
           <Wrapper onClick={() => history.push(`/messages/${chat.id}`)}>
@@ -49,4 +56,12 @@ const Wrapper = styled.div`
     background: rgba(0, 0, 0, 0.08);
     cursor: pointer;
   }
+`;
+
+const NoActiveChats = styled.div`
+  text-align: center;
+  width: 100%;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  font-weight: 300;
 `;

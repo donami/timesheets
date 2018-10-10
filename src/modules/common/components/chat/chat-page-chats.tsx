@@ -88,4 +88,9 @@ const Container = styled.div`
       color: #fff;
     }
   }
+
+  .chat-list-empty {
+    color: #fff;
+    margin: 20px;
+  }
 `;

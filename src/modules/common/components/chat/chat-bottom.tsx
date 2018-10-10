@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Button } from 'genui';
+import { Input, Button, Icon } from 'genui';
 
 import styled from '../../../../styled/styled-components';
 import { compose, withState } from 'recompose';
@@ -46,15 +46,20 @@ const ChatBottom: React.SFC<EnhancedProps> = ({
       }}
     >
       <Container>
-        <Input
+        <StyledInput
+          placeholder="Type your message..."
           value={message}
           onChange={(event: any) => {
             setMessage(event.target.value);
           }}
         />
-        <Button color="blue" type="submit" disabled={message.length === 0}>
-          Send
-        </Button>
+        <StyledButton
+          color="blue"
+          type="submit"
+          disabled={message.length === 0}
+          icon="fas fa-location-arrow"
+          circular
+        />
       </Container>
     </form>
   );
@@ -74,5 +79,16 @@ const Container = styled.div`
   input {
     flex: 1;
     margin-right: 20px;
+  }
+`;
+
+const StyledInput = styled(Input)`
+  border: none;
+`;
+
+const StyledButton = styled(Button)`
+  i,
+  svg {
+    opacity: 1;
   }
 `;
