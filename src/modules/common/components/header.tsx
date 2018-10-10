@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
@@ -14,6 +14,8 @@ import Search from './search';
 import { HasAccess } from '../components';
 import { withProps } from '../../../styled/styled-components';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
+import ChatItem from './chat/chat-item';
+import ChatList from './chat/chat-list';
 
 type Props = {
   containerHeight: number;
@@ -80,7 +82,32 @@ class Header extends React.Component<EnhancedProps> {
                   </div>
                 </HasAccess>
 
-                <HeaderAction>
+                <HeaderAction className="header-action">
+                  <Popup
+                    trigger={
+                      <TriggerAction>
+                        <Icon name="far fa-comment-alt" />
+                      </TriggerAction>
+                    }
+                    onClose={async () => {
+                      // await Promise.all(updates);
+                    }}
+                    content={
+                      <Query query={GET_CHATS} variables={{ userId: user.id }}>
+                        {({ data: { allChats }, loading }) => {
+                          if (loading) {
+                            return null;
+                          }
+                          return (
+                            <ChatList chats={allChats} loggedInUser={user} />
+                          );
+                        }}
+                      </Query>
+                    }
+                  />
+                </HeaderAction>
+
+                <HeaderAction className="header-action" last>
                   <Query
                     query={UNREAD_NOTIFICATIONS}
                     variables={{ userId: user.id }}
@@ -187,10 +214,16 @@ const Container = styled.div`
   border-bottom: #edeef3 1px solid;
 `;
 
-const HeaderAction = styled.div`
-  border-right: 1px solid #edeef3;
-  border-left: 1px solid #edeef3;
-  padding: 0 20px;
+const HeaderAction = withProps<{ last?: boolean }>(styled.div)`
+border-left: 1px solid #edeef3;
+padding: 0 20px;
+margin: 0 !important;
+
+${props =>
+  props.last &&
+  css`
+    border-right: 1px solid #edeef3;
+  `}
 `;
 
 const TriggerAction = styled.div`
@@ -213,6 +246,7 @@ const TriggerAction = styled.div`
 const StyledDropdown = withProps<any>(styled(Dropdown))`
   line-height: normal;
   align-self: center;
+  margin: 0 10px;
 
   i {
     margin-right: 0.5em;
@@ -244,6 +278,34 @@ const RightNode = styled.div`
 
   > div {
     margin: 0 10px;
+  }
+`;
+
+const GET_CHATS = gql`
+  query($userId: ID!) {
+    allChats(filter: { users_some: { user: { id: $userId }, open: true } }) {
+      id
+      messages {
+        id
+        message
+        createdAt
+        owner {
+          id
+          firstName
+          lastName
+        }
+      }
+      users {
+        id
+        unread
+        open
+        user {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
   }
 `;
 

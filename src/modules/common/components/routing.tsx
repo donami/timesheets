@@ -45,6 +45,7 @@ import {
 import categoryEditPage from '../../help/pages/category-edit-page';
 import { ThemeProvider } from '../../../styled/styled-components';
 import { theme } from '../../../styled/theme';
+import { ChatPage } from './chat';
 
 type Props = {};
 
@@ -77,6 +78,11 @@ class Routing extends React.Component<Props> {
                 path="/search"
                 component={SearchPage}
                 roles={[UserRole.Manager, UserRole.Admin]}
+              />
+              <ProtectedRoute
+                path="/messages/:chatId?"
+                component={ChatPage}
+                roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/help/manage/add-category"

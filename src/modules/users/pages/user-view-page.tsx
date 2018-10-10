@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { Button, Dropdown, Message, Icon } from 'genui';
+import gql from 'graphql-tag';
+import { History } from 'history';
 
 import { UserInfo, UserGroups, EditUser, EditUserStatus } from '../components';
 import { Group } from '../../groups/store/models';
@@ -9,15 +11,12 @@ import { PageHeader, Translate, Avatar } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
 import { Link, Switch, Route } from 'react-router-dom';
 import { compose, withHandlers, renderNothing, branch } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Mutation, Query } from 'react-apollo';
 import { DISABLE_USER, ENABLE_USER } from '../store/mutations';
-import { GET_USER } from '../store/queries';
-import {
-  GET_GROUPS,
-  GROUP_LIST_ITEM_FRAGMENT,
-} from '../../groups/store/queries';
-import { GET_PROJECTS } from '../../projects/store/queries';
-import gql from 'graphql-tag';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { CHAT_QUERY } from '../../common/components/chat/chat-page';
+import { GET_CHATS } from '../../common/components/chat/chat-page-chats';
+import CreateChat from '../../common/components/chat/create-chat';
 
 type DropdownItem = {
   label: string;
@@ -30,6 +29,7 @@ type Props = {
   selectUser: (userId: number) => any;
   updateGroupMember: (groupId: number, userId: number) => any;
   groups: Group[];
+  history: History;
   group: Group;
 };
 type DataProps = {
@@ -121,6 +121,8 @@ class UserViewPage extends React.Component<EnhancedProps> {
 
                 <h3>{`${user.firstName} ${user.lastName}`}</h3>
                 <Link to={`/user/${user.id}/edit`}>Edit User</Link>
+
+                <CreateChat history={this.props.history} otherUser={user} />
               </UserCard>
 
               <UserNavigation>

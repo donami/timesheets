@@ -36,6 +36,7 @@ export const GET_USER = gql`
       lastName
       disabled
       email
+      gender
       image {
         __typename
         id

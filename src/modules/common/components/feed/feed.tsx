@@ -6,8 +6,11 @@ import FeedDate from './feed-date';
 import FeedSummary from './feed-summary';
 import FeedLabel from './feed-label';
 import FeedContent from './feed-content';
+import FeedTitle from './feed-title';
 
-type Props = {};
+type Props = {
+  className?: string;
+};
 
 class Feed extends Component<Props> {
   static Item = FeedItem;
@@ -16,9 +19,14 @@ class Feed extends Component<Props> {
   static Summary = FeedSummary;
   static Text = FeedText;
   static Date = FeedDate;
+  static Title = FeedTitle;
 
   render() {
-    return <div>{this.props.children}</div>;
+    const className = this.props.className
+      ? `feed ${this.props.className}`
+      : 'feed';
+
+    return <div className={className}>{this.props.children}</div>;
   }
 }
 

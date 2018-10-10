@@ -16,7 +16,7 @@ type Props = {
 };
 
 const shouldRenderLoader = (path: string) => {
-  if (['/help/search'].indexOf(path) > -1) {
+  if (['/help/search', '/messages', '/messages/:chatId?'].indexOf(path) > -1) {
     return false;
   }
   return true;
@@ -90,10 +90,13 @@ const ContentContainer = styled.div`
 const MainContentContainer = styled.div`
   min-height: calc(100% - ${footerHeight + headerHeight}px);
   position: relative;
+  height: 1px;
 `;
 
 const MainContent = styled.div`
   padding: 20px;
+  min-height: calc(100% - 40px);
+  height: 1px;
 `;
 
 const SideBarContainer = styled.div`

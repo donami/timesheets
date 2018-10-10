@@ -76,6 +76,11 @@ const stateLink = withClientState({
       __typename: 'HelpSearch',
       value: '',
     },
+    chatUserInfo: {
+      __typename: 'ChatUserInfo',
+      user: null,
+      open: false,
+    },
   },
   resolvers: {
     Mutation: {
@@ -107,6 +112,18 @@ const stateLink = withClientState({
             helpSearch: {
               value,
               __typename: 'HelpSearch',
+            },
+          },
+        });
+        return null;
+      },
+      chatUserInfo: (_: any, { user, open }: any, { cache }: any) => {
+        cache.writeData({
+          data: {
+            chatUserInfo: {
+              user,
+              open,
+              __typename: 'ChatUserInfo',
             },
           },
         });
@@ -221,6 +238,15 @@ injectGlobal`
   }
   a {
     color: ${theme.linkColor};
+  }
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #ddd;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #666; 
   }
   #root {
     height: 100%;
