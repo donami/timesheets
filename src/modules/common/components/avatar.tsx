@@ -54,7 +54,7 @@ export default withDefaultProps<Props>(defaultProps)(Avatar);
 
 const StyledAvatar = withProps<Props, HTMLDivElement>(styled.div)`
   display: inline-block;
-  border: #e8e8e8 1px solid;
+  // border: #e8e8e8 1px solid;
 
   ${({ avatar }) =>
     avatar &&

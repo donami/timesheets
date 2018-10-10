@@ -81,10 +81,11 @@ const Container = styled.div`
   height: calc(100% - 40px);
   overflow-y: auto;
 
-  /* .feed-item {
-    &:hover {
-      background: rgba(0, 0, 0, 0.08);
-      cursor: pointer;
+  .chat-list-item {
+    background: inherit;
+
+    h4 {
+      color: #fff;
     }
-  } */
+  }
 `;

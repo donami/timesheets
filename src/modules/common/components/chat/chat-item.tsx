@@ -18,7 +18,7 @@ const ChatItem: React.SFC<Props> = ({ chat, loggedInUser, active }) => {
   )[0];
 
   return (
-    <Container active={active}>
+    <Container active={active} className="chat-list-item">
       <LeftNode>
         <Avatar />
       </LeftNode>
@@ -37,17 +37,6 @@ const ChatItem: React.SFC<Props> = ({ chat, loggedInUser, active }) => {
             <em>No messages yet...</em>
           </p>
         )}
-
-        <Actions>
-          <Link to={`/messages/${chat.id}`}>
-            <Icon name="fas fa-reply" />
-            Reply
-          </Link>
-          <Link to="/">
-            <Icon name="fas fa-eye" />
-            Read
-          </Link>
-        </Actions>
       </RightNode>
     </Container>
   );
@@ -108,25 +97,5 @@ const Top = styled.div`
   span {
     font-size: 0.9em;
     color: #adb5bd;
-  }
-`;
-
-const Actions = styled.div`
-  font-size: 0.8em;
-
-  i,
-  svg {
-    margin-right: 5px;
-  }
-
-  a {
-    display: inline-block;
-    margin-right: 10px;
-    color: #6c757d;
-    transition: opacity 300ms ease-in-out;
-
-    &:hover {
-      opacity: 0.6;
-    }
   }
 `;

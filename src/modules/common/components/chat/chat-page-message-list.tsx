@@ -121,8 +121,8 @@ const Message = withProps<{ me?: boolean }>(styled.div)`
       }
 
       return css`
-        background: #f4f4f4;
-        color: #b6bdc5;
+        background: #fff;
+        color: #343434;
       `;
     }}
   }

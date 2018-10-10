@@ -31,7 +31,9 @@ class ChatPage extends Component<Props> {
       <Container>
         <ChatUserInfo />
         <LeftNode>
-          <ChatTop>Inbox</ChatTop>
+          <div>
+            <h3>Inbox</h3>
+          </div>
 
           <Query query={LOGGED_IN_USER}>
             {({ data: { user }, loading }) => {
@@ -117,8 +119,18 @@ const Container = styled.div`
 
 const LeftNode = styled.div`
   flex: 1;
-  background: #fff;
+  background: #252b32;
   border-right: #e8e8e8 1px solid;
+
+  > div > h3 {
+    color: #fff;
+    padding: 20px;
+    text-transform: uppercase;
+    font-weight: 300;
+    font-size: 1.4em;
+    border-bottom: #40454c 1px solid;
+    margin: 0;
+  }
 `;
 
 const RightNode = styled.div`
@@ -131,7 +143,7 @@ export const ChatTop = styled.div`
   font-size: 1.3em;
   text-transform: uppercase;
   font-weight: 300;
-  height: 39px;
+  height: 60px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -140,11 +152,17 @@ export const ChatTop = styled.div`
 `;
 
 export const ChatTopActions = styled.div`
+  height: 100%;
+
   > div {
-    padding: 10px;
+    height: 100%;
+    width: 60px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     border-left: 1px solid #d4d6d9;
     color: #81868c;
-    display: inline-block;
     cursor: pointer;
 
     &:hover {

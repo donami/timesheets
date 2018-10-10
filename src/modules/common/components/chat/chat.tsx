@@ -171,11 +171,11 @@ export const UPDATE_CHAT_USER = gql`
 export default Chat;
 
 const ChatContent = styled.div`
-  height: calc(100% - 40px);
+  height: calc(100% - 61px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: #fff;
+  background: #e9ecf2;
 `;
 
 const ChatMessages = styled.div`
