@@ -16,6 +16,7 @@ import { withProps } from '../../../styled/styled-components';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
 import ChatItem from './chat/chat-item';
 import ChatList from './chat/chat-list';
+import { GET_CHATS } from './chat/queries';
 
 type Props = {
   containerHeight: number;
@@ -275,34 +276,6 @@ const RightNode = styled.div`
 
   > div {
     margin: 0 10px;
-  }
-`;
-
-const GET_CHATS = gql`
-  query($userId: ID!) {
-    allChats(filter: { users_some: { user: { id: $userId }, open: true } }) {
-      id
-      messages {
-        id
-        message
-        createdAt
-        owner {
-          id
-          firstName
-          lastName
-        }
-      }
-      users {
-        id
-        unread
-        open
-        user {
-          id
-          firstName
-          lastName
-        }
-      }
-    }
   }
 `;
 

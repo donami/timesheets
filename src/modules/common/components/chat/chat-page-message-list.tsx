@@ -41,13 +41,13 @@ const ChatPageMessageList: React.SFC<Props> = ({
                 </MessageMeta>
               </MessageBody>
               <MessageAvatar className="message-avatar">
-                <Avatar avatar={message.owner.image} />
+                <Avatar avatar={message.owner.image} view="sm" />
               </MessageAvatar>
             </>
           ) : (
             <>
               <MessageAvatar className="message-avatar">
-                <Avatar avatar={message.owner.image} />
+                <Avatar avatar={message.owner.image} view="sm" />
               </MessageAvatar>
               <MessageBody className="message-body">
                 <MessageText className="message-text">

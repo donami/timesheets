@@ -10,43 +10,42 @@ type Props = {
   chats: any[];
   loggedInUser: any;
   noTitle?: boolean;
-  history: History;
   match: match<any>;
   location: any;
   activeChatId?: string;
 };
-
-const ChatList: React.SFC<Props> = ({
-  chats,
-  loggedInUser,
-  noTitle,
-  history,
-  activeChatId,
-}) => {
-  return (
-    <Feed className="feed chat-list">
-      {!noTitle && <Feed.Title>Messages</Feed.Title>}
-      {chats.length === 0 && (
-        <Feed.Item>
-          <NoActiveChats className="chat-list-empty">
-            You have no active chats
-          </NoActiveChats>
-        </Feed.Item>
-      )}
-      {chats.map((chat: any) => (
-        <Feed.Item key={chat.id} noPadding>
-          <Wrapper onClick={() => history.push(`/messages/${chat.id}`)}>
-            <ChatItem
-              chat={chat}
-              active={!!(activeChatId && activeChatId === chat.id)}
-              loggedInUser={loggedInUser}
-            />
-          </Wrapper>
-        </Feed.Item>
-      ))}
-    </Feed>
-  );
+type EnhancedProps = Props & {
+  history: History;
 };
+
+class ChatList extends React.Component<EnhancedProps> {
+  render() {
+    const { chats, loggedInUser, noTitle, history, activeChatId } = this.props;
+    return (
+      <Feed className="feed chat-list">
+        {!noTitle && <Feed.Title>Messages</Feed.Title>}
+        {chats.length === 0 && (
+          <Feed.Item>
+            <NoActiveChats className="chat-list-empty">
+              You have no active chats
+            </NoActiveChats>
+          </Feed.Item>
+        )}
+        {chats.map((chat: any) => (
+          <Feed.Item key={chat.id} noPadding>
+            <Wrapper onClick={() => history.push(`/messages/${chat.id}`)}>
+              <ChatItem
+                chat={chat}
+                active={!!(activeChatId && activeChatId === chat.id)}
+                loggedInUser={loggedInUser}
+              />
+            </Wrapper>
+          </Feed.Item>
+        ))}
+      </Feed>
+    );
+  }
+}
 
 export default withRouter(ChatList);
 

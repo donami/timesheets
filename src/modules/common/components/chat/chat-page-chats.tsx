@@ -1,9 +1,10 @@
 import React from 'react';
 import { Query } from 'react-apollo';
-import gql from 'graphql-tag';
 
 import ChatList from './chat-list';
 import styled from '../../../../styled/styled-components';
+import { GET_CHATS } from './queries';
+import ChatLoader from './chat-loader';
 
 type Props = {
   loggedInUserId: string;
@@ -16,11 +17,19 @@ const ChatPageChats: React.SFC<Props> = ({ loggedInUserId, activeChatId }) => {
       <Query query={GET_CHATS} variables={{ userId: loggedInUserId }}>
         {({ data: { allChats, user }, loading }) => {
           if (loading) {
-            return null;
+            return <ChatLoader />;
           }
+
+          const chats = allChats.sort((item: any, other: any) => {
+            return (
+              new Date(other.lastMessage).getTime() -
+              new Date(item.lastMessage).getTime()
+            );
+          });
+
           return (
             <ChatList
-              chats={allChats}
+              chats={chats}
               loggedInUser={user}
               noTitle
               activeChatId={activeChatId}
@@ -31,49 +40,6 @@ const ChatPageChats: React.SFC<Props> = ({ loggedInUserId, activeChatId }) => {
     </Container>
   );
 };
-
-export const GET_CHATS = gql`
-  query($userId: ID!) {
-    allChats(filter: { users_some: { user: { id: $userId }, open: true } }) {
-      __typename
-      id
-      messages {
-        id
-        message
-        createdAt
-        owner {
-          id
-          firstName
-          lastName
-        }
-      }
-      users {
-        __typename
-        id
-        unread
-        open
-        user {
-          __typename
-          id
-          firstName
-          lastName
-        }
-      }
-    }
-    user {
-      id
-      firstName
-      lastName
-      image {
-        __typename
-        id
-        name
-        url
-      }
-      role
-    }
-  }
-`;
 
 export default ChatPageChats;
 
@@ -86,6 +52,14 @@ const Container = styled.div`
 
     h4 {
       color: #fff;
+    }
+
+    &.chat-list-item-unread {
+      background: #2b80ff;
+      h3 {
+        color: #fff !important;
+        font-weight: 700;
+      }
     }
   }
 

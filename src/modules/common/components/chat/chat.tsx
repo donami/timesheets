@@ -1,10 +1,11 @@
 import React from 'react';
-import { Mutation } from 'react-apollo';
+import { Mutation, graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { History } from 'history';
+import { compose } from 'recompose';
 
 import ChatBottom from './chat-bottom';
-import { CHAT_QUERY, ChatTopActions } from './chat-page';
+import { ChatTopActions } from './chat-page';
 import ChatPageMessageList from './chat-page-message-list';
 import styled from '../../../../styled/styled-components';
 import CloseChat from './close-chat';
@@ -17,8 +18,40 @@ type Props = {
   history: History;
 };
 
-class Chat extends React.Component<Props> {
+type DataProps = {
+  updateChatUser(options: any): any;
+};
+type EnhancedProps = Props & DataProps;
+
+class Chat extends React.Component<EnhancedProps> {
   scrollableContent: HTMLElement;
+
+  componentWillMount() {
+    const chatUser = this.props.chat.users.find(
+      (item: any) => item.user.id === this.props.user.id
+    );
+
+    // If the chat is unread for the user it should be updated as no longer unread
+    if (chatUser && chatUser.unread) {
+      this.props.updateChatUser({
+        variables: {
+          chatUserId: chatUser.id,
+          unread: false,
+        },
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom = () => {
+    // scroll chat to bottom
+    if (this.scrollableContent) {
+      this.scrollableContent.scrollTop = this.scrollableContent.scrollHeight;
+    }
+  };
 
   render() {
     const { chatId, chat, user, history } = this.props;
@@ -54,44 +87,14 @@ class Chat extends React.Component<Props> {
             />
           </ChatMessages>
           <ChatBottomContainer>
-            <Mutation
-              mutation={SEND_MESSAGE}
-              update={(proxy, { data: { createChatMessage } }) => {
-                const { Chat, user }: any = proxy.readQuery({
-                  query: CHAT_QUERY,
-                  variables: { id: chatId },
-                });
-
-                proxy.writeQuery({
-                  query: CHAT_QUERY,
-                  data: {
-                    Chat: {
-                      ...Chat,
-                      messages: Chat.messages.concat(createChatMessage),
-                    },
-                    user: {
-                      ...user,
-                    },
-                  },
-                  variables: {
-                    id: chatId,
-                  },
-                });
-
-                // scroll chat to bottom
-                if (this.scrollableContent) {
-                  setTimeout(() => {
-                    this.scrollableContent.scrollTop = this.scrollableContent.scrollHeight;
-                  }, 10);
-                }
-              }}
-            >
+            <Mutation mutation={SEND_MESSAGE}>
               {sendMessage => (
                 <ChatBottom
                   sendMessage={sendMessage}
                   loggedInUserId={user.id}
                   chatUserToId={otherUser.id}
                   chatId={chat.id}
+                  scrollChatToBottom={this.scrollToBottom}
                 />
               )}
             </Mutation>
@@ -103,7 +106,13 @@ class Chat extends React.Component<Props> {
 }
 
 const SEND_MESSAGE = gql`
-  mutation($ownerId: ID!, $message: String!, $chatId: ID!, $chatUserToId: ID!) {
+  mutation(
+    $ownerId: ID!
+    $message: String!
+    $chatId: ID!
+    $chatUserToId: ID!
+    $lastMessage: DateTime
+  ) {
     createChatMessage(message: $message, chatId: $chatId, ownerId: $ownerId) {
       __typename
       id
@@ -117,6 +126,35 @@ const SEND_MESSAGE = gql`
         }
       }
     }
+    updateChat(id: $chatId, lastMessage: $lastMessage) {
+      __typename
+      id
+      lastMessage
+      messages {
+        __typename
+        id
+        message
+        createdAt
+        owner {
+          id
+          image {
+            id
+            url
+          }
+        }
+      }
+      users {
+        __typename
+        id
+        unread
+        open
+        user {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
     updateChatUser(id: $chatUserToId, open: true, unread: true) {
       __typename
       id
@@ -125,8 +163,8 @@ const SEND_MESSAGE = gql`
 `;
 
 export const UPDATE_CHAT_USER = gql`
-  mutation($chatUserId: ID!, $open: Boolean) {
-    updateChatUser(id: $chatUserId, open: $open) {
+  mutation($chatUserId: ID!, $open: Boolean, $unread: Boolean) {
+    updateChatUser(id: $chatUserId, open: $open, unread: $unread) {
       __typename
       id
       unread
@@ -166,7 +204,9 @@ export const UPDATE_CHAT_USER = gql`
   }
 `;
 
-export default Chat;
+export default compose<EnhancedProps, Props>(
+  graphql(UPDATE_CHAT_USER, { name: 'updateChatUser' })
+)(Chat);
 
 const ChatTop = styled.div`
   background: #fff;
@@ -179,7 +219,7 @@ const ChatTop = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding-left: 10px;
+  padding-left: 20px;
 `;
 
 const ChatContent = styled.div`

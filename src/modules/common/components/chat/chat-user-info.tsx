@@ -8,6 +8,7 @@ import { Icon, List } from 'genui';
 import { CHAT_USER_INFO_MUTATION } from './mutations';
 import { GET_USER } from 'src/modules/users/store/queries';
 import Animation from '../../components/animation';
+import { Link } from 'react-router-dom';
 
 type Props = {};
 
@@ -52,7 +53,11 @@ const ChatUserInfo: React.SFC<Props> = () => {
                           <Presentation className="chat-user-presentation">
                             <Avatar view="xl" avatar={User.image} />
 
-                            <h3>{`${User.firstName} ${User.lastName}`}</h3>
+                            <h3>
+                              <Link to={`/user/${User.id}`}>{`${
+                                User.firstName
+                              } ${User.lastName}`}</Link>
+                            </h3>
                           </Presentation>
                           <Info>
                             <List>
@@ -135,5 +140,10 @@ const Presentation = styled.div`
     text-transform: uppercase;
     font-weight: 300;
     font-size: 1.6em;
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
   }
 `;

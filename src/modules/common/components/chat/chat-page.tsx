@@ -12,6 +12,7 @@ import ChatPageChats from './chat-page-chats';
 import { LOGGED_IN_USER } from '../../../auth/store/queries';
 import Chat from './chat';
 import ChatUserInfo from './chat-user-info';
+import ChatLoader from './chat-loader';
 
 type Props = {
   match: match<any>;
@@ -38,7 +39,7 @@ class ChatPage extends Component<Props> {
           <Query query={LOGGED_IN_USER}>
             {({ data: { user }, loading }) => {
               if (loading) {
-                return null;
+                return <ChatLoader />;
               }
 
               return (
@@ -58,7 +59,7 @@ class ChatPage extends Component<Props> {
             <Query query={CHAT_QUERY} variables={{ id: chatId }}>
               {({ data: { Chat: chat, user }, loading }) => {
                 if (loading) {
-                  return null;
+                  return <ChatLoader />;
                 }
 
                 return (
@@ -82,6 +83,7 @@ export const CHAT_QUERY = gql`
   query($id: ID!) {
     Chat(id: $id) {
       id
+      lastMessage
       messages {
         __typename
         id

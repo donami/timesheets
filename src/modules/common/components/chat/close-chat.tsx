@@ -4,7 +4,7 @@ import { Mutation } from 'react-apollo';
 import { Icon } from 'genui';
 
 import { UPDATE_CHAT_USER } from './chat';
-import { GET_CHATS } from './chat-page-chats';
+import { GET_CHATS } from './queries';
 
 type Props = {
   chatAuthedUser: any;

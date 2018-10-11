@@ -2,8 +2,9 @@ import React from 'react';
 import { Button } from 'genui';
 import { History } from 'history';
 import { Mutation } from 'react-apollo';
+
 import { UPDATE_CHAT_USER } from './chat';
-import { GET_CHATS } from './chat-page-chats';
+import { GET_CHATS } from './queries';
 
 type Props = {
   history: History;
@@ -39,8 +40,8 @@ const OpenChat: React.SFC<Props> = ({
       }}
     >
       {openChat => (
-        <Button
-          type="button"
+        <div
+          style={{ cursor: 'pointer' }}
           onClick={async () => {
             const updates = chat.users
               .filter((chatUser: any) => {
@@ -61,7 +62,7 @@ const OpenChat: React.SFC<Props> = ({
           }}
         >
           {children}
-        </Button>
+        </div>
       )}
     </Mutation>
   );

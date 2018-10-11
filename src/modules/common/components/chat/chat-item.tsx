@@ -17,8 +17,18 @@ const ChatItem: React.SFC<Props> = ({ chat, loggedInUser, active }) => {
     (chatUser: any) => chatUser.user.id !== loggedInUser.id
   )[0];
 
+  const chatUserMe = chat.users.find(
+    (chatUser: any) => chatUser.user.id === loggedInUser.id
+  );
+  const unread = !!(chatUserMe && chatUserMe.unread);
+
+  const classes = ['chat-list-item'];
+  if (unread) {
+    classes.push('chat-list-item-unread');
+  }
+
   return (
-    <Container active={active} className="chat-list-item">
+    <Container active={active} unread={unread} className={classes.join(' ')}>
       <LeftNode>
         <Avatar />
       </LeftNode>
@@ -44,16 +54,26 @@ const ChatItem: React.SFC<Props> = ({ chat, loggedInUser, active }) => {
 
 export default ChatItem;
 
-const Container = withProps<{ active?: boolean }>(styled.div)`
+const Container = withProps<{ active?: boolean; unread: boolean }>(styled.div)`
   display: flex;
   align-items: center;
   flex: 1;
   padding: 10px;
 
+  ${({ unread }) =>
+    unread &&
+    css`
+      background: #e2f0ff;
+
+      h3 {
+        color: #777 !important;
+      }
+    `}
+
   ${props => {
     if (props.active) {
       return css`
-        background: #eae6f0;
+        background: #222 !important;
       `;
     }
     return null;

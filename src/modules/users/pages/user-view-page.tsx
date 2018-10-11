@@ -11,11 +11,8 @@ import { PageHeader, Translate, Avatar } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
 import { Link, Switch, Route } from 'react-router-dom';
 import { compose, withHandlers, renderNothing, branch } from 'recompose';
-import { graphql, Mutation, Query } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import { DISABLE_USER, ENABLE_USER } from '../store/mutations';
-import { LOGGED_IN_USER } from '../../auth/store/queries';
-import { CHAT_QUERY } from '../../common/components/chat/chat-page';
-import { GET_CHATS } from '../../common/components/chat/chat-page-chats';
 import CreateChat from '../../common/components/chat/create-chat';
 
 type DropdownItem = {
@@ -117,12 +114,15 @@ class UserViewPage extends React.Component<EnhancedProps> {
           <Column xs={12} sm={3} md={2}>
             <UserLeftColumn>
               <UserCard>
+                <UserCardActions>
+                  <CreateChat history={this.props.history} otherUser={user}>
+                    <Icon name="fas fa-envelope" />
+                  </CreateChat>
+                </UserCardActions>
                 <Avatar view="lg" avatar={user.image} gender={user.gender} />
 
                 <h3>{`${user.firstName} ${user.lastName}`}</h3>
                 <Link to={`/user/${user.id}/edit`}>Edit User</Link>
-
-                <CreateChat history={this.props.history} otherUser={user} />
               </UserCard>
 
               <UserNavigation>
@@ -365,6 +365,12 @@ const UserCard = styled.div`
   }
 
   margin-bottom: 20px;
+`;
+
+const UserCardActions = styled.div`
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
 `;
 
 const UserLeftColumn = styled.div`

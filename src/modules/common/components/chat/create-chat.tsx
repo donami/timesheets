@@ -1,20 +1,22 @@
 import React, { Component } from 'react';
 import { Button } from 'genui';
 import { Mutation, Query } from 'react-apollo';
-import { LOGGED_IN_USER } from '../../../auth/store/queries';
 import { History } from 'history';
-import { GET_CHATS } from './chat-page-chats';
 import gql from 'graphql-tag';
+
+import { LOGGED_IN_USER } from '../../../auth/store/queries';
 import OpenChat from './open-chat';
+import { GET_CHATS } from './queries';
 
 type Props = {
   history: History;
   otherUser: any;
+  children: React.ReactNode;
 };
 
 class CreateChat extends Component<Props> {
   render() {
-    const { otherUser, history } = this.props;
+    const { otherUser, history, children } = this.props;
 
     return (
       <Query query={LOGGED_IN_USER}>
@@ -42,7 +44,7 @@ class CreateChat extends Component<Props> {
                       history={history}
                       loggedInUserId={authedUser.id}
                     >
-                      Send message
+                      {children}
                     </OpenChat>
                   );
                 }
@@ -73,19 +75,20 @@ class CreateChat extends Component<Props> {
                     }}
                   >
                     {createChat => (
-                      <Button
-                        type="button"
+                      <div
+                        style={{ cursor: 'pointer ' }}
                         onClick={() => {
                           createChat({
                             variables: {
                               loggedInUser: authedUser.id,
                               otherUser: otherUser.id,
+                              lastMessage: new Date(),
                             },
                           });
                         }}
                       >
-                        Send message
-                      </Button>
+                        {children}
+                      </div>
                     )}
                   </Mutation>
                 );
@@ -101,14 +104,16 @@ class CreateChat extends Component<Props> {
 export default CreateChat;
 
 const CREATE_CHAT = gql`
-  mutation createChats($loggedInUser: ID!, $otherUser: ID!) {
+  mutation($loggedInUser: ID!, $otherUser: ID!, $lastMessage: DateTime!) {
     createChat(
+      lastMessage: $lastMessage
       users: [
         { open: true, unread: false, userId: $loggedInUser }
         { open: false, unread: false, userId: $otherUser }
       ]
     ) {
       id
+      lastMessage
       messages {
         id
         message

@@ -9,7 +9,7 @@ type Props = {
   chatId: string;
   loggedInUserId: string;
   chatUserToId: string;
-  // message: string;
+  scrollChatToBottom(): void;
 };
 type StateProps = {
   message: '';
@@ -25,24 +25,27 @@ const ChatBottom: React.SFC<EnhancedProps> = ({
   message,
   setMessage,
   chatUserToId,
+  scrollChatToBottom,
 }) => {
   return (
     <form
-      onSubmit={(e: any) => {
+      onSubmit={async (e: any) => {
         e.preventDefault();
 
         if (message.length === 0) {
           return;
         }
-        sendMessage({
+        setMessage('');
+        await sendMessage({
           variables: {
             chatId,
             message,
             chatUserToId,
             ownerId: loggedInUserId,
+            lastMessage: new Date(),
           },
         });
-        setMessage('');
+        scrollChatToBottom();
       }}
     >
       <Container>
