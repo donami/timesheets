@@ -177,6 +177,7 @@ export const UPDATE_CHAT_USER = gql`
       chat {
         __typename
         id
+        lastMessage
         messages {
           id
           message

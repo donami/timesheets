@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from 'genui';
 import { History } from 'history';
 import { Mutation } from 'react-apollo';
 
@@ -27,6 +26,23 @@ const OpenChat: React.SFC<Props> = ({
           variables: { userId: loggedInUserId },
         });
 
+        const existingChat = cache.allChats.find(
+          (chat: any) => chat.id === data.updateChatUser.chat.id
+        );
+
+        let updatedChats = [];
+        if (existingChat) {
+          const index = cache.allChats.indexOf(existingChat);
+
+          updatedChats = [
+            ...cache.allChats.slice(0, index),
+            data.updateChatUser.chat,
+            ...cache.allChats.slice(index + 1),
+          ];
+        } else {
+          updatedChats = [data.updateChatUser.chat, ...cache.allChats];
+        }
+
         proxy.writeQuery({
           query: GET_CHATS,
           variables: {
@@ -34,7 +50,7 @@ const OpenChat: React.SFC<Props> = ({
           },
           data: {
             ...cache,
-            allChats: cache.allChats.concat(data.updateChatUser.chat),
+            allChats: updatedChats,
           },
         });
       }}

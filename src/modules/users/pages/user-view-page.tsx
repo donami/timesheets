@@ -116,7 +116,10 @@ class UserViewPage extends React.Component<EnhancedProps> {
               <UserCard>
                 <UserCardActions>
                   <CreateChat history={this.props.history} otherUser={user}>
-                    <Icon name="fas fa-envelope" />
+                    <span className="fa-stack fa-2x">
+                      <i className="fas fa-circle fa-stack-2x" />
+                      <i className="fas fa-envelope fa-stack-1x fa-inverse" />
+                    </span>
                   </CreateChat>
                 </UserCardActions>
                 <Avatar view="lg" avatar={user.image} gender={user.gender} />
@@ -371,6 +374,13 @@ const UserCardActions = styled.div`
   margin-bottom: 20px;
   display: flex;
   justify-content: flex-end;
+
+  span {
+    font-size: 1em;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 `;
 
 const UserLeftColumn = styled.div`
