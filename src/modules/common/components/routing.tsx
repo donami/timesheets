@@ -46,6 +46,7 @@ import categoryEditPage from '../../help/pages/category-edit-page';
 import { ThemeProvider } from '../../../styled/styled-components';
 import { theme } from '../../../styled/theme';
 import { ChatPage } from './chat';
+import { HelpDeskPage } from '../../tickets';
 
 type Props = {};
 
@@ -122,6 +123,16 @@ class Routing extends React.Component<Props> {
               <ProtectedRoute
                 path="/help/:id"
                 component={ArticleViewPage}
+                roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
+              />
+              <ProtectedRoute
+                path="/help-desk/ticket/:id?"
+                component={HelpDeskPage}
+                roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
+              />
+              <ProtectedRoute
+                path="/help-desk"
+                component={HelpDeskPage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
               />
               <ProtectedRoute

@@ -39,7 +39,7 @@ export const isSameMonthAs = (dateString: string, otherDateString: string) => {
   return date.isSame(other, 'month');
 };
 
-export const dateFormat = (date: string, format: string): string => {
+export const dateFormat = (date: string | Date, format: string): string => {
   return moment(date).format(format);
 };
 
