@@ -27,6 +27,7 @@ export const CREATE_TICKET_MUTATION = gql`
         id
         firstName
         lastName
+        email
       }
       type
       status
@@ -68,6 +69,44 @@ export const CREATE_TICKET_COMMENT = gql`
   }
 `;
 
+export const UPDATE_TICKET = gql`
+  mutation($id: ID!, $status: String, $assignedId: ID) {
+    updateTicket(id: $id, status: $status, assignedId: $assignedId) {
+      __typename
+      id
+      title
+      createdAt
+      updatedAt
+      owner {
+        id
+        firstName
+        lastName
+        email
+      }
+      type
+      status
+      priority
+      assigned {
+        id
+        firstName
+        lastName
+      }
+      description
+      comments {
+        __typename
+        id
+        body
+        createdAt
+        owner {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
+  }
+`;
+
 export const UPDATE_TICKET_STATUS = gql`
   mutation updateTicketStatus($id: ID!, $status: String!) {
     updateTicket(id: $id, status: $status) {
@@ -75,6 +114,15 @@ export const UPDATE_TICKET_STATUS = gql`
       id
       updatedAt
       status
+    }
+  }
+`;
+
+export const DELETE_TICKET = gql`
+  mutation($id: ID!) {
+    deleteTicket(id: $id) {
+      __typename
+      id
     }
   }
 `;

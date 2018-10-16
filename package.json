@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@blueprintjs/core": "^3.7.0",
+    "@blueprintjs/select": "^3.2.0",
     "@types/react-datepicker": "^1.1.7",
     "animate.css": "^3.7.0",
     "apollo-client": "^2.4.2",

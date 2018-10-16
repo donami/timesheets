@@ -26,6 +26,11 @@ export const GET_TICKET = gql`
         id
         firstName
         lastName
+        email
+        image {
+          id
+          url
+        }
       }
       type
       status
@@ -44,6 +49,10 @@ export const GET_TICKET = gql`
           id
           firstName
           lastName
+          image {
+            id
+            url
+          }
         }
       }
     }
@@ -72,6 +81,11 @@ export const GET_ALL_TICKETS = gql`
         id
         firstName
         lastName
+        email
+        image {
+          id
+          url
+        }
       }
       type
       status
@@ -90,6 +104,10 @@ export const GET_ALL_TICKETS = gql`
           id
           firstName
           lastName
+          image {
+            id
+            url
+          }
         }
       }
     }

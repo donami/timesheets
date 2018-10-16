@@ -13,11 +13,15 @@ const TicketStatusLabel: React.SFC<Props> = ({ status }) => {
     [TicketStatus.Closed]: 'red',
   };
 
-  const injectedProps = {
+  const injectedProps: any = {
     color: colors[status],
   };
 
-  return <Label {...injectedProps}>{status}</Label>;
+  return (
+    <Label className="ticket-status-label" {...injectedProps}>
+      {status}
+    </Label>
+  );
 };
 
 export default TicketStatusLabel;

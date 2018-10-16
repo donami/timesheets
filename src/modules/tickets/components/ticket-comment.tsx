@@ -17,7 +17,7 @@ const TicketComment: React.SFC<Props> = ({ comment }) => {
   return (
     <Container>
       <Meta>
-        <Avatar view="xs" />
+        <Avatar view="xs" avatar={comment.owner.image} />
         <Link to={`/user/${comment.owner.id}`}>{`${comment.owner.firstName} ${
           comment.owner.lastName
         }`}</Link>

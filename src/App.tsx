@@ -17,6 +17,8 @@ import { Routing, Toastr } from './modules/common';
 import { theme } from './styled/theme';
 import { resolvers, defaults } from './resolvers';
 import { API_ENDPOINT } from './config/constants';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/select/lib/css/blueprint-select.css';
 
 const {
   NetworkStatusNotifier,
@@ -238,6 +240,11 @@ injectGlobal`
   }
   a {
     color: ${theme.linkColor};
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
   }
   ::-webkit-scrollbar {
     width: 5px;
@@ -250,6 +257,16 @@ injectGlobal`
   }
   #root {
     height: 100%;
+    font-size: 12px;
+    font-family: 'Roboto', sans-serif;
+
+    a {
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
   }
 `;
 

@@ -16,6 +16,11 @@ type TicketUser = {
   id: string;
   firstName: string;
   lastName: string;
+  email: string;
+  image: {
+    id: string;
+    url: string;
+  };
 };
 
 export type Ticket = {

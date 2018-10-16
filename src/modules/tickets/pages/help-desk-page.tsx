@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { PageHeader, NotFoundPage } from 'src/modules/common';
 import { TicketList } from '../components';
-import { Switch, Route, match } from 'react-router-dom';
+import { Switch, Route, match, Link } from 'react-router-dom';
 import TicketView from '../components/ticket-view';
 import {
   TicketQuery,
@@ -19,7 +19,45 @@ type Props = {
   match: match<{ id: string }>;
 };
 
-class HelpDeskPage extends Component<Props> {
+type State = {
+  trail: any[];
+};
+
+class HelpDeskPage extends Component<Props, State> {
+  state: State = {
+    trail: [],
+  };
+
+  componentWillMount() {
+    this.updateBreadcrumbs(this.props);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    this.updateBreadcrumbs(nextProps);
+  }
+
+  updateBreadcrumbs = (props: Props) => {
+    const trail = [{ to: '/help-desk', label: 'Help Desk' }];
+
+    const { match } = props;
+
+    if (match.url === '/help-desk/ticket/create') {
+      trail.push({
+        to: '/help-desk/ticket/create',
+        label: 'Create ticket',
+      });
+    }
+
+    if (match.path === '/help-desk/ticket/:id?') {
+      trail.push({
+        to: `/help-desk/ticket/${match.params.id}`,
+        label: 'View ticket',
+      });
+    }
+
+    this.setState({ trail });
+  };
+
   render() {
     return (
       <div>
@@ -36,6 +74,16 @@ class HelpDeskPage extends Component<Props> {
         >
           Help Desk
         </PageHeader>
+
+        <ul className="bp3-breadcrumbs">
+          {this.state.trail.map(part => (
+            <li key={part.label}>
+              <Link className="bp3-breadcrumb" to={part.to}>
+                {part.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
         <Switch>
           <Route

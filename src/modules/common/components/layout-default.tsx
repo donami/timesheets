@@ -90,13 +90,13 @@ const ContentContainer = styled.div`
 const MainContentContainer = styled.div`
   min-height: calc(100% - ${footerHeight + headerHeight}px);
   position: relative;
-  height: 1px;
+  /* height: 1px; */
 `;
 
 const MainContent = styled.div`
   padding: 20px;
   min-height: calc(100% - 40px);
-  height: 1px;
+  /* height: 1px; */
 `;
 
 const SideBarContainer = styled.div`
