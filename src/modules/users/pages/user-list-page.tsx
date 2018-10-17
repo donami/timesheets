@@ -2,12 +2,20 @@ import * as React from 'react';
 import { Button, StatusColor, TableBuilder, Table } from 'genui';
 import { Link } from 'react-router-dom';
 import { graphql } from 'react-apollo';
-import { compose, withHandlers, branch, renderNothing } from 'recompose';
+import {
+  compose,
+  withHandlers,
+  branch,
+  renderNothing,
+  renderComponent,
+} from 'recompose';
 
 import { PageHeader, Translate, Avatar } from '../../common';
 import styled from '../../../styled/styled-components';
 import { GET_USERS } from '../store/queries';
 import { DELETE_USER, DISABLE_USER, ENABLE_USER } from '../store/mutations';
+import { PageLoader } from 'src/modules/ui';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {};
 type DataProps = {
@@ -100,7 +108,7 @@ const UserListPage: React.SFC<EnhancedProps> = ({ users, onDisableUser }) => (
             <Link to={`/user/${item.id}`}>#{item.id}</Link>
           </Table.Cell>
           <UserCell>
-            <Avatar view="sm" avatar={item.image} gender={item.gender} />
+            <Avatar view="sm" avatar={item.image} name={fullName(item)} />
             <div>
               <Link to={`/user/${item.id}`}>{`${item.firstName} ${
                 item.lastName
@@ -197,7 +205,7 @@ const enhance = compose<EnhancedProps, Props>(
       }
     },
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(UserListPage);

@@ -6,7 +6,6 @@ import Header from './header';
 import Sidebar from './sidebar';
 import { StatusNotifier } from '../../../App';
 import { Loader } from '../../ui';
-import { Transition } from 'react-transition-group';
 import { match } from 'react-router';
 
 const loaderDuration = 300;
@@ -40,20 +39,11 @@ class LayoutDefault extends React.Component<Props> {
             </HeaderContainer>
 
             <MainContentContainer className="main-content-container">
-              <StatusNotifier
-                render={
-                  ({ loading, error }: any) =>
-                    loading && renderLoader ? <Loader /> : null
-                  // <Transition in={loading} timeout={loaderDuration}>
-                  //   {state => (
-                  //     <Loader
-                  //       duration={loaderDuration}
-                  //       transitionState={state}
-                  //     />
-                  //   )}
-                  // </Transition>
+              {/* <StatusNotifier
+                render={({ loading, error }: any) =>
+                  loading && renderLoader ? <Loader /> : null
                 }
-              />
+              /> */}
               <MainContent className="main-content">{children}</MainContent>
             </MainContentContainer>
 

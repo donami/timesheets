@@ -18,7 +18,7 @@ import { Ticket, TicketStatus } from '../store/types';
 import styled from '../../../styled/styled-components';
 import TicketComments from './ticket-comments';
 import TicketReply from './ticket-reply';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import TicketComment from './ticket-comment';
 import { Mutation, graphql } from 'react-apollo';
 import {
@@ -31,13 +31,16 @@ import { GET_TICKET } from '../store/queries';
 import TicketStatusLabel from './ticket-status-label';
 import TicketClosed from './ticket-closed';
 import TicketAssign from './ticket-assign';
-import { Avatar } from 'src/modules/common';
+import { Avatar, NotFoundPage } from '../../common';
 import { Toaster } from './toaster';
 import { compose } from 'recompose';
 import { RouterProps } from 'react-router';
+import { PageLoader } from 'src/modules/ui';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {
-  ticket: Ticket;
+  ticket?: Ticket;
+  loading: boolean;
 };
 
 type DataProps = {
@@ -46,33 +49,19 @@ type DataProps = {
 
 type EnhancedProps = Props & DataProps & RouterProps;
 
-type DropdownItem = {
-  label: string;
-  icon: string;
-  onClick: any;
-};
-
-const TicketView: React.SFC<EnhancedProps> = ({ ticket, data, history }) => {
-  if (data.loading) {
-    return null;
+const TicketView: React.SFC<EnhancedProps> = ({
+  ticket,
+  data,
+  history,
+  loading,
+}) => {
+  if (loading || data.loading) {
+    return <PageLoader />;
   }
 
-  const options = [
-    {
-      label: 'Close ticket',
-      icon: 'far fa-times-circle',
-      onClick: (item: any) => {
-        console.log('clicked', item);
-      },
-    },
-    {
-      label: 'Mark as pending',
-      icon: 'fas fa-clock',
-      onClick: (item: any) => {
-        console.log('clicked', item);
-      },
-    },
-  ];
+  if (!ticket) {
+    return <NotFoundPage />;
+  }
 
   return (
     <Container>
@@ -84,21 +73,6 @@ const TicketView: React.SFC<EnhancedProps> = ({ ticket, data, history }) => {
           </Title>
 
           <TopActions>
-            {/* <StyledDropdown
-              className="dropdown"
-              items={options}
-              renderItem={(item: DropdownItem) => {
-                return (
-                  <div onClick={() => item.onClick(item)}>
-                    <i className={item.icon} />
-                    {item.label}
-                  </div>
-                );
-              }}
-            >
-              <Button icon="fas fa-cog" />
-            </StyledDropdown> */}
-
             <Popover
               content={
                 <Menu>
@@ -141,7 +115,7 @@ const TicketView: React.SFC<EnhancedProps> = ({ ticket, data, history }) => {
               position={Position.BOTTOM_LEFT}
               interactionKind={PopoverInteractionKind.CLICK}
             >
-              <BPButton intent={Intent.NONE} icon="cog" />
+              <BPButton intent={Intent.NONE} icon="cog" minimal />
             </Popover>
 
             <Mutation mutation={UPDATE_TICKET_STATUS}>
@@ -149,6 +123,7 @@ const TicketView: React.SFC<EnhancedProps> = ({ ticket, data, history }) => {
                 <Tooltip content="Mark as done">
                   <BPButton
                     icon="tick"
+                    minimal
                     intent={Intent.SUCCESS}
                     onClick={() => {
                       mutate({
@@ -211,7 +186,7 @@ const TicketView: React.SFC<EnhancedProps> = ({ ticket, data, history }) => {
               }
             >
               <Tooltip content="Remove ticket" position={Position.RIGHT}>
-                <BPButton icon="trash" intent={Intent.DANGER} />
+                <BPButton icon="trash" minimal intent={Intent.DANGER} />
               </Tooltip>
             </Popover>
           </TopActions>
@@ -249,11 +224,13 @@ const TicketView: React.SFC<EnhancedProps> = ({ ticket, data, history }) => {
               });
             }}
           >
-            {mutate => (
+            {(mutate, { loading }) => (
               <TicketReply
+                loading={loading}
                 ticketId={ticket.id}
                 userId={data.user.id}
                 avatar={data.user.image}
+                name={fullName(data.user)}
                 createComment={mutate}
               />
             )}
@@ -272,7 +249,11 @@ const TicketView: React.SFC<EnhancedProps> = ({ ticket, data, history }) => {
             </div>
           </TicketCardTop>
           <TicketCardCenter>
-            <Avatar view="lg" avatar={ticket.owner.image} />
+            <Avatar
+              name={fullName(ticket.owner)}
+              view="lg"
+              avatar={ticket.owner.image}
+            />
 
             <div>
               <h3>{`${ticket.owner.firstName} ${ticket.owner.lastName}`}</h3>

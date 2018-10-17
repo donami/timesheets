@@ -1,102 +1,192 @@
 import React from 'react';
+import initials from 'initials';
+import addPx from 'add-px';
+import contrast from 'contrast';
 
-import {
-  DEFAULT_USER_IMAGE,
-  DEFAULT_USER_IMAGE_FEMALE,
-} from '../../../config/constants';
-import withDefaultProps from './with-default-props';
-import styled, { withProps, css } from '../../../styled/styled-components';
+import styled, { withProps, css } from 'src/styled/styled-components';
+import { fullName } from 'src/utils/helpers';
 
-type Props = {} & DefaultProps;
+// from https://flatuicolors.com/
+const defaultColors = [
+  '#2ecc71', // emerald
+  '#3498db', // peter river
+  '#8e44ad', // wisteria
+  '#e67e22', // carrot
+  '#e74c3c', // alizarin
+  '#1abc9c', // turquoise
+  '#2c3e50', // midnight blue
+];
 
-type DefaultProps = {
-  circular: boolean;
-  avatar: any;
-  gender: string;
-  view: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type AvatarFile = {
+  id: string;
+  url: string;
 };
 
-const defaultProps: DefaultProps = {
-  circular: true,
-  view: 'md',
-  gender: 'male',
-  avatar: DEFAULT_USER_IMAGE,
+function sumChars(str: string) {
+  let sum = 0;
+  // tslint:disable-next-line:no-increment-decrement
+  for (let i = 0; i < str.length; i++) {
+    sum += str.charCodeAt(i);
+  }
+
+  return sum;
+}
+type Props = {
+  borderRadius?: string;
+  src?: string;
+  srcset?: any;
+  user?: {
+    id: string;
+    image: AvatarFile;
+    firstName: string;
+    lastName: string;
+  };
+  name?: string;
+  color?: string;
+  colors?: string[];
+  size?: string;
+  style?: any;
+  onClick?: any;
+  className?: string;
+  avatar?: AvatarFile;
+  view?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 };
 
-const Avatar: React.SFC<Props> = ({ avatar, gender, ...rest }) => {
-  let imageUrl = DEFAULT_USER_IMAGE;
+const sizeMap = {
+  xs: '16',
+  sm: '32',
+  md: '48',
+  lg: '64',
+  xl: '128',
+};
 
-  if (avatar && avatar.url) {
-    imageUrl = avatar.url;
-  } else if (gender) {
-    if (gender === 'female') {
-      imageUrl = DEFAULT_USER_IMAGE_FEMALE;
-    } else if (gender === 'male') {
-      imageUrl = DEFAULT_USER_IMAGE;
+class Avatar extends React.Component<Props> {
+  render() {
+    const {
+      borderRadius = '100%',
+      src: initialSrc,
+      srcset,
+      name: initialName,
+      color,
+      colors = defaultColors,
+      size: initialSize,
+      style,
+      avatar,
+      onClick,
+      className,
+      view,
+      user,
+    } = this.props;
+
+    let src = initialSrc;
+    let name = initialName;
+
+    if (user) {
+      if (user.image && user.image.url) {
+        src = user.image.url;
+      }
+      name = fullName(user);
     }
+
+    if (!name) {
+      throw new Error('Name is required by the avatar component.');
+    }
+
+    const sizeFromView = view && sizeMap[view];
+
+    const abbr = initials(name);
+    const size = initialSize ? addPx(initialSize) : addPx(sizeFromView);
+
+    const imageStyle: any = {
+      borderRadius,
+      display: 'block',
+    };
+
+    const textSizeRatio = 3;
+
+    const innerStyle: any = {
+      borderRadius,
+      lineHeight: size,
+      textAlign: 'center',
+    };
+
+    if (initialSize) {
+      innerStyle.fontSize = Math.floor(+initialSize / textSizeRatio);
+    } else if (view && sizeMap[view]) {
+      innerStyle.fontSize = Math.floor(+sizeMap[view] / textSizeRatio);
+    }
+
+    if (size) {
+      imageStyle.width = innerStyle.width = innerStyle.maxWidth = size;
+      imageStyle.height = innerStyle.height = innerStyle.maxHeight = size;
+    }
+
+    let inner;
+    if (src || srcset || avatar) {
+      const imgSrc = (avatar && avatar.url) || src;
+      inner = (
+        <img
+          className="avatar-image"
+          style={imageStyle}
+          src={imgSrc}
+          srcSet={srcset}
+          alt={name}
+        />
+      );
+    } else {
+      let background;
+      if (color) {
+        background = color;
+      } else {
+        // pick a deterministic color from the list
+        const i = sumChars(name) % colors.length;
+        background = colors[i];
+      }
+
+      innerStyle.backgroundColor = background;
+
+      inner = abbr;
+    }
+
+    let contrastStyle;
+    if (innerStyle.backgroundColor) {
+      contrastStyle = contrast(innerStyle.backgroundColor);
+    }
+
+    return (
+      <Container
+        aria-label={name}
+        className="avatar"
+        style={style}
+        contrast={contrastStyle}
+      >
+        <Inner style={innerStyle}>{inner}</Inner>
+      </Container>
+    );
   }
+}
 
-  if (!imageUrl.startsWith('http')) {
-    imageUrl = `/images/${imageUrl}`;
-  }
+export default Avatar;
 
-  return (
-    <StyledAvatar
-      className="avatar"
-      gender={gender}
-      avatar={imageUrl}
-      {...rest}
-    />
-  );
-};
+const Inner = styled.div`
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
 
-export default withDefaultProps<Props>(defaultProps)(Avatar);
-
-const StyledAvatar = withProps<Props, HTMLDivElement>(styled.div)`
+const Container = withProps<{ contrast?: string }>(styled.div)`
   display: inline-block;
-  // border: #e8e8e8 1px solid;
+  color: ${({ contrast }) => (contrast === 'light' ? 'gray' : 'white')};
 
-  ${({ avatar }) =>
-    avatar &&
-    css`
-      background-image: url(${avatar});
-    `}
-
-  ${({ view }) => {
-    if (view === 'xs') {
+  ${props => {
+    if (props.contrast && props.contrast === 'light') {
       return css`
-        width: 16px;
-        height: 16px;
+        ${Inner} {
+          border: 1px solid lightgray;
+        }
       `;
     }
-    if (view === 'sm') {
-      return css`
-        width: 32px;
-        height: 32px;
-      `;
-    }
-    if (view === 'md') {
-      return css`
-        width: 48px;
-        height: 48px;
-      `;
-    }
-    if (view === 'lg') {
-      return css`
-        width: 64px;
-        height: 64px;
-      `;
-    }
-    if (view === 'xl') {
-      return css`
-        width: 128px;
-        height: 128px;
-      `;
-    }
-
     return null;
   }}
-  background-position: top center;
-  background-size: cover;
-  border-radius: 50%;
 `;

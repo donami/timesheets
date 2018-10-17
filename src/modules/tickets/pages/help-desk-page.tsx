@@ -14,6 +14,7 @@ import { Button } from 'genui';
 import { Mutation } from 'react-apollo';
 import { CREATE_TICKET_MUTATION } from '../store/mutations';
 import { TicketStatus, TicketPriority } from '../store/types';
+import HelpDeskHome from '../components/help-desk-home';
 
 type Props = {
   match: match<{ id: string }>;
@@ -37,22 +38,28 @@ class HelpDeskPage extends Component<Props, State> {
   }
 
   updateBreadcrumbs = (props: Props) => {
-    const trail = [{ to: '/help-desk', label: 'Help Desk' }];
-
     const { match } = props;
+    let trail: any[] = [];
+    const root = { to: '/help-desk', label: 'Help Desk' };
 
     if (match.url === '/help-desk/ticket/create') {
-      trail.push({
-        to: '/help-desk/ticket/create',
-        label: 'Create ticket',
-      });
+      trail = [
+        root,
+        {
+          to: '/help-desk/ticket/create',
+          label: 'Create ticket',
+        },
+      ];
     }
 
     if (match.path === '/help-desk/ticket/:id?') {
-      trail.push({
-        to: `/help-desk/ticket/${match.params.id}`,
-        label: 'View ticket',
-      });
+      trail = [
+        root,
+        {
+          to: `/help-desk/ticket/${match.params.id}`,
+          label: 'View ticket',
+        },
+      ];
     }
 
     this.setState({ trail });
@@ -75,15 +82,17 @@ class HelpDeskPage extends Component<Props, State> {
           Help Desk
         </PageHeader>
 
-        <ul className="bp3-breadcrumbs">
-          {this.state.trail.map(part => (
-            <li key={part.label}>
-              <Link className="bp3-breadcrumb" to={part.to}>
-                {part.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {!!this.state.trail.length && (
+          <ul className="bp3-breadcrumbs">
+            {this.state.trail.map(part => (
+              <li key={part.label}>
+                <Link className="bp3-breadcrumb" to={part.to}>
+                  {part.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
 
         <Switch>
           <Route
@@ -93,19 +102,6 @@ class HelpDeskPage extends Component<Props, State> {
               return (
                 <Mutation
                   mutation={CREATE_TICKET_MUTATION}
-                  optimisticResponse={{
-                    __typename: 'Mutation',
-                    createTicket: {
-                      assigned: null,
-                      comments: [],
-                      createdAt: new Date(),
-                      priority: TicketPriority.Medium,
-                      status: TicketStatus.Pending,
-                      type: 'Question',
-                      updatedAt: new Date(),
-                      __typename: 'Ticket',
-                    },
-                  }}
                   update={(proxy, { data: { createTicket } }) => {
                     try {
                       const data: any = proxy.readQuery({
@@ -135,15 +131,12 @@ class HelpDeskPage extends Component<Props, State> {
                   query={GET_TICKET}
                   variables={{ id: this.props.match.params.id }}
                 >
-                  {({ data, loading }) => {
-                    if (loading) {
-                      return null;
-                    }
-                    if (data && data.Ticket) {
-                      return <TicketView ticket={data.Ticket} />;
-                    }
-                    return <NotFoundPage />;
-                  }}
+                  {({ data, loading }) => (
+                    <TicketView
+                      loading={loading}
+                      ticket={data && data.Ticket}
+                    />
+                  )}
                 </TicketQuery>
               );
             }}
@@ -153,15 +146,12 @@ class HelpDeskPage extends Component<Props, State> {
             render={props => {
               return (
                 <AllTicketsQuery query={GET_ALL_TICKETS}>
-                  {({ data, loading }) => {
-                    if (loading) {
-                      return null;
-                    }
-
-                    return (
-                      <TicketList tickets={(data && data.allTickets) || []} />
-                    );
-                  }}
+                  {({ data, loading }) => (
+                    <HelpDeskHome
+                      loading={loading}
+                      tickets={(data && data.allTickets) || []}
+                    />
+                  )}
                 </AllTicketsQuery>
               );
             }}

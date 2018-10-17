@@ -7,14 +7,15 @@ import {
   renderNothing,
   withHandlers,
   withState,
+  renderComponent,
 } from 'recompose';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 import { TimesheetInfo, TimesheetLogs, Calendar } from '../components';
 import { TimesheetStatus } from '../store/models';
-import { Box } from '../../ui';
-import { PageHeader, ToggleView } from '../../common';
+import { Box, PageLoader } from '../../ui';
+import { PageHeader, ToggleView, NotFoundPage } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
 import { UserRole } from '../../users/store/models';
 import { paddEmptyDates } from '../../../utils/calendar';
@@ -28,6 +29,7 @@ type Props = {
 
 type DataProps = {
   timesheet: any;
+  loading: boolean;
   loggedInUser: any;
   updateTimesheet(options: any): any;
   createNotification(options: any): any;
@@ -96,7 +98,7 @@ const TimesheetViewPage: React.SFC<any> = ({
   setLogView,
 }) => {
   if (!timesheet) {
-    return null;
+    return <NotFoundPage />;
   }
 
   // If viewing the timesheet as admin or as user
@@ -325,7 +327,7 @@ const enhance = compose<EnhancedProps, Props>(
       });
     },
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(TimesheetViewPage);

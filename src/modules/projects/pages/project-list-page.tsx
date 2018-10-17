@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { compose, branch, renderNothing, withHandlers } from 'recompose';
+import {
+  compose,
+  branch,
+  renderNothing,
+  withHandlers,
+  renderComponent,
+} from 'recompose';
 import { graphql } from 'react-apollo';
 import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
@@ -8,6 +14,7 @@ import { Project } from '../store/models';
 import { PageHeader, Translate } from '../../common';
 import { GET_PROJECTS } from '../store/queries';
 import { DELETE_PROJECT } from '../store/mutations';
+import { PageLoader } from 'src/modules/ui';
 
 type Props = {};
 type DataProps = {
@@ -115,7 +122,7 @@ const enhance = compose<EnhancedProps, Props>(
       deleteProject({ variables: { id: projectId } });
     },
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(ProjectListPage);

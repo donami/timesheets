@@ -5,15 +5,22 @@ import { History } from 'history';
 
 import { UserInfo, UserGroups, EditUser, EditUserStatus } from '../components';
 import { Group } from '../../groups/store/models';
-import { Box, Row, Column } from '../../ui';
+import { Box, Row, Column, PageLoader } from '../../ui';
 import { TimesheetGenerator, TimesheetList } from '../../timesheets';
 import { PageHeader, Translate, Avatar } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
 import { Link, Switch, Route } from 'react-router-dom';
-import { compose, withHandlers, renderNothing, branch } from 'recompose';
+import {
+  compose,
+  withHandlers,
+  renderNothing,
+  branch,
+  renderComponent,
+} from 'recompose';
 import { graphql } from 'react-apollo';
 import { DISABLE_USER, ENABLE_USER } from '../store/mutations';
 import CreateChat from '../../common/components/chat/create-chat';
+import { fullName } from 'src/utils/helpers';
 
 type DropdownItem = {
   label: string;
@@ -122,7 +129,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
                     </span>
                   </CreateChat>
                 </UserCardActions>
-                <Avatar view="lg" avatar={user.image} gender={user.gender} />
+                <Avatar view="lg" avatar={user.image} name={fullName(user)} />
 
                 <h3>{`${user.firstName} ${user.lastName}`}</h3>
                 <Link to={`/user/${user.id}/edit`}>Edit User</Link>
@@ -326,7 +333,7 @@ const enhance = compose(
       enableUser({ variables: { id: user.id } });
     },
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(UserViewPage);

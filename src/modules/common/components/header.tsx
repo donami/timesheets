@@ -6,17 +6,17 @@ import gql from 'graphql-tag';
 import { Dropdown, Icon } from 'genui';
 
 import { UserRole } from '../../users/store/models';
-import Avatar from './avatar';
 import Popup from './popup';
 import Notifications from './notifications';
 import Attention from './attention';
 import Search from './search';
-import { HasAccess } from '../components';
+import { HasAccess, Avatar } from '../components';
 import { withProps } from '../../../styled/styled-components';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
 import ChatItem from './chat/chat-item';
 import ChatList from './chat/chat-list';
 import { GET_CHATS } from './chat/queries';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {
   containerHeight: number;
@@ -192,11 +192,7 @@ class Header extends React.Component<EnhancedProps> {
                     </Link>
                   )}
                 >
-                  <Avatar
-                    view="sm"
-                    avatar={user.image || ''}
-                    gender={user.gender || 'unknown'}
-                  />
+                  <Avatar view="sm" avatar={user.image} name={fullName(user)} />
                 </StyledDropdown>
               </RightNode>
             </Container>

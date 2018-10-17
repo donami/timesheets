@@ -3,6 +3,7 @@ import React from 'react';
 import styled, { withProps, css } from '../../../../styled/styled-components';
 import { Avatar } from '../../components';
 import { dateFormat } from '../../../../utils/calendar';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {
   messages: any[];
@@ -41,13 +42,21 @@ const ChatPageMessageList: React.SFC<Props> = ({
                 </MessageMeta>
               </MessageBody>
               <MessageAvatar className="message-avatar">
-                <Avatar avatar={message.owner.image} view="sm" />
+                <Avatar
+                  avatar={message.owner.image}
+                  name={fullName(message.owner)}
+                  view="sm"
+                />
               </MessageAvatar>
             </>
           ) : (
             <>
               <MessageAvatar className="message-avatar">
-                <Avatar avatar={message.owner.image} view="sm" />
+                <Avatar
+                  name={fullName(message.owner)}
+                  avatar={message.owner.image}
+                  view="sm"
+                />
               </MessageAvatar>
               <MessageBody className="message-body">
                 <MessageText className="message-text">

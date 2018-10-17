@@ -6,6 +6,7 @@ import styled from '../../../styled/styled-components';
 import { Avatar } from '../../common/components';
 import { dateFormat } from 'src/utils/calendar';
 import { TicketComment as TicketCommentModel } from '../store/types';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {
   comment: TicketCommentModel;
@@ -17,7 +18,11 @@ const TicketComment: React.SFC<Props> = ({ comment }) => {
   return (
     <Container>
       <Meta>
-        <Avatar view="xs" avatar={comment.owner.image} />
+        <Avatar
+          view="xs"
+          avatar={comment.owner.image}
+          name={fullName(comment.owner)}
+        />
         <Link to={`/user/${comment.owner.id}`}>{`${comment.owner.firstName} ${
           comment.owner.lastName
         }`}</Link>

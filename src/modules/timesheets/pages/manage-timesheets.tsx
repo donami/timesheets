@@ -2,7 +2,7 @@ import React from 'react';
 import { StatusColor, Table, TableBuilder, Icon, ActionProps } from 'genui';
 import { graphql } from 'react-apollo';
 import { Link } from 'react-router-dom';
-import { compose, withHandlers, renderNothing, branch } from 'recompose';
+import { compose, withHandlers, branch, renderComponent } from 'recompose';
 
 import { Translate, PageHeader } from '../../common';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
@@ -10,6 +10,7 @@ import { parseDate } from '../../../utils/helpers';
 import { getStatusColor } from '../utils';
 import { GET_TIMESHEETS } from '../store/queries';
 import { DELETE_TIMESHEET } from '../store/mutations';
+import { PageLoader } from 'src/modules/ui';
 
 type Props = {};
 type DataProps = {
@@ -183,7 +184,7 @@ const enhance = compose<EnhancedProps, Props>(
       props.deleteTimesheet({ variables: { id } });
     },
   }),
-  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+  branch<EnhancedProps>(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(ManageTimesheets);

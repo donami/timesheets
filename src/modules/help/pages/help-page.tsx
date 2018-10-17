@@ -5,6 +5,7 @@ import { graphql, Query } from 'react-apollo';
 import { Search, Category } from '../components';
 import { GET_CATEGORIES, SEARCH_QUERY } from '../store/queries';
 import styled from '../../../styled/styled-components';
+import { PageLoader } from 'src/modules/ui';
 
 type Props = {};
 type DataProps = {
@@ -19,7 +20,7 @@ const HelpPage: React.SFC<EnhancedProps> = ({ query }) => (
     <Query query={GET_CATEGORIES}>
       {({ data, loading }) => {
         if (loading) {
-          return null;
+          return <PageLoader />;
         }
 
         if (data.allCategories.length === 0) {

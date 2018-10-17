@@ -1,5 +1,5 @@
 import React from 'react';
-import { compose, branch, renderNothing } from 'recompose';
+import { compose, branch, renderNothing, renderComponent } from 'recompose';
 import { graphql } from 'react-apollo';
 
 import {
@@ -9,6 +9,8 @@ import {
   ArticleFeedback,
 } from '../components';
 import { GET_ARTICLE, SEARCH_QUERY } from '../store/queries';
+import { PageLoader } from 'src/modules/ui';
+import { NotFoundPage } from 'src/modules/common';
 
 type Props = {
   match: any;
@@ -23,15 +25,21 @@ type EnhancedProps = Props & DataProps;
 
 const ArticleViewPage: React.SFC<EnhancedProps> = ({ article, query }) => (
   <div>
-    <Search />
+    {!article ? (
+      <NotFoundPage />
+    ) : (
+      <>
+        <Search />
 
-    {article.category && (
-      <Breadcrumb category={article.category} article={article} />
+        {article.category && (
+          <Breadcrumb category={article.category} article={article} />
+        )}
+
+        <ArticleInfo article={article} author={article.author} />
+
+        <ArticleFeedback articleId={article.id} feedback={article.feedback} />
+      </>
     )}
-
-    <ArticleInfo article={article} author={article.author} />
-
-    <ArticleFeedback articleId={article.id} feedback={article.feedback} />
   </div>
 );
 
@@ -50,7 +58,7 @@ const enhance = compose(
       loading: data.loading,
     }),
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(ArticleViewPage);

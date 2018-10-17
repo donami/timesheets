@@ -5,8 +5,9 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 import { Ticket } from '../store/types';
 import Animation from '../../common/components/animation';
 import TicketStatusLabel from './ticket-status-label';
-import { Avatar } from '../../common';
 import { Link } from 'react-router-dom';
+import { Avatar } from '../../common';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {
   ticket: Ticket;
@@ -49,7 +50,11 @@ class TicketListItem extends Component<Props, State> {
           </Cell>
           <Cell>{ticket.title}</Cell>
           <Cell>
-            <Avatar view="sm" avatar={ticket.owner.image} />
+            <Avatar
+              view="sm"
+              avatar={ticket.owner.image}
+              name={fullName(ticket.owner)}
+            />
             <Link to={`/user/${ticket.owner.id}`}>
               {`${ticket.owner.firstName} ${ticket.owner.lastName}`}
             </Link>
@@ -63,7 +68,11 @@ class TicketListItem extends Component<Props, State> {
           <Cell>
             {ticket.assigned ? (
               <>
-                <Avatar view="sm" avatar={ticket.assigned.image} />
+                <Avatar
+                  view="sm"
+                  avatar={ticket.assigned.image}
+                  name={fullName(ticket.assigned)}
+                />
                 {`${ticket.assigned.firstName} ${ticket.assigned.lastName}`}
               </>
             ) : (

@@ -2,11 +2,18 @@ import * as React from 'react';
 import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 import { graphql } from 'react-apollo';
 import { Link } from 'react-router-dom';
-import { compose, withHandlers, branch, renderNothing } from 'recompose';
+import {
+  compose,
+  withHandlers,
+  branch,
+  renderNothing,
+  renderComponent,
+} from 'recompose';
 
 import { PageHeader, Translate } from '../../common';
 import { GET_TEMPLATES } from '../store/queries';
 import { DELETE_TEMPLATE } from '../store/mutations';
+import { PageLoader } from 'src/modules/ui';
 
 type Props = {};
 
@@ -130,7 +137,7 @@ const enhance = compose<EnhancedProps, Props>(
       });
     },
   }),
-  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+  branch<EnhancedProps>(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(TimesheetTemplatesPage);

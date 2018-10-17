@@ -3,10 +3,12 @@ import { Input, Button } from 'genui';
 
 import { Form, BackButton } from '../../common';
 import { Project } from '../store/models';
+import { PageLoader } from 'src/modules/ui';
 
 type Props = {
   onSubmit: (data: { name: string }) => any;
   initialValues?: Project;
+  loading?: boolean;
 };
 
 class ProjectForm extends React.Component<Props> {
@@ -22,7 +24,11 @@ class ProjectForm extends React.Component<Props> {
   };
 
   render() {
-    const { initialValues } = this.props;
+    const { initialValues, loading } = this.props;
+
+    if (loading) {
+      return <PageLoader />;
+    }
 
     return (
       <Form onValidSubmit={this.handleSubmit}>

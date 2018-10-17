@@ -1,7 +1,13 @@
 import * as React from 'react';
 import { graphql } from 'react-apollo';
 import { Link } from 'react-router-dom';
-import { compose, branch, renderNothing, withHandlers } from 'recompose';
+import {
+  compose,
+  branch,
+  renderNothing,
+  withHandlers,
+  renderComponent,
+} from 'recompose';
 import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
 
 import { PageHeader, Translate } from '../../common';
@@ -11,6 +17,7 @@ import {
   withToastr,
   WithToastrProps,
 } from '../../common/components/toastr/toastr';
+import { PageLoader } from 'src/modules/ui';
 
 type Props = {};
 type HandlerProps = {
@@ -132,7 +139,7 @@ const enhance = compose<EnhancedProps, Props>(
       );
     },
   }),
-  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+  branch<EnhancedProps>(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(GroupListPage);

@@ -2,9 +2,8 @@ import React from 'react';
 
 import styled, { css, withProps } from '../../../../styled/styled-components';
 import { Avatar } from '../../components';
-import { Link } from 'react-router-dom';
-import { Icon } from 'genui';
 import { dateFormat } from '../../../../utils/calendar';
+import { fullName } from 'src/utils/helpers';
 
 type Props = { chat: any; loggedInUser: any; active?: boolean };
 
@@ -30,7 +29,11 @@ const ChatItem: React.SFC<Props> = ({ chat, loggedInUser, active }) => {
   return (
     <Container active={active} unread={unread} className={classes.join(' ')}>
       <LeftNode>
-        <Avatar />
+        <Avatar
+          name={fullName(otherUser.user)}
+          view="md"
+          avatar={otherUser.user.image}
+        />
       </LeftNode>
       <RightNode>
         <Top>

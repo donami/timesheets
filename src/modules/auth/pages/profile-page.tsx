@@ -18,6 +18,7 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { UPDATE_USER } from '../../users/store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {
   user: any;
@@ -72,7 +73,7 @@ class ProfilePage extends React.Component<EnhancedProps> {
           <Column sm={3} md={2}>
             <UserLeftNode>
               <UserCard>
-                <Avatar view="lg" avatar={user.image} gender={user.gender} />
+                <Avatar view="lg" user={user} />
 
                 <h3>{user.fullName}</h3>
                 <Link to="/profile/edit">Edit Profile</Link>

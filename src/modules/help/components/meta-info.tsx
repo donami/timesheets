@@ -5,7 +5,7 @@ import { Avatar } from '../../common';
 import { parseDate } from '../../../utils/helpers';
 
 type Props = {
-  avatar: string;
+  avatar: any;
   authorName: string;
   createdAt: string;
 };
@@ -14,7 +14,7 @@ const MetaInfo: React.SFC<Props> = ({ avatar, authorName, createdAt }) => {
   return (
     <Meta>
       <AvatarContainer>
-        <Avatar avatar={avatar} />
+        <Avatar avatar={avatar} name={authorName} view="md" />
       </AvatarContainer>
       <div>
         Written by {authorName} <br />

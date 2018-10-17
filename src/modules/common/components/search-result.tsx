@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { StatusColor } from 'genui';
 
 import styled from '../../../styled/styled-components';
-import Avatar from './avatar';
 import { User } from '../../users/store/models';
-import { parseDate } from '../../../utils/helpers';
+import { parseDate, fullName } from '../../../utils/helpers';
+import Avatar from './avatar';
 
 type Props = {
   item: User;
@@ -15,7 +15,7 @@ const SearchResult: React.SFC<Props> = ({ item }) => {
   return (
     <Container>
       <LeftNode>
-        <Avatar avatar={item.image} view="lg" />
+        <Avatar avatar={item.image as any} view="lg" name={fullName(item)} />
       </LeftNode>
       <RightNode>
         <StatusWrapper className="status-wrapper">

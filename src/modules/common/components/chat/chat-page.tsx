@@ -5,7 +5,6 @@ import { match } from 'react-router';
 import { Query, Mutation } from 'react-apollo';
 
 import styled, { withProps, css } from '../../../../styled/styled-components';
-import { Avatar } from '../../components';
 import ChatPageMessageList from './chat-page-message-list';
 import gql from 'graphql-tag';
 import ChatPageChats from './chat-page-chats';

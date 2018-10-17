@@ -3,12 +3,13 @@ import { Query, Mutation } from 'react-apollo';
 
 import { CHAT_USER_INFO_QUERY } from './queries';
 import styled from '../../../../styled/styled-components';
-import { Avatar } from '../../components';
 import { Icon, List } from 'genui';
 import { CHAT_USER_INFO_MUTATION } from './mutations';
 import { GET_USER } from 'src/modules/users/store/queries';
 import Animation from '../../components/animation';
 import { Link } from 'react-router-dom';
+import Avatar from '../avatar';
+import { fullName } from 'src/utils/helpers';
 
 type Props = {};
 
@@ -51,7 +52,11 @@ const ChatUserInfo: React.SFC<Props> = () => {
                             </Mutation>
                           </Top>
                           <Presentation className="chat-user-presentation">
-                            <Avatar view="xl" avatar={User.image} />
+                            <Avatar
+                              view="xl"
+                              avatar={User.image}
+                              name={fullName(User)}
+                            />
 
                             <h3>
                               <Link to={`/user/${User.id}`}>{`${
