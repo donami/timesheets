@@ -24,6 +24,10 @@ class CreateChat extends Component<Props> {
           if (loading) {
             return null;
           }
+          // User should not be able to chat with himself
+          if (authedUser.id === otherUser.id) {
+            return null;
+          }
           return (
             <Query
               query={GET_EXISTING_CHAT}

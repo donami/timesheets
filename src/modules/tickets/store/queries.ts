@@ -15,48 +15,59 @@ type GetTicketQueryVariables = {
   id: string;
 };
 
-export const GET_TICKET = gql`
-  query($id: ID!) {
-    Ticket(id: $id) {
+export const TICKET_VIEW_FRAGMENT = gql`
+  fragment TicketView on Ticket {
+    id
+    title
+    createdAt
+    updatedAt
+    owner {
       id
-      title
+      firstName
+      lastName
+      email
+      image {
+        id
+        url
+      }
+    }
+    type
+    status
+    priority
+    assigned {
+      id
+      firstName
+      lastName
+      image {
+        id
+        url
+      }
+    }
+    description
+    comments {
+      id
+      body
       createdAt
-      updatedAt
       owner {
         id
         firstName
         lastName
-        email
         image {
           id
           url
         }
       }
-      type
-      status
-      priority
-      assigned {
-        id
-        firstName
-        lastName
-      }
-      description
-      comments {
-        id
-        body
-        createdAt
-        owner {
-          id
-          firstName
-          lastName
-          image {
-            id
-            url
-          }
-        }
-      }
     }
   }
+`;
+
+export const GET_TICKET = gql`
+  query($id: ID!) {
+    Ticket(id: $id) {
+      ...TicketView
+    }
+  }
+  ${TICKET_VIEW_FRAGMENT}
 `;
 
 type GetAllTicketsQuery = {
@@ -70,46 +81,57 @@ export class AllTicketsQuery extends Query<
 
 type GetAllTicketQueryVariables = {};
 
-export const GET_ALL_TICKETS = gql`
-  query {
-    allTickets {
+export const TICKET_LIST_ITEM_FRAGMENT = gql`
+  fragment TicketListItem on Ticket {
+    id
+    title
+    createdAt
+    updatedAt
+    owner {
       id
-      title
+      firstName
+      lastName
+      email
+      image {
+        id
+        url
+      }
+    }
+    type
+    status
+    priority
+    assigned {
+      id
+      firstName
+      lastName
+      image {
+        id
+        url
+      }
+    }
+    description
+    comments {
+      id
+      body
       createdAt
-      updatedAt
       owner {
         id
         firstName
         lastName
-        email
         image {
           id
           url
         }
       }
-      type
-      status
-      priority
-      assigned {
-        id
-        firstName
-        lastName
-      }
-      description
-      comments {
-        id
-        body
-        createdAt
-        owner {
-          id
-          firstName
-          lastName
-          image {
-            id
-            url
-          }
-        }
-      }
     }
   }
+`;
+
+export const GET_ALL_TICKETS = gql`
+  query {
+    allTickets {
+      ...TicketListItem
+    }
+  }
+  ${TICKET_LIST_ITEM_FRAGMENT}
 `;

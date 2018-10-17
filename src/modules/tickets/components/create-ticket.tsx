@@ -54,7 +54,7 @@ class CreateTicket extends Component<EnhancedProps> {
 
               <Form.Field
                 name="type"
-                label="Title"
+                label="Type"
                 type="text"
                 defaultValue="Question"
                 validations={{ isRequired: true }}

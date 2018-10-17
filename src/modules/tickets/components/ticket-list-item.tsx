@@ -4,6 +4,9 @@ import { Icon, Button } from 'genui';
 import styled, { withProps, css } from '../../../styled/styled-components';
 import { Ticket } from '../store/types';
 import Animation from '../../common/components/animation';
+import TicketStatusLabel from './ticket-status-label';
+import { Avatar } from '../../common';
+import { Link } from 'react-router-dom';
 
 type Props = {
   ticket: Ticket;
@@ -25,10 +28,11 @@ class TicketListItem extends Component<Props, State> {
   render() {
     const { ticket } = this.props;
     const { expanded } = this.state;
+
     return (
-      <Container>
+      <Container onClick={this.toggleExpand}>
         <Top>
-          <Cell style={{ maxWidth: 'fit-content' }}>
+          <Cell style={{ maxWidth: '50px' }}>
             {expanded ? (
               <Icon
                 style={{ cursor: 'pointer' }}
@@ -44,14 +48,24 @@ class TicketListItem extends Component<Props, State> {
             )}
           </Cell>
           <Cell>{ticket.title}</Cell>
-          <Cell>{`${ticket.owner.firstName} ${ticket.owner.lastName}`}</Cell>
+          <Cell>
+            <Avatar view="sm" avatar={ticket.owner.image} />
+            <Link to={`/user/${ticket.owner.id}`}>
+              {`${ticket.owner.firstName} ${ticket.owner.lastName}`}
+            </Link>
+          </Cell>
           {/* <Cell>{ticket.project}</Cell> */}
           <Cell>{ticket.type}</Cell>
-          <Cell>{ticket.status}</Cell>
+          <Cell>
+            <TicketStatusLabel status={ticket.status} />
+          </Cell>
           <Cell>{ticket.priority}</Cell>
           <Cell>
             {ticket.assigned ? (
-              `${ticket.assigned.firstName} ${ticket.assigned.lastName}`
+              <>
+                <Avatar view="sm" avatar={ticket.assigned.image} />
+                {`${ticket.assigned.firstName} ${ticket.assigned.lastName}`}
+              </>
             ) : (
               <em>None</em>
             )}
@@ -78,7 +92,7 @@ class TicketListItem extends Component<Props, State> {
 
 export default TicketListItem;
 
-const Container = styled.div`
+export const Container = styled.div`
   background: #fff;
   border-radius: 5px;
   width: 100%;
@@ -87,9 +101,15 @@ const Container = styled.div`
   box-shadow: 0px 7px 41px -21px rgba(125, 125, 125, 1);
   display: flex;
   flex-direction: column;
+  margin-bottom: 10px;
+  cursor: pointer;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
-const Top = styled.div`
+export const Top = styled.div`
   display: flex;
   flex-direction: row;
 `;
@@ -114,10 +134,16 @@ const Bottom = withProps<{ expanded: boolean }>(styled.div)`
   }
 `;
 
-const Cell = styled.div`
+export const Cell = styled.div`
   padding: 10px;
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+
+  .avatar {
+    margin-right: 10px;
+  }
 `;

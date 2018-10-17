@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { TICKET_VIEW_FRAGMENT } from './queries';
 
 export const CREATE_TICKET_MUTATION = gql`
   mutation createTicket(
@@ -19,38 +20,10 @@ export const CREATE_TICKET_MUTATION = gql`
       assignedId: $assignedId
       description: $description
     ) {
-      id
-      title
-      createdAt
-      updatedAt
-      owner {
-        id
-        firstName
-        lastName
-        email
-      }
-      type
-      status
-      priority
-      assigned {
-        id
-        firstName
-        lastName
-      }
-      description
-      comments {
-        __typename
-        id
-        body
-        createdAt
-        owner {
-          id
-          firstName
-          lastName
-        }
-      }
+      ...TicketView
     }
   }
+  ${TICKET_VIEW_FRAGMENT}
 `;
 
 export const CREATE_TICKET_COMMENT = gql`
@@ -72,39 +45,10 @@ export const CREATE_TICKET_COMMENT = gql`
 export const UPDATE_TICKET = gql`
   mutation($id: ID!, $status: String, $assignedId: ID) {
     updateTicket(id: $id, status: $status, assignedId: $assignedId) {
-      __typename
-      id
-      title
-      createdAt
-      updatedAt
-      owner {
-        id
-        firstName
-        lastName
-        email
-      }
-      type
-      status
-      priority
-      assigned {
-        id
-        firstName
-        lastName
-      }
-      description
-      comments {
-        __typename
-        id
-        body
-        createdAt
-        owner {
-          id
-          firstName
-          lastName
-        }
-      }
+      ...TicketView
     }
   }
+  ${TICKET_VIEW_FRAGMENT}
 `;
 
 export const UPDATE_TICKET_STATUS = gql`
