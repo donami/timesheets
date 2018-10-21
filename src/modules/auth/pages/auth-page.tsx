@@ -170,6 +170,12 @@ export const LOGGED_IN_USER = gql`
   query user {
     user {
       id
+      firstName
+      lastName
+      image {
+        id
+        url
+      }
     }
   }
 `;

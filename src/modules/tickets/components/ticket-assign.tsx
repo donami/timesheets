@@ -82,6 +82,7 @@ class TicketAssign extends Component<Props, State> {
           return (
             <Container>
               <UserSelect
+                activeItem={selected}
                 items={data.allUsers}
                 itemPredicate={filterUser}
                 itemRenderer={renderUser}

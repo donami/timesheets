@@ -37,6 +37,7 @@ import { compose } from 'recompose';
 import { RouterProps } from 'react-router';
 import { PageLoader } from 'src/modules/ui';
 import { fullName } from 'src/utils/helpers';
+import ChangeTicketType from './change-ticket-type';
 
 type Props = {
   ticket?: Ticket;
@@ -262,11 +263,18 @@ const TicketView: React.SFC<EnhancedProps> = ({
           </TicketCardCenter>
         </TicketCard>
         <TicketDetailsCard>
-          <strong>Assignee:</strong>
-          <TicketAssign
-            ticketId={ticket.id}
-            initialSelectedId={ticket.assigned && ticket.assigned.id}
-          />
+          <div>
+            <strong>Assignee:</strong>
+            <TicketAssign
+              ticketId={ticket.id}
+              initialSelectedId={ticket.assigned && ticket.assigned.id}
+            />
+          </div>
+
+          <div>
+            <strong>Ticket type:</strong>
+            <ChangeTicketType ticketId={ticket.id} initialType={ticket.type} />
+          </div>
         </TicketDetailsCard>
       </Right>
     </Container>
@@ -412,4 +420,8 @@ const TicketDetailsCard = styled.div`
   border-radius: 5px;
   background: #fff;
   padding: 20px;
+
+  > div {
+    margin-bottom: 10px;
+  }
 `;

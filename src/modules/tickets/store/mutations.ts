@@ -43,8 +43,13 @@ export const CREATE_TICKET_COMMENT = gql`
 `;
 
 export const UPDATE_TICKET = gql`
-  mutation($id: ID!, $status: String, $assignedId: ID) {
-    updateTicket(id: $id, status: $status, assignedId: $assignedId) {
+  mutation($id: ID!, $status: String, $assignedId: ID, $type: String) {
+    updateTicket(
+      id: $id
+      status: $status
+      assignedId: $assignedId
+      type: $type
+    ) {
       ...TicketView
     }
   }
