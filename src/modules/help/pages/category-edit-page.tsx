@@ -1,45 +1,49 @@
 import React from 'react';
-import { compose, withHandlers, lifecycle } from 'recompose';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { compose, withHandlers, renderComponent, branch } from 'recompose';
+import { graphql } from 'react-apollo';
 
 import { CategoryForm } from '../components';
-import { QuestionCategory } from '../store/models';
-import { updateCategory, selectCategory } from '../store/actions';
-import { getSelectedCategory } from '../store/selectors';
 import { PageHeader } from '../../common';
+import { GET_CATEGORY } from '../store/queries';
+import { UPDATE_CATEGORY } from '../store/mutations';
 
 type Props = {
   match: any;
-  category: QuestionCategory;
-  updateCategory: (categoryId: number, data: Partial<QuestionCategory>) => any;
-  selectCategory: (categoryId: number) => any;
+  history: any;
+  updateCategory: (options: any) => any;
   onSubmit: (props: any) => (event: any) => any;
 };
 
-const CategoryEditPage: React.SFC<Props> = ({ category, onSubmit }) => (
+type DataProps = {
+  loading: boolean;
+  category: any;
+};
+
+type EnhancedProps = Props & DataProps;
+
+const IsLoading = () => <div>Loading</div>;
+
+const CategoryEditPage: React.SFC<EnhancedProps> = ({ category, onSubmit }) => (
   <div>
     <PageHeader>Edit Category</PageHeader>
     <CategoryForm onSubmit={onSubmit} category={category} />
   </div>
 );
 
-const enhance = compose(
-  connect(
-    (state: any) => ({
-      category: getSelectedCategory(state),
-    }),
-    (dispatch: any) =>
-      bindActionCreators({ updateCategory, selectCategory }, dispatch)
-  ),
-  lifecycle<Props, {}>({
-    componentWillMount() {
-      const { match } = this.props;
-
-      if (match.params.id) {
-        this.props.selectCategory(+match.params.id);
-      }
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_CATEGORY, {
+    options: (props: any) => {
+      return {
+        variables: { id: props.match.params.id },
+      };
     },
+    props: ({ data }: any) => ({
+      loading: data.loading,
+      category: data.Category,
+    }),
+  }),
+  graphql(UPDATE_CATEGORY, {
+    name: 'updateCategory',
   }),
   withHandlers<Props, {}>({
     onSubmit: props => (data: any) => {
@@ -47,9 +51,16 @@ const enhance = compose(
         return;
       }
 
-      props.updateCategory(data.id, data);
+      props
+        .updateCategory({
+          variables: { id: data.id, icon: data.icon, title: data.title },
+        })
+        .then(() => {
+          props.history.goBack();
+        });
     },
-  })
+  }),
+  branch<EnhancedProps>(props => props.loading, renderComponent(IsLoading))
 );
 
 export default enhance(CategoryEditPage);

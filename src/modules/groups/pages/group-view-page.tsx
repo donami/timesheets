@@ -1,29 +1,21 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Button, List, Confirm, ActionProps } from 'genui';
+import { compose, withHandlers, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
 
-import { selectGroup, removeGroup } from '../store/actions';
 import { GroupInfo, GroupMemberList } from '../components';
-import {
-  getSelectedGroup,
-  getSelectedGroupTimesheetTemplate,
-  getSelectedGroupId,
-} from '../store/selectors';
 import { Group } from '../store/models';
-import {
-  getSelectedGroupMembers,
-  getSelectedGroupProject,
-} from '../../common/store/selectors';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
 import { Box, Row, Column } from '../../ui';
-import { capitalize } from '../../../utils/helpers';
 import { Switch, Route } from 'react-router-dom';
 import { GroupEditPage } from '../pages';
 import { Project } from '../../projects/store/models';
 import { PageHeader } from '../../common';
+import { GET_GROUP, GET_GROUPS } from '../store/queries';
+import { DELETE_GROUP } from '../store/mutations';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
-export interface GroupViewPageProps {
+type Props = {
   match: any;
   removeGroup: (groupId: number) => any;
   selectGroup: (groupId: number) => any;
@@ -32,23 +24,43 @@ export interface GroupViewPageProps {
   group: Group;
   groupMembers: any;
   project: Project;
-}
+  history: any;
+};
+type DataProps = {
+  loading: boolean;
+  group: any;
+  deleteGroup(options: any): any;
+};
+type HandlerProps = {
+  onRemove(): void;
+};
+type EnhancedProps = Props & DataProps & HandlerProps & WithToastrProps;
 
-class GroupViewPage extends React.Component<GroupViewPageProps> {
-  componentWillMount() {
-    const { match, selectGroup, groupId } = this.props;
+const dayMap = {
+  0: 'Monday',
+  1: 'Tuesday',
+  2: 'Wednesday',
+  3: 'Thursday',
+  4: 'Friday',
+  5: 'Saturday',
+  6: 'Sunday',
+};
 
-    if (match && match.params.id && +match.params.id !== groupId) {
-      selectGroup(+match.params.id);
-    }
-  }
+class GroupViewPage extends React.Component<EnhancedProps> {
+  // componentWillMount() {
+  //   const { match, selectGroup, groupId } = this.props;
 
-  handleRemove = () => {
-    this.props.removeGroup(this.props.group.id);
-  };
+  //   if (match && match.params.id && +match.params.id !== groupId) {
+  //     selectGroup(+match.params.id);
+  //   }
+  // }
+
+  // handleRemove = () => {
+  //   this.props.removeGroup(this.props.group.id);
+  // };
 
   render() {
-    const { group, template, groupMembers, project } = this.props;
+    const { group, template, project, onRemove } = this.props;
 
     return (
       <Switch>
@@ -73,7 +85,7 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
                             actionProps: ActionProps
                           ) => {
                             if (actionProps.positive) {
-                              this.handleRemove();
+                              onRemove();
                             }
                           }}
                         />
@@ -88,35 +100,37 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
               </PageHeader>
               <GroupInfo group={group} {...props} />
 
-              {template && (
+              {group.template && (
                 <Box title="Timesheet Template">
                   <Row>
                     <Column sm={6}>
                       <List>
                         <List.Item>
-                          <strong>Name:</strong> {template.name}
+                          <strong>Name:</strong> {group.template.name}
                         </List.Item>
                       </List>
                     </Column>
                     <Column sm={6}>
                       <h3>Hours per day</h3>
                       <List divided>
-                        {Object.keys(template.hoursDays).map((day, index) => {
-                          const totalHours =
-                            (template.hoursDays &&
-                              template.hoursDays[day] &&
-                              template.hoursDays[day].totalHours) ||
-                            0;
+                        {Object.keys(group.template.hoursDays).map(
+                          (day, index) => {
+                            const totalHours =
+                              (group.template.hoursDays &&
+                                group.template.hoursDays[day] &&
+                                group.template.hoursDays[day].totalHours) ||
+                              0;
 
-                          return (
-                            <List.Item key={index}>
-                              {' '}
-                              <strong>{capitalize(day)}:</strong> {totalHours}{' '}
-                              hour
-                              {totalHours > 1 && 's'}
-                            </List.Item>
-                          );
-                        })}
+                            return (
+                              <List.Item key={index}>
+                                {' '}
+                                <strong>{dayMap[index]}:</strong> {totalHours}{' '}
+                                hour
+                                {totalHours > 1 && 's'}
+                              </List.Item>
+                            );
+                          }
+                        )}
                       </List>
                     </Column>
                   </Row>
@@ -126,7 +140,7 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
               <Box title="Users attached to this group">
                 <GroupMemberList
                   noMembersText="No users are attached to this group"
-                  members={groupMembers}
+                  members={group.users || []}
                 />
               </Box>
             </div>
@@ -137,24 +151,48 @@ class GroupViewPage extends React.Component<GroupViewPageProps> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  group: getSelectedGroup(state),
-  template: getSelectedGroupTimesheetTemplate(state),
-  groupMembers: getSelectedGroupMembers(state),
-  groupId: getSelectedGroupId(state),
-  project: getSelectedGroupProject(state),
-});
+const enhance = compose(
+  withToastr,
+  graphql(GET_GROUP, {
+    options: (props: any) => ({
+      variables: { id: props.match.params.id },
+    }),
+    props: ({ data }: any) => ({
+      group: data.Group,
+      loading: data.loading,
+    }),
+  }),
+  graphql(DELETE_GROUP, {
+    name: 'deleteGroup',
+    options: {
+      update: (proxy, { data: { deleteGroup } }: { data: any }) => {
+        const { allGroups }: any = proxy.readQuery({
+          query: GET_GROUPS,
+        });
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      selectGroup,
-      removeGroup,
+        proxy.writeQuery({
+          query: GET_GROUPS,
+          data: {
+            allGroups: allGroups.filter(
+              (group: any) => group.id !== deleteGroup.id
+            ),
+          },
+        });
+      },
     },
-    dispatch
-  );
+  }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onRemove: ({ deleteGroup, group, history, addToast }) => async () => {
+      await deleteGroup({ variables: { id: group.id } });
+      history.goBack();
+      addToast(
+        'Group removed',
+        'The group was removed successfully.',
+        'positive'
+      );
+    },
+  }),
+  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(GroupViewPage);
+export default enhance(GroupViewPage);

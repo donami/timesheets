@@ -39,7 +39,7 @@ export const isSameMonthAs = (dateString: string, otherDateString: string) => {
   return date.isSame(other, 'month');
 };
 
-export const dateFormat = (date: string, format: string): string => {
+export const dateFormat = (date: string | Date, format: string): string => {
   return moment(date).format(format);
 };
 
@@ -125,7 +125,7 @@ export const monthsBetween = (from: string, to: string): any => {
   return months;
 };
 
-const paddEmptyDates = (dates: any[]) => {
+export const paddEmptyDates = (dates: any[]) => {
   const firstWeek: any[] = dates[0];
   const lastWeek = dates[dates.length - 1];
 
@@ -174,10 +174,10 @@ export const generateCalendarFromTemplate = (
 
     let expectedWorkHours = 0;
 
-    const weekDay = current.format('dddd').toLowerCase();
+    const weekDay = current.isoWeekday();
 
-    if (hoursDay[weekDay]) {
-      expectedWorkHours = hoursDay[weekDay];
+    if (hoursDay[weekDay - 1]) {
+      expectedWorkHours = hoursDay[weekDay - 1];
     }
 
     dates[weekIndex].push({

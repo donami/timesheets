@@ -9,23 +9,22 @@ import {
 } from 'recompose';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 type Props = {
-  onFeedback: (articleId: number, response: string) => any;
+  feedback: any;
   articleId: number;
 };
-
-type State = { responded: string | null };
-
-type StateHandlerProps = StateHandlerMap<State> & {
-  respond: (response: string) => StateHandler<State>;
-};
-
 type HandlerProps = {
   onGiveFeedback: (response: string) => void;
 };
-
 type EnhancedProps = Props & State & StateHandlerProps & HandlerProps;
+
+type State = { responded: string | null };
+type StateHandlerProps = StateHandlerMap<State> & {
+  respond: (response: string) => StateHandler<State>;
+};
 
 const ArticleFeedback: React.SFC<EnhancedProps> = ({
   responded,
@@ -63,7 +62,32 @@ const ArticleFeedback: React.SFC<EnhancedProps> = ({
   </Container>
 );
 
+const UPDATE_FEEDBACK = gql`
+  mutation updateFeedback(
+    $id: ID!
+    $positive: Int
+    $neutral: Int
+    $negative: Int
+  ) {
+    updateFeedback(
+      id: $id
+      positive: $positive
+      neutral: $neutral
+      negative: $negative
+    ) {
+      id
+      neutral
+      positive
+      negative
+      article {
+        id
+      }
+    }
+  }
+`;
+
 const enhance = compose<EnhancedProps, Props>(
+  graphql(UPDATE_FEEDBACK, { name: 'updateFeedback' }),
   withStateHandlers<State, StateHandlerProps, Props>(
     props => ({
       ...props,
@@ -76,19 +100,29 @@ const enhance = compose<EnhancedProps, Props>(
     }
   ),
   withHandlers<EnhancedProps, HandlerProps>({
-    onGiveFeedback: ({ respond, responded, articleId, onFeedback }) => (
+    onGiveFeedback: ({ respond, responded, feedback, updateFeedback }) => (
       response: string
     ) => {
       if (responded && responded === response) {
         return;
       }
 
-      onFeedback(articleId, response);
+      updateFeedback({
+        variables: {
+          id: feedback.id,
+          positive: feedback.positive,
+          negative: feedback.negative,
+          neutral: feedback.neutral,
+          [response]: feedback[response] + 1,
+        },
+      });
 
       respond(response);
     },
   })
 );
+
+export default enhance(ArticleFeedback);
 
 const Container = styled.div`
   padding: 20px 0;
@@ -135,5 +169,3 @@ const ResponseAction = withProps<
   }
 
 `;
-
-export default enhance(ArticleFeedback);

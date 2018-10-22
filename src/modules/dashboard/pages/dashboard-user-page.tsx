@@ -1,77 +1,58 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
 
 import { Row, Column, Box } from '../../ui';
-import { TimesheetList } from '../../timesheets';
-import { bindActionCreators } from 'redux';
-import { fetchTimesheets } from '../../timesheets/store/actions';
-import { fetchExpenses } from '../../expenses/store/actions';
-import { TimesheetItem } from '../../timesheets/store/models';
-import { ExpenseReport } from '../../expenses/store/models';
-import { getExpenses } from '../../expenses/store/selectors';
+import { AuthedUserTimesheets } from '../../timesheets';
 import { ExpenseReportList } from '../../expenses';
-import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
-import { getAuthedUser } from '../../auth/store/selectors';
-import { User } from '../../users/store/models';
 import { PageHeader } from '../../common';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { GET_EXPENSES } from '../../expenses/store/queries';
 
 type Props = {
-  timesheets: TimesheetItem[];
-  user: User;
-  expenseReports: ExpenseReport[];
-  fetchTimesheets: () => any;
-  fetchExpenses: () => any;
+  user: any;
 };
+type DataProps = {
+  expenses: any[];
+  loading: boolean;
+};
+type EnhancedProps = Props & DataProps;
 
-class DashboardUserPage extends React.Component<Props> {
-  componentWillMount() {
-    this.props.fetchTimesheets();
-    this.props.fetchExpenses();
-  }
+const DashboardUserPage: React.SFC<EnhancedProps> = ({ expenses, user }) => (
+  <div>
+    <PageHeader>Welcome {user.firstName}!</PageHeader>
+    <Row>
+      <Column xs={12} sm={6}>
+        <Box title="Timesheets">
+          <AuthedUserTimesheets
+            limit={20}
+            indicateDueDate={true}
+            userId={user.id}
+          />
+        </Box>
+      </Column>
+      <Column xs={12} sm={6}>
+        <Box title="Expenses">
+          <ExpenseReportList limit={20} items={expenses} />
+        </Box>
+      </Column>
+    </Row>
+  </div>
+);
 
-  render() {
-    const { timesheets, expenseReports, user } = this.props;
+const enhance = compose(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      user: data.user || null,
+    }),
+  }),
+  graphql(GET_EXPENSES, {
+    props: ({ data }: any) => ({
+      expenses: data.allExpenses,
+      loading: data.loading,
+    }),
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-    return (
-      <div>
-        <PageHeader>Welcome {user.firstname}!</PageHeader>
-        <Row>
-          <Column xs={12} sm={6}>
-            <Box title="Timesheets">
-              <TimesheetList
-                limit={20}
-                indicateDueDate={true}
-                items={timesheets}
-              />
-            </Box>
-          </Column>
-          <Column xs={12} sm={6}>
-            <Box title="Expenses">
-              <ExpenseReportList limit={20} items={expenseReports} />
-            </Box>
-          </Column>
-        </Row>
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state: any) => ({
-  timesheets: getTimesheetsForAuthedUser(state),
-  expenseReports: getExpenses(state),
-  user: getAuthedUser(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchTimesheets,
-      fetchExpenses,
-    },
-    dispatch
-  );
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DashboardUserPage);
+export default enhance(DashboardUserPage);

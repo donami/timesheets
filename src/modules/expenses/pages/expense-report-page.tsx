@@ -1,41 +1,36 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Button } from 'genui';
 import { Switch, Route } from 'react-router';
-import {
-  compose,
-  lifecycle,
-  withHandlers,
-  branch,
-  renderNothing,
-} from 'recompose';
+import { graphql } from 'react-apollo';
+import { compose, withHandlers, branch, renderNothing } from 'recompose';
 
-import {
-  selectExpenseReport,
-  fetchExpenseReportById,
-  updateExpense,
-} from '../store/actions';
 import { ExpenseReportInfo, ExpenseForm } from '../components';
-import { getSelectedExpenseReport } from '../store/selectors';
-import { ExpenseReport } from '../store/models';
 import { PageHeader } from '../../common';
+import { GET_EXPENSE } from '../store/queries';
+import {
+  UPDATE_EXPENSE_ITEM,
+  CREATE_EXPENSE_ITEM,
+  UPDATE_EXPENSE,
+} from '../store/mutations';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import { map } from 'async';
+import { API_ENDPOINT_FILE } from '../../../config/constants';
 
 type Props = {
   match: any;
-  selectExpenseReport(expenseReportId: number): any;
-  fetchExpenseReportById(expenseReportId: number): any;
-  updateExpense(expenseReportId: number, expense: ExpenseReport): any;
-  expenseReport: ExpenseReport;
+  history: any;
 };
-
+type DataProps = {
+  loading: boolean;
+  expense: any;
+  createExpenseItem(options: any): any;
+  updateExpenseItem(options: any): any;
+  updateExpense(options: any): any;
+};
 type HandlersProps = { onSave(model: any): void };
-type EnhancedProps = Props & HandlersProps;
+type EnhancedProps = Props & HandlersProps & DataProps & WithToastrProps;
 
-const ExpenseReportPage: React.SFC<EnhancedProps> = ({
-  expenseReport,
-  onSave,
-}) => (
+const ExpenseReportPage: React.SFC<EnhancedProps> = ({ expense, onSave }) => (
   <Switch>
     <Route
       path="/expense-report/:id/edit"
@@ -43,12 +38,12 @@ const ExpenseReportPage: React.SFC<EnhancedProps> = ({
         <div>
           <PageHeader
             options={() => (
-              <Button to={`/expense-report/${expenseReport.id}`}>Cancel</Button>
+              <Button to={`/expense-report/${expense.id}`}>Cancel</Button>
             )}
           >
             Edit Expense Report
           </PageHeader>
-          <ExpenseForm initialValues={expenseReport} onSubmit={onSave} />
+          <ExpenseForm initialValues={expense} onSubmit={onSave} />
         </div>
       )}
     />
@@ -58,63 +53,99 @@ const ExpenseReportPage: React.SFC<EnhancedProps> = ({
         <div>
           <PageHeader
             options={() => (
-              <Button
-                to={`/expense-report/${expenseReport.id}/edit`}
-                color="purple"
-              >
+              <Button to={`/expense-report/${expense.id}/edit`} color="purple">
                 Edit Report
               </Button>
             )}
           >
             Expense Report
           </PageHeader>
-          <ExpenseReportInfo expenseReport={expenseReport} />
+          <ExpenseReportInfo expenseReport={expense} />
         </div>
       )}
     />
   </Switch>
 );
 
-const mapStateToProps = (state: any) => ({
-  expenseReport: getSelectedExpenseReport(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      selectExpenseReport,
-      fetchExpenseReportById,
-      updateExpense,
-    },
-    dispatch
-  );
-
 const enhance = compose<EnhancedProps, Props>(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  ),
-  lifecycle<Props, {}>({
-    componentWillMount() {
-      const { match, selectExpenseReport, fetchExpenseReportById } = this.props;
-
-      if (match && match.params.id) {
-        selectExpenseReport(+match.params.id);
-        fetchExpenseReportById(+match.params.id);
-      }
-    },
+  withToastr,
+  graphql(GET_EXPENSE, {
+    options: ({ match }: any) => ({
+      variables: { id: match.params.id },
+    }),
+    props: ({ data }: any) => ({
+      loading: data.loading,
+      expense: data.Expense,
+    }),
   }),
-  withHandlers<Props, HandlersProps>({
-    onSave: props => (model: any) => {
+  graphql(UPDATE_EXPENSE, { name: 'updateExpense' }),
+  graphql(UPDATE_EXPENSE_ITEM, { name: 'updateExpenseItem' }),
+  graphql(CREATE_EXPENSE_ITEM, { name: 'createExpenseItem' }),
+  withHandlers<EnhancedProps, HandlersProps>({
+    onSave: ({
+      expense,
+      updateExpense,
+      updateExpenseItem,
+      createExpenseItem,
+      addToast,
+      history,
+    }) => async (model: any) => {
       const data = {
         ...model,
-        id: props.expenseReport.id,
+        id: expense.id,
       };
 
-      props.updateExpense(props.expenseReport.id, data);
+      const itemUpdates = data.items.map(async (item: any) => {
+        const previousFileIds = item.files
+          .filter((file: any) => file.id)
+          .map((file: any) => file.id);
+
+        const pendingFiles = item.files
+          .filter((file: any) => !file.id)
+          .map(async (file: any) => {
+            const data = new FormData();
+            data.append('data', file);
+
+            const response = await fetch(API_ENDPOINT_FILE, {
+              method: 'POST',
+              body: data,
+            });
+
+            const image = await response.json();
+
+            return image.id;
+          });
+
+        const newFileIds = await Promise.all(pendingFiles);
+
+        return updateExpenseItem({
+          variables: {
+            id: item.id,
+            amount: +item.amount,
+            currency: item.currency,
+            expenseDate: item.expenseDate,
+            expenseType: item.expenseType,
+            filesIds: previousFileIds.concat(newFileIds),
+          },
+        });
+      });
+
+      await Promise.all(itemUpdates);
+      await updateExpense({
+        variables: {
+          id: expense.id,
+          description: data.description,
+        },
+      });
+      addToast(
+        'Expense updated!',
+        'Expense report was updated successfully',
+        'positive'
+      );
+      history.goBack();
     },
   }),
-  branch<Props>(props => !props.expenseReport, renderNothing)
+  branch<EnhancedProps>(({ loading }) => loading, renderNothing)
 );
 
 export default enhance(ExpenseReportPage);

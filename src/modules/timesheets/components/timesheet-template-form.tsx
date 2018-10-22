@@ -1,5 +1,6 @@
 import React from 'react';
 import { Field, Input, Button } from 'genui';
+import * as moment from 'moment';
 
 import { ReportType, TimesheetTemplateItem } from '../store/models';
 import { capitalize } from '../../../utils/helpers';
@@ -10,20 +11,19 @@ import { BackButton } from '../../common';
 type Props = {
   onSubmit: (data: State) => any;
   initialValues?: TimesheetTemplateItem;
+  createTemplate?(options: any): any;
 };
 
 type State = Readonly<{
   id?: number;
   name: string;
   hoursDays: {
-    [key: string]: {
-      inTime: string;
-      outTime: string;
-      break: number;
-      totalHours: number;
-      holiday: boolean;
-    };
-  };
+    inTime: string;
+    outTime: string;
+    break: number;
+    totalHours: number;
+    holiday: boolean;
+  }[];
   reportType: ReportType;
   shiftStartTime: string;
   shiftEndTime: string;
@@ -33,57 +33,57 @@ type State = Readonly<{
 class TimesheetTemplateForm extends React.Component<Props, State> {
   readonly state: State = {
     name: '',
-    hoursDays: {
-      monday: {
+    hoursDays: [
+      {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
         holiday: false,
       },
-      tuesday: {
+      {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
         holiday: false,
       },
-      wednesday: {
+      {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
         holiday: false,
       },
-      thursday: {
+      {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
         holiday: false,
       },
-      friday: {
+      {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
         holiday: false,
       },
-      saturday: {
+      {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
         holiday: true,
       },
-      sunday: {
+      {
         inTime: '09:00',
         outTime: '17:00',
         break: 60,
         totalHours: 7,
         holiday: true,
       },
-    },
+    ],
     reportType: ReportType.StartEnd,
     shiftStartTime: '08:00',
     shiftEndTime: '17:00',
@@ -157,12 +157,24 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
 
     const [day, property] = name.split('.');
 
+    const map = {
+      monday: 0,
+      tuesday: 1,
+      wednesday: 2,
+      thursday: 3,
+      friday: 4,
+      saturday: 5,
+      sunday: 6,
+    };
+
+    const dayIndex = map[day];
+
     const inTime =
-      property === 'inTime' ? value : this.state.hoursDays[day].inTime;
+      property === 'inTime' ? value : this.state.hoursDays[dayIndex].inTime;
     const outTime =
-      property === 'outTime' ? value : this.state.hoursDays[day].outTime;
+      property === 'outTime' ? value : this.state.hoursDays[dayIndex].outTime;
     const breakInMinutes =
-      property === 'break' ? +value : this.state.hoursDays[day].break;
+      property === 'break' ? +value : this.state.hoursDays[dayIndex].break;
 
     const totalHours = this.calcTotalHoursPerDay(
       inTime,
@@ -173,25 +185,24 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     if (property === 'holiday') {
       this.setState({
         ...this.state,
-        hoursDays: {
-          ...this.state.hoursDays,
-          [day]: {
-            ...this.state.hoursDays[day],
-            holiday: checked,
-          },
-        },
+        hoursDays: [
+          ...this.state.hoursDays.slice(0, dayIndex),
+          { ...this.state.hoursDays[dayIndex], holiday: checked },
+          ...this.state.hoursDays.slice(dayIndex + 1),
+        ],
       });
     } else {
       this.setState({
         ...this.state,
-        hoursDays: {
-          ...this.state.hoursDays,
-          [day]: {
-            ...this.state.hoursDays[day],
+        hoursDays: [
+          ...this.state.hoursDays.slice(0, dayIndex),
+          {
+            ...this.state.hoursDays[dayIndex],
             totalHours,
             [property]: property === 'break' ? +value : value,
           },
-        },
+          ...this.state.hoursDays.slice(dayIndex + 1),
+        ],
       });
     }
   };
@@ -207,8 +218,23 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
     return diff - breakInHours;
   };
 
-  handleSubmit = (e: any) => {
+  handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (this.props.createTemplate) {
+      await this.props.createTemplate({
+        variables: {
+          hoursDays: this.state.hoursDays,
+          name: this.state.name,
+          shiftEndTime: this.state.shiftEndTime,
+          shiftStartTime: this.state.shiftStartTime,
+          workHoursPerDay: this.state.workHoursPerDay,
+        },
+      });
+
+      this.props.onSubmit(this.state);
+      return;
+    }
 
     this.props.onSubmit(this.state);
   };
@@ -241,56 +267,63 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
 
         <FieldLabels>Work hours per individual day</FieldLabels>
 
-        {Object.keys(hoursDays).map(day => (
-          <DayField key={day} className="day-field">
-            <label>{capitalize(day)} *</label>
+        {hoursDays.map((day, index) => {
+          const date = moment()
+            .isoWeekday(index + 1)
+            .format('dddd')
+            .toLowerCase();
 
-            <DayFieldInputs>
-              <div>
-                <label>IN Time</label>
-                <Input
-                  placeholder="8"
-                  type="time"
-                  name={`${day}.inTime`}
-                  value={hoursDays[day].inTime}
-                  disabled={hoursDays[day].holiday}
-                  onChange={this.handleNewHoursDayChange}
-                />
-              </div>
-              <div>
-                <label>OUT Time</label>
-                <Input
-                  placeholder="8"
-                  type="time"
-                  name={`${day}.outTime`}
-                  value={hoursDays[day].outTime}
-                  disabled={hoursDays[day].holiday}
-                  onChange={this.handleNewHoursDayChange}
-                />
-              </div>
-              <div>
-                <label>Break (mins)</label>
-                <Input
-                  placeholder="8"
-                  type="number"
-                  name={`${day}.break`}
-                  value={hoursDays[day].break}
-                  disabled={hoursDays[day].holiday}
-                  onChange={this.handleNewHoursDayChange}
-                />
-              </div>
-              <div style={{ alignSelf: 'center' }}>
-                Holiday{' '}
-                <input
-                  type="checkbox"
-                  name={`${day}.holiday`}
-                  checked={hoursDays[day].holiday}
-                  onChange={this.handleNewHoursDayChange}
-                />
-              </div>
-            </DayFieldInputs>
-          </DayField>
-        ))}
+          return (
+            <DayField key={index} className="day-field">
+              <label>{capitalize(date)} *</label>
+
+              <DayFieldInputs>
+                <div>
+                  <label>IN Time</label>
+                  <Input
+                    placeholder="8"
+                    type="time"
+                    name={`${date}.inTime`}
+                    value={hoursDays[index].inTime}
+                    disabled={hoursDays[index].holiday}
+                    onChange={this.handleNewHoursDayChange}
+                  />
+                </div>
+                <div>
+                  <label>OUT Time</label>
+                  <Input
+                    placeholder="8"
+                    type="time"
+                    name={`${date}.outTime`}
+                    value={hoursDays[index].outTime}
+                    disabled={hoursDays[index].holiday}
+                    onChange={this.handleNewHoursDayChange}
+                  />
+                </div>
+                <div>
+                  <label>Break (mins)</label>
+                  <Input
+                    placeholder="8"
+                    type="number"
+                    name={`${date}.break`}
+                    value={hoursDays[index].break}
+                    disabled={hoursDays[index].holiday}
+                    onChange={this.handleNewHoursDayChange}
+                  />
+                </div>
+                <div style={{ alignSelf: 'center' }}>
+                  Holiday{' '}
+                  <input
+                    type="checkbox"
+                    name={`${date}.holiday`}
+                    checked={hoursDays[index].holiday}
+                    onChange={this.handleNewHoursDayChange}
+                  />
+                </div>
+              </DayFieldInputs>
+            </DayField>
+          );
+        })}
 
         <Button type="submit" color="green">
           {this.state.id ? 'Save' : 'Add'}

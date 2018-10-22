@@ -16,8 +16,6 @@ class UserForm extends React.Component<Props> {
   handleSubmit = (model: any) => {
     const data = {
       ...model,
-      projects: [+model.project],
-      group: +model.group,
     };
 
     // if (
@@ -43,7 +41,6 @@ class UserForm extends React.Component<Props> {
     //   return;
     // }
 
-    delete data.project;
     delete data.confirmPassword;
 
     this.props.onSubmit(data);

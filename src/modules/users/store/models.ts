@@ -3,8 +3,8 @@ import { Group } from '../../groups/store/models';
 
 export interface User {
   id: number;
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   role: UserRole;

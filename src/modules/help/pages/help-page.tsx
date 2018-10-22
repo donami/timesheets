@@ -1,52 +1,58 @@
 import React from 'react';
-import { compose, lifecycle } from 'recompose';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { compose } from 'recompose';
+import { graphql, Query } from 'react-apollo';
 
 import { Search, Category } from '../components';
-import { QuestionCategory } from '../store/models';
-import { fetchCategoriesIfNeeded } from '../store/actions';
-import { getCategories } from '../store/selectors';
+import { GET_CATEGORIES, SEARCH_QUERY } from '../store/queries';
+import styled from '../../../styled/styled-components';
+import { PageLoader } from 'src/modules/ui';
 
-type Props = {
-  fetchCategoriesIfNeeded: () => any;
-  categories: QuestionCategory[];
+type Props = {};
+type DataProps = {
+  query: string;
 };
+type EnhancedProps = Props & DataProps;
 
-const HelpPage: React.SFC<Props> = ({ categories }) => {
-  return (
-    <div>
-      <Search />
+const HelpPage: React.SFC<EnhancedProps> = ({ query }) => (
+  <div>
+    <Search />
 
-      {categories.map(category => (
-        <Category key={category.id} category={category} />
-      ))}
-    </div>
-  );
-};
+    <Query query={GET_CATEGORIES}>
+      {({ data, loading }) => {
+        if (loading) {
+          return <PageLoader />;
+        }
 
-const mapStateToProps = (state: any) => ({
-  categories: getCategories(state),
-});
+        if (data.allCategories.length === 0) {
+          return <NoArticles>No articles published yet.</NoArticles>;
+        }
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchCategoriesIfNeeded,
-    },
-    dispatch
-  );
+        return (
+          <>
+            {data.allCategories.map((category: any) => (
+              <Category key={category.id} category={category} />
+            ))}
+          </>
+        );
+      }}
+    </Query>
+  </div>
+);
 
 const enhance = compose<any, any>(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  ),
-  lifecycle<Props, {}>({
-    componentWillMount() {
-      this.props.fetchCategoriesIfNeeded();
-    },
+  graphql(SEARCH_QUERY, {
+    props: ({ data }: any) => ({
+      query: (data.helpSearch && data.helpSearch.value) || '',
+    }),
   })
 );
 
 export default enhance(HelpPage);
+
+const NoArticles = styled.div`
+  background: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  border: #e8e8e8 1px solid;
+  margin: 10px 0;
+`;

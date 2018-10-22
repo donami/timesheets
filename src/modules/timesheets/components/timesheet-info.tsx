@@ -29,7 +29,7 @@ const labelProps = (status: TimesheetStatus) => {
   return {};
 };
 
-const TimesheetInfo: React.StatelessComponent<TimesheetInfoProps> = ({
+const TimesheetInfo: React.SFC<TimesheetInfoProps> = ({
   timesheet,
   project,
   owner,
@@ -61,7 +61,7 @@ const TimesheetInfo: React.StatelessComponent<TimesheetInfoProps> = ({
         <List.Item>
           <strong>User: </strong>{' '}
           <Link to={`/user/${owner.id}`} style={{ textDecoration: 'none' }}>
-            {owner.fullName}
+            {`${owner.firstName} ${owner.lastName}`}
           </Link>
         </List.Item>
       </HasAccess>

@@ -1,46 +1,66 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
+import { Redirect } from 'react-router';
 
-import {
-  getArticleSearchResults,
-  getArticleSearchQuery,
-} from '../store/selectors';
-import { QuestionArticle } from '../store/models';
 import { ArticleList } from '../components';
 import styled from '../../../styled/styled-components';
+import SearchLoader from './search-loader';
 
 type Props = {
-  results: QuestionArticle[];
   query: string;
 };
 
 class SearchResults extends Component<Props> {
   render() {
-    const { results, query } = this.props;
+    const { query } = this.props;
 
     if (!query) {
-      return null;
-    }
-
-    if (query && results.length === 0) {
-      return (
-        <SearchLabel>
-          Sorry, we couldn't find any articles for: <strong>{query}</strong>
-        </SearchLabel>
-      );
+      return <Redirect to="/help" />;
     }
 
     return (
-      <>
-        <SearchLabel>
-          Search results for: <strong>{query}</strong>
-        </SearchLabel>
+      <Query query={SEARCH_RESULTS} variables={{ query }}>
+        {({ data, loading }) => {
+          if (loading) {
+            return <SearchLoader />;
+          }
 
-        <ArticleList articles={results} />
-      </>
+          const results = data.allArticles;
+
+          if (results.length === 0) {
+            return (
+              <Box>
+                <SearchLabel>
+                  Sorry, we couldn't find any articles matching:{' '}
+                  <strong>{query}</strong>
+                </SearchLabel>
+              </Box>
+            );
+          }
+
+          return (
+            <>
+              <SearchLabel>
+                Search results for: <strong>{query}</strong>
+              </SearchLabel>
+
+              <ArticleList articles={results} />
+            </>
+          );
+        }}
+      </Query>
     );
   }
 }
+
+const Box = styled.div`
+  border-radius: 5px;
+  background: #fff;
+  border: #e8e8e8 1px solid;
+  padding: 10px;
+  margin: 10px 0;
+`;
 
 const SearchLabel = styled.div`
   color: #8f919d;
@@ -48,7 +68,25 @@ const SearchLabel = styled.div`
   font-size: 1.2em;
 `;
 
-export default connect((state: any) => ({
-  results: getArticleSearchResults(state),
-  query: getArticleSearchQuery(state),
-}))(SearchResults);
+const SEARCH_RESULTS = gql`
+  query($query: String!) {
+    allArticles(filter: { title_contains: $query }) {
+      __typename
+      id
+      title
+      teaser
+      author {
+        id
+        image {
+          id
+        }
+        firstName
+        lastName
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export default SearchResults;

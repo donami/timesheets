@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 
-import { TimesheetItem } from '../store/models';
 import { TimesheetList } from '../components';
 import { sortByRecentUpdatedDates } from '../../../utils/helpers';
-import { getTimesheets } from '../store/selectors';
-import { connect } from 'react-redux';
+import { graphql } from 'react-apollo';
+import { GET_TIMESHEETS } from '../store/queries';
+import { branch, renderNothing, compose } from 'recompose';
 
 type Props = {
-  timesheets: TimesheetItem[];
   limit?: number;
 };
 
-class TimesheetsRecentlyUpdated extends Component<Props> {
+type DataProps = { timesheets: any };
+type EnhancedProps = Props & DataProps;
+
+class TimesheetsRecentlyUpdated extends Component<EnhancedProps> {
   render() {
     const { timesheets, ...rest } = this.props;
 
@@ -19,12 +21,21 @@ class TimesheetsRecentlyUpdated extends Component<Props> {
       <TimesheetList
         sortFunction={sortByRecentUpdatedDates}
         items={timesheets}
+        includeUser
         {...rest}
       />
     );
   }
 }
 
-export default connect((state: any) => ({
-  timesheets: getTimesheets(state),
-}))(TimesheetsRecentlyUpdated);
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_TIMESHEETS, {
+    props: ({ data }: any) => ({
+      timesheets: data.allTimesheets,
+      loading: data.loading,
+    }),
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
+
+export default enhance(TimesheetsRecentlyUpdated);

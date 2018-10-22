@@ -1,13 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { QuestionArticle } from '../store/models';
 import styled from '../../../styled/styled-components';
 import { DEFAULT_USER_IMAGE } from '../../../config/constants';
 import MetaInfo from './meta-info';
 
 type Props = {
-  article: QuestionArticle;
+  article: any;
 };
 
 const ArticleListItem: React.SFC<Props> = ({ article }) => {
@@ -18,12 +17,14 @@ const ArticleListItem: React.SFC<Props> = ({ article }) => {
 
       <MetaInfo
         avatar={article.author.image || DEFAULT_USER_IMAGE}
-        authorName={article.author.fullName}
+        authorName={`${article.author.firstName} ${article.author.lastName}`}
         createdAt={article.createdAt}
       />
     </Container>
   );
 };
+
+export default ArticleListItem;
 
 const Container = styled(Link)`
   padding: 20px 10px;
@@ -48,5 +49,3 @@ const Container = styled(Link)`
     background-color: #fcfcfc;
   }
 `;
-
-export default ArticleListItem;

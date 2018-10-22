@@ -9,7 +9,7 @@ import { User } from '../../users/store/models';
 
 type Props = {
   article: QuestionArticle;
-  author: User;
+  author: any;
 };
 
 class ArticleInfo extends React.Component<Props> {
@@ -26,7 +26,7 @@ class ArticleInfo extends React.Component<Props> {
         <MetaInfo
           avatar={author.image || DEFAULT_USER_IMAGE}
           createdAt={article.createdAt}
-          authorName={author.fullName}
+          authorName={`${author.firstName} ${author.lastName}`}
         />
 
         <ArticleBody

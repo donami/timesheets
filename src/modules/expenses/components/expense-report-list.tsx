@@ -101,6 +101,9 @@ const Row = styled.div`
   > div {
     flex: 1;
     padding: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 `;
 

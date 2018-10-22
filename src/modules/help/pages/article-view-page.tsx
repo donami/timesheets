@@ -1,84 +1,64 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React from 'react';
+import { compose, branch, renderNothing, renderComponent } from 'recompose';
+import { graphql } from 'react-apollo';
 
-import {
-  selectArticle,
-  fetchCategoriesIfNeeded,
-  giveFeedback,
-} from '../store/actions';
-import { QuestionArticle, QuestionCategory } from '../store/models';
-import {
-  getSelectedArticle,
-  getSelectedArticleAuthor,
-  getSelectedArticleCategory,
-} from '../store/selectors';
 import {
   ArticleInfo,
   Breadcrumb,
   Search,
   ArticleFeedback,
 } from '../components';
-import { User } from '../../users/store/models';
+import { GET_ARTICLE, SEARCH_QUERY } from '../store/queries';
+import { PageLoader } from 'src/modules/ui';
+import { NotFoundPage } from 'src/modules/common';
 
 type Props = {
   match: any;
-  article: QuestionArticle;
-  category: QuestionCategory | null | undefined;
   giveFeedback: (articleId: number, response: string) => any;
-  selectArticle: (articleId: number) => any;
-  fetchCategoriesIfNeeded: () => any;
-  author: User;
 };
+type DataProps = {
+  query: string;
+  loading: boolean;
+  article: any;
+};
+type EnhancedProps = Props & DataProps;
 
-class ArticleViewPage extends Component<Props> {
-  componentWillMount() {
-    const { match } = this.props;
-
-    this.props.fetchCategoriesIfNeeded();
-
-    if (match.params.id) {
-      this.props.selectArticle(+match.params.id);
-    }
-  }
-
-  handleFeedback = (articleId: number, response: string) => {
-    this.props.giveFeedback(articleId, response);
-  };
-
-  render() {
-    const { article, author, category } = this.props;
-
-    if (!article) {
-      return null;
-    }
-
-    return (
-      <div>
+const ArticleViewPage: React.SFC<EnhancedProps> = ({ article, query }) => (
+  <div>
+    {!article ? (
+      <NotFoundPage />
+    ) : (
+      <>
         <Search />
 
-        {category && <Breadcrumb category={category} article={article} />}
+        {article.category && (
+          <Breadcrumb category={article.category} article={article} />
+        )}
 
-        <ArticleInfo article={article} author={author} />
+        <ArticleInfo article={article} author={article.author} />
 
-        <ArticleFeedback
-          articleId={article.id}
-          onFeedback={this.handleFeedback}
-        />
-      </div>
-    );
-  }
-}
+        <ArticleFeedback articleId={article.id} feedback={article.feedback} />
+      </>
+    )}
+  </div>
+);
 
-export default connect(
-  (state: any) => ({
-    article: getSelectedArticle(state),
-    author: getSelectedArticleAuthor(state),
-    category: getSelectedArticleCategory(state),
+const enhance = compose(
+  graphql(SEARCH_QUERY, {
+    props: ({ data }: any) => ({
+      query: (data.helpSearch && data.helpSearch.value) || '',
+    }),
   }),
-  (dispatch: any) =>
-    bindActionCreators(
-      { selectArticle, fetchCategoriesIfNeeded, giveFeedback },
-      dispatch
-    )
-)(ArticleViewPage);
+  graphql(GET_ARTICLE, {
+    options: ({ match }: Props) => ({
+      variables: { id: match.params.id },
+    }),
+    props: ({ data }: any) => ({
+      article: data.Article,
+      loading: data.loading,
+    }),
+  }),
+  branch(({ loading }) => loading, renderComponent(PageLoader))
+);
+
+export default enhance(ArticleViewPage);

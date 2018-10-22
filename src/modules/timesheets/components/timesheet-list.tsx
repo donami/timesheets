@@ -15,18 +15,20 @@ import { User } from '../../users/store/models';
 import { ListProps } from '../../common/components/list/list';
 import List from '../../common/components/list';
 
-const getUserLink = (timesheet: any, users?: any) => {
-  if (!users || !timesheet.owner) {
+const getUserLink = (timesheet: any) => {
+  if (!timesheet.owner) {
     return null;
   }
 
-  const user = users[timesheet.owner];
+  const user = timesheet.owner;
 
   if (!user) {
     return null;
   }
 
-  return <Link to={`/user/${user.id}`}>{user.fullName}</Link>;
+  return (
+    <Link to={`/user/${user.id}`}>{`${user.firstName} ${user.lastName}`}</Link>
+  );
 };
 
 const renderPastDueDate = (
@@ -141,7 +143,7 @@ export default compose<EnhancedProps, Props>(
         };
 
         if (props.includeUser) {
-          newItem.user = getUserLink(item, props.users);
+          newItem.user = getUserLink(item);
         }
 
         return (
@@ -178,6 +180,9 @@ const Row = styled.div`
   > div {
     flex: 1;
     padding: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 `;
 

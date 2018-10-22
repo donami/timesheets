@@ -1,4 +1,5 @@
 import React from 'react';
+import { compose, withState, withHandlers } from 'recompose';
 import { Input, Icon, Select } from 'genui';
 
 import { Uploader } from '../../common';
@@ -6,7 +7,7 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 import { Column, Row } from '../../ui';
 import ExpenseLineItemImage from './expense-line-item-image';
 import { ExpenseLineItemType } from '../store/models';
-import { compose, withState, withHandlers } from 'recompose';
+import { DatePicker } from '../../common/components';
 
 type Props = {
   onItemChange(e: any): any;
@@ -17,7 +18,11 @@ type Props = {
     amount: any;
     expenseDate: string;
     expenseType: any;
-    files: any[];
+    files: {
+      id: string;
+      url: string;
+      name: string;
+    }[];
   };
 };
 
@@ -68,12 +73,10 @@ const ExpenseFormLineItem: React.SFC<EnhancedProps> = ({
           </InputField>
           <InputField>
             <label>Date of expense</label>
-            <Input
-              type="date"
-              name="expenseDate"
-              value={initialValues.expenseDate}
-              placeholder="Expense date"
+            <DatePicker
+              initialDate={initialValues.expenseDate}
               onChange={onItemChange}
+              name="expenseDate"
             />
           </InputField>
           <InputField>
@@ -107,17 +110,20 @@ const ExpenseFormLineItem: React.SFC<EnhancedProps> = ({
           {initialValues &&
             initialValues.files && (
               <PreviousFiles>
-                {initialValues.files.map((file: any) => {
-                  if (typeof file !== 'string') {
+                {initialValues.files.map(file => {
+                  // if (typeof file !== 'string') {
+                  //   return null;
+                  // }
+                  if (!file.id) {
                     return null;
                   }
                   return (
-                    <PreviousFileContainer key={file}>
+                    <PreviousFileContainer key={file.id}>
                       <ExpenseLineItemImage image={file} />
                       <span
                         className="fa-stack fa-2x"
                         title="Remove attachment"
-                        onClick={() => onRemoveUploadedFile(file)}
+                        // onClick={() => onRemoveUploadedFile(file)}
                       >
                         <i className="fas fa-circle fa-stack-2x" />
                         <i className="fas fa-times fa-stack-1x fa-inverse" />

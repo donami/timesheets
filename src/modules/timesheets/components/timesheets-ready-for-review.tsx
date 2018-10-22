@@ -1,65 +1,50 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 import { TimesheetList } from '../components';
-import { TimesheetItem } from '../store/models';
-import { fetchTimesheets } from '../store/actions';
-import { fetchProjects } from '../../projects/store/actions';
-import { getTimesheetsWaitingForApprovalWhereAdmin } from '../../common/store/selectors';
-import { getTimesheetsLoaded, getTimesheetsLoading } from '../store/selectors';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { TIMESHEET_LIST_ITEM_FRAGMENT } from '../store/queries';
 
 type Props = {
-  timesheets: TimesheetItem[];
-  fetchTimesheets: () => any;
-  fetchProjects: () => any;
-  timesheetsLoaded: boolean;
-  timesheetsLoading: boolean;
   limit?: number;
 };
 
-class TimesheetsReadyForReview extends React.Component<Props> {
-  componentWillMount() {
-    const {
-      fetchTimesheets,
-      fetchProjects,
-      timesheetsLoaded,
-      timesheetsLoading,
-    } = this.props;
+type DataProps = {
+  timesheets: any[];
+};
+type EnhancedProps = Props & DataProps;
 
-    if (!timesheetsLoaded && !timesheetsLoading) {
-      fetchTimesheets();
+const TimesheetsReadyForReview: React.SFC<EnhancedProps> = ({
+  timesheets,
+  ...rest
+}) => (
+  <div>
+    <TimesheetList
+      noItemsText="No timesheets waiting for approval."
+      items={timesheets}
+      {...rest}
+    />
+  </div>
+);
+
+export const GET_TIMESHEETS_READY_FOR_REVIEW = gql`
+  query allTimesheets {
+    allTimesheets(filter: { status: "WAITING_FOR_APPROVAL" }) {
+      ...TimesheetListItem
     }
-    fetchProjects();
   }
+  ${TIMESHEET_LIST_ITEM_FRAGMENT}
+`;
 
-  render() {
-    const { timesheets, ...rest } = this.props;
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_TIMESHEETS_READY_FOR_REVIEW, {
+    props: ({ data }: any) => ({
+      timesheets: data.allTimesheets,
+      loading: data.loading,
+    }),
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-    return (
-      <div>
-        <TimesheetList items={timesheets} {...rest} />
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state: any) => ({
-  timesheets: getTimesheetsWaitingForApprovalWhereAdmin(state),
-  timesheetsLoaded: getTimesheetsLoaded(state),
-  timesheetsLoading: getTimesheetsLoading(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchTimesheets,
-      fetchProjects,
-    },
-    dispatch
-  );
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimesheetsReadyForReview);
+export default enhance(TimesheetsReadyForReview);

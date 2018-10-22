@@ -1,53 +1,34 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
 
-import { TimesheetList } from '../components';
-import { fetchTimesheets } from '../store/actions';
-import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
+import { AuthedUserTimesheets } from '../components';
 import { sortByDate, filterOutFutureTimesheets } from '../utils';
 import { PageHeader } from '../../common';
-import { TimesheetItem } from '../store/models';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
-type Props = {
-  fetchTimesheets: () => any;
-  timesheets: TimesheetItem[];
+type Props = {};
+type DataProps = {
+  user: any;
+  loading: boolean;
 };
+type EnhancedProps = Props & DataProps;
 
-class TimesheetsPage extends React.Component<Props> {
-  componentWillMount() {
-    this.props.fetchTimesheets();
-  }
+const TimesheetsPage: React.SFC<EnhancedProps> = ({ user }) => (
+  <div>
+    <PageHeader>Your Timesheets</PageHeader>
+    <AuthedUserTimesheets userId={user.id} indicateDueDate={true} />
+  </div>
+);
 
-  render() {
-    const { timesheets } = this.props;
+const enhance = compose<EnhancedProps, Props>(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      user: data.user,
+      loading: data.loading,
+    }),
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-    const filteredTimesheets = timesheets
-      .filter(filterOutFutureTimesheets)
-      .sort(sortByDate);
-
-    return (
-      <div>
-        <PageHeader>Your Timesheets</PageHeader>
-        <TimesheetList items={filteredTimesheets} indicateDueDate={true} />
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state: any) => ({
-  timesheets: getTimesheetsForAuthedUser(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchTimesheets,
-    },
-    dispatch
-  );
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimesheetsPage);
+export default enhance(TimesheetsPage);

@@ -1,24 +1,33 @@
 import * as React from 'react';
 import { Button, Select } from 'genui';
+import { graphql } from 'react-apollo';
+import { compose } from 'recompose';
 
 import { Box } from '../../ui';
 import { Group } from '../../groups/store/models';
 import { Translate } from '../../common';
 import styled from '../../../styled/styled-components';
+import { UPDATE_USER } from '../store/mutations';
 
-export interface UserGroupsProps {
+type Props = {
   groups: Group[];
-  initialSelectedGroup: number;
-  onSubmit: (groupId: number) => any;
-}
+  user: any;
+  initialSelectedGroup: string;
+  onSubmit: (groupId: string) => any;
+};
+type DataProps = {
+  addUserToGroup(options: any): any;
+  updateUser(options: any): any;
+};
+type EnhancedProps = DataProps & Props;
 
-export interface UserGroupsState {
-  selectedGroupId: number;
-}
+type State = {
+  selectedGroupId: string;
+};
 
-class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
-  state: UserGroupsState = {
-    selectedGroupId: 0,
+class UserGroups extends React.Component<EnhancedProps, State> {
+  state: State = {
+    selectedGroupId: '',
   };
 
   formElem: any;
@@ -29,7 +38,7 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
     }
   }
 
-  handleChange = (value: number) => {
+  handleChange = (value: string) => {
     this.setState({
       selectedGroupId: value,
     });
@@ -38,11 +47,16 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
   handleSubmit = (e: any) => {
     e.preventDefault();
 
-    if (this.state.selectedGroupId === 0) {
+    if (this.state.selectedGroupId === '') {
       return;
     }
 
-    this.props.onSubmit && this.props.onSubmit(this.state.selectedGroupId);
+    this.props.updateUser({
+      variables: {
+        id: this.props.user.id,
+        groupId: this.state.selectedGroupId,
+      },
+    });
   };
 
   render() {
@@ -60,12 +74,12 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
               value: group.id,
               label: group.name,
             }))}
-            value={this.state.selectedGroupId.toString()}
+            value={this.state.selectedGroupId}
             onChange={this.handleChange}
           />
 
           <ButtonContainer>
-            <Button type="submit" disabled={this.state.selectedGroupId === 0}>
+            <Button type="submit" disabled={this.state.selectedGroupId === ''}>
               <Translate text="common.labels.SAVE" />
             </Button>
           </ButtonContainer>
@@ -75,7 +89,13 @@ class UserGroups extends React.Component<UserGroupsProps, UserGroupsState> {
   }
 }
 
-export default UserGroups;
+const enhance = compose<EnhancedProps, Props>(
+  graphql(UPDATE_USER, {
+    name: 'updateUser',
+  })
+);
+
+export default enhance(UserGroups);
 
 const Form = styled.form`
   display: flex;

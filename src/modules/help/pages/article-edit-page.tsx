@@ -1,84 +1,81 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React from 'react';
+import { compose, branch, renderNothing, withHandlers } from 'recompose';
+import { Mutation, Query } from 'react-apollo';
+import gql from 'graphql-tag';
 
 import { ArticleForm } from '../components';
-import { QuestionArticle, QuestionCategory } from '../store/models';
-import {
-  updateArticle,
-  selectArticle,
-  fetchCategoriesIfNeeded,
-} from '../store/actions';
-import {
-  getSelectedArticle,
-  getCategories,
-  getSelectedArticleCategory,
-} from '../store/selectors';
-import { getAuthedUserId } from '../../auth/store/selectors';
 import { PageHeader } from '../../common';
+import { ARTICLE_FRAGMENT, CATEGORY_ITEM_FRAGMENT } from '../store/queries';
+import { UPDATE_ARTICLE } from '../store/mutations';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
 type Props = {
   match: any;
-  article: QuestionArticle;
   userId: number;
-  categories: QuestionCategory[];
-  category: QuestionCategory | null | undefined;
-  updateArticle: (
-    articleId: number,
-    data: Partial<QuestionArticle>,
-    categoryId: number
-  ) => any;
-  selectArticle: (articleId: number) => any;
-  fetchCategoriesIfNeeded: () => any;
 };
+type DataProps = {
+  article: any;
+  loading: boolean;
+};
+type HandlerProps = {
+  onSave(data: any): void;
+};
+type EnhancedProps = Props & DataProps & WithToastrProps & HandlerProps;
 
-class ArticleEditPage extends Component<Props> {
-  componentWillMount() {
-    this.props.fetchCategoriesIfNeeded();
+const ArticleEditPage: React.SFC<EnhancedProps> = ({
+  article,
+  onSave,
+  match,
+}) => (
+  <Query query={ARTICLE_QUERY} variables={{ id: match.params.id }}>
+    {({ loading, data }) => {
+      if (loading) {
+        return null;
+      }
 
-    const { match } = this.props;
+      return (
+        <div>
+          <PageHeader>Edit Article</PageHeader>
 
-    if (match.params.id) {
-      this.props.selectArticle(+match.params.id);
+          <Mutation mutation={UPDATE_ARTICLE}>
+            {updateArticle => (
+              <ArticleForm
+                categories={data.allCategories || []}
+                onSubmit={onSave}
+                article={data.Article}
+                updateArticle={updateArticle}
+                category={data.Article.category}
+              />
+            )}
+          </Mutation>
+        </div>
+      );
+    }}
+  </Query>
+);
+
+const ARTICLE_QUERY = gql`
+  query($id: ID!) {
+    Article(id: $id) {
+      ...articleFragment
+    }
+    allCategories {
+      ...categoryItemFragment
     }
   }
+  ${ARTICLE_FRAGMENT}
+  ${CATEGORY_ITEM_FRAGMENT}
+`;
 
-  handleSubmit = (data: Partial<QuestionArticle>, categoryId: number) => {
-    if (!data.id) {
-      return;
-    }
-
-    this.props.updateArticle(data.id, data, categoryId);
-  };
-
-  render() {
-    return (
-      <div>
-        <PageHeader>Edit Article</PageHeader>
-
-        {this.props.category && (
-          <ArticleForm
-            categories={this.props.categories}
-            onSubmit={this.handleSubmit}
-            article={this.props.article}
-            category={this.props.category}
-          />
-        )}
-      </div>
-    );
-  }
-}
-
-export default connect(
-  (state: any) => ({
-    userId: getAuthedUserId(state),
-    article: getSelectedArticle(state),
-    categories: getCategories(state),
-    category: getSelectedArticleCategory(state),
+const enhance = compose(
+  withToastr,
+  withHandlers({
+    onSave: ({ addToast, history }) => async (data: any) => {
+      addToast('Updated!', 'Article was updated.', 'positive');
+      history.goBack();
+    },
   }),
-  (dispatch: any) =>
-    bindActionCreators(
-      { updateArticle, selectArticle, fetchCategoriesIfNeeded },
-      dispatch
-    )
-)(ArticleEditPage);
+  branch(({ loading }) => loading, renderNothing)
+);
+
+export default enhance(ArticleEditPage);

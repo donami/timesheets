@@ -1,124 +1,143 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Button, TableBuilder, Table, Icon, ActionProps } from 'genui';
-
-// import { TimesheetTemplateList } from '../components';
-import {
-  fetchTimesheetTemplatesIfNeeded,
-  removeTimesheetTemplate,
-} from '../store/actions';
-import { timesheetSelectors } from '../store';
-import { PageHeader, Translate } from '../../common';
+import { graphql } from 'react-apollo';
 import { Link } from 'react-router-dom';
+import {
+  compose,
+  withHandlers,
+  branch,
+  renderNothing,
+  renderComponent,
+} from 'recompose';
 
-export interface TimesheetTemplatesPageProps {
-  templates: any;
-  fetchTimesheetTemplatesIfNeeded(): any;
-  removeTimesheetTemplate(templateId: number): any;
-}
+import { PageHeader, Translate } from '../../common';
+import { GET_TEMPLATES } from '../store/queries';
+import { DELETE_TEMPLATE } from '../store/mutations';
+import { PageLoader } from 'src/modules/ui';
 
-class TimesheetTemplatesPage extends React.Component<
-  TimesheetTemplatesPageProps
-> {
-  componentWillMount() {
-    this.props.fetchTimesheetTemplatesIfNeeded();
-  }
+type Props = {};
 
-  handleRemove = (templateId: number) => {
-    this.props.removeTimesheetTemplate(templateId);
-  };
+type DataProps = {
+  templates: any[];
+  loading: boolean;
+  deleteTemplate(options: any): any;
+};
 
-  render() {
-    const { templates } = this.props;
+type HandlerProps = {
+  onRemoveTemplate(templateId: string): void;
+};
 
-    return (
-      <div>
-        <PageHeader
-          options={() => (
-            <Button to="/timesheet-templates/create" color="purple">
-              <Translate text="timesheetTemplates.labels.NEW_TIMESHEET_TEMPLATE" />
-            </Button>
-          )}
-        >
-          <Translate text="timesheetTemplates.labels.TIMESHEET_TEMPLATES" />
-        </PageHeader>
+type EnhancedProps = Props & DataProps & HandlerProps;
 
-        <TableBuilder
-          selectable
-          items={templates}
-          itemsOptions={(item: any) => [
-            {
-              label: 'View template',
-              icon: 'fas fa-eye',
-              to: `/timesheet-template/${item.id}`,
-            },
-          ]}
-          renderHeaders={
-            <>
-              <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
-              <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-              <Table.HeaderCell length="5%" />
-            </>
-          }
-          renderItem={(item: any) => (
-            <>
-              <Table.Cell>
-                <Link to={`/timesheet-template/${item.id}`}>#{item.id}</Link>
-              </Table.Cell>
-              <Table.Cell>{item.name}</Table.Cell>
+const TimesheetTemplatesPage: React.SFC<EnhancedProps> = ({
+  templates,
+  onRemoveTemplate,
+}) => (
+  <div>
+    <PageHeader
+      options={() => (
+        <Button to="/timesheet-templates/create" color="purple">
+          <Translate text="timesheetTemplates.labels.NEW_TIMESHEET_TEMPLATE" />
+        </Button>
+      )}
+    >
+      <Translate text="timesheetTemplates.labels.TIMESHEET_TEMPLATES" />
+    </PageHeader>
 
-              <Table.Cell
-                option={{
-                  icon: 'fas fa-pencil-alt',
-                  to: `/timesheet-template/${item.id}/edit`,
-                }}
-              />
-              <Table.Cell
-                option={{
-                  confirm: {
-                    trigger: <Icon name="fas fa-trash" title="Remove" />,
-                    content: `Do you really want to remove "${item.name}"?`,
-                    onActionClick: (
-                      e: React.MouseEvent<HTMLElement>,
-                      actionProps: ActionProps
-                    ) => {
-                      if (actionProps.positive) {
-                        this.handleRemove(item.id);
-                      }
-                    },
-                  },
-                }}
-              />
-            </>
-          )}
-        />
+    <TableBuilder
+      selectable
+      items={templates}
+      itemsOptions={(item: any) => [
+        {
+          label: 'View template',
+          icon: 'fas fa-eye',
+          to: `/timesheet-template/${item.id}`,
+        },
+      ]}
+      renderHeaders={
+        <>
+          <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+          <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+          <Table.HeaderCell length="5%" />
+        </>
+      }
+      renderItem={(item: any) => (
+        <>
+          <Table.Cell>
+            <Link to={`/timesheet-template/${item.id}`}>#{item.id}</Link>
+          </Table.Cell>
+          <Table.Cell>{item.name}</Table.Cell>
 
-        {/* <TimesheetTemplateList
-          templates={templates}
-          onRemoveTemplate={this.handleRemove}
-        /> */}
-      </div>
-    );
-  }
-}
+          <Table.Cell
+            option={{
+              icon: 'fas fa-pencil-alt',
+              to: `/timesheet-template/${item.id}/edit`,
+            }}
+          />
+          <Table.Cell
+            option={{
+              confirm: {
+                trigger: <Icon name="fas fa-trash" title="Remove" />,
+                content: `Do you really want to remove "${item.name}"?`,
+                onActionClick: (
+                  e: React.MouseEvent<HTMLElement>,
+                  actionProps: ActionProps
+                ) => {
+                  if (actionProps.positive) {
+                    onRemoveTemplate(item.id);
+                  }
+                },
+              },
+            }}
+          />
+        </>
+      )}
+    />
+  </div>
+);
 
-const mapStateToProps = (state: any) => ({
-  templates: timesheetSelectors.getTimesheetTemplates(state),
-});
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_TEMPLATES, {
+    props: ({ data }: any) => ({
+      templates: data.allTemplates,
+      loading: data.loading,
+    }),
+  }),
+  graphql(DELETE_TEMPLATE, {
+    name: 'deleteTemplate',
+    options: {
+      update: (proxy, { data: { deleteTemplate } }: { data: any }) => {
+        const { allTemplates }: any = proxy.readQuery({
+          query: GET_TEMPLATES,
+        });
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchTimesheetTemplatesIfNeeded,
-      removeTimesheetTemplate,
+        proxy.writeQuery({
+          query: GET_TEMPLATES,
+          data: {
+            allTemplates: allTemplates.filter(
+              (template: any) => template.id !== deleteTemplate.id
+            ),
+          },
+        });
+      },
     },
-    dispatch
-  );
+  }),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onRemoveTemplate: ({ deleteTemplate }) => (id: string) => {
+      deleteTemplate({
+        variables: { id },
+        optimisticResponse: {
+          deleteTemplate: {
+            id,
+            __typename: 'Template',
+          },
+        },
+      });
+    },
+  }),
+  branch<EnhancedProps>(({ loading }) => loading, renderComponent(PageLoader))
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimesheetTemplatesPage);
+export default enhance(TimesheetTemplatesPage);

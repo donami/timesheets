@@ -1,39 +1,50 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { compose, branch, renderNothing } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 import { UserForm } from '../components';
-import { createUser } from '../store/actions';
-import { Project } from '../../projects/store/models';
-import { fetchProjects } from '../../projects/store/actions';
-import { getAuthedUserProjectsWhereAdmin } from '../../auth/store/selectors';
 import { PageHeader } from '../../common';
-import { getGroups } from '../../groups/store/selectors';
-import { Group } from '../../groups/store/models';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import { GET_USERS, USER_LIST_ITEM_FRAGMENT } from '../store/queries';
 
-type Props = {
-  createUser: (user: UserFormData) => any;
-  fetchProjects: () => any;
-  projects: Project[];
-  groups: Group[];
-  error: any;
+type Props = {};
+type DataProps = {
+  createUser(options: any): any;
+  projects: any[];
+  groups: any[];
+  history: any;
+  loading: boolean;
 };
+type EnhancedProps = Props & DataProps & WithToastrProps;
 
 type UserFormData = {
   firstname: string;
   lastname: string;
   email: string;
   password: string;
-  projects: number[];
+  project: string;
+  group: string;
 };
 
-class UserAddPage extends React.Component<Props> {
-  componentWillMount() {
-    this.props.fetchProjects();
-  }
-
-  handleAdd = (data: UserFormData) => {
-    this.props.createUser(data);
+class UserAddPage extends React.Component<EnhancedProps> {
+  handleAdd = async (data: UserFormData) => {
+    await this.props.createUser({
+      variables: {
+        email: data.email,
+        firstName: data.firstname,
+        lastName: data.lastname,
+        password: data.password,
+        projectId: data.project,
+        groupId: data.group,
+      },
+    });
+    await this.props.addToast(
+      'User created!',
+      'User was created successfully.',
+      'positive'
+    );
+    this.props.history.goBack();
   };
 
   render() {
@@ -52,21 +63,80 @@ class UserAddPage extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  projects: getAuthedUserProjectsWhereAdmin(state),
-  groups: getGroups(state),
-});
+const QUERY = gql`
+  query {
+    allProjects {
+      id
+      name
+    }
+    allGroups {
+      id
+      name
+    }
+  }
+`;
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      createUser,
-      fetchProjects,
+const CREATE_USER = gql`
+  mutation(
+    $email: String!
+    $password: String!
+    $firstName: String!
+    $lastName: String!
+    $projectId: ID!
+    $groupId: ID!
+  ) {
+    createAuthUser(
+      email: $email
+      password: $password
+      firstName: $firstName
+      lastName: $lastName
+      groupId: $groupId
+      projectId: $projectId
+      projectRole: "USER"
+      role: "USER"
+    ) {
+      id
+      firstName
+      lastName
+      disabled
+    }
+  }
+`;
+
+const enhance = compose(
+  withToastr,
+  graphql(QUERY, {
+    props: ({ data }: any) => ({
+      projects: data.allProjects,
+      groups: data.allGroups,
+      loading: data.loading,
+    }),
+  }),
+  graphql(CREATE_USER, {
+    name: 'createUser',
+    options: {
+      update: (proxy, { data }: any) => {
+        const { allUsers }: any = proxy.readQuery({
+          query: GET_USERS,
+        });
+
+        const item = {
+          ...data.createAuthUser,
+          __typename: 'User',
+          group: null,
+          image: null,
+        };
+
+        proxy.writeQuery({
+          query: GET_USERS,
+          data: {
+            allUsers: allUsers.concat([item]),
+          },
+        });
+      },
     },
-    dispatch
-  );
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UserAddPage);
+export default enhance(UserAddPage);

@@ -31,7 +31,7 @@ const ExpenseLineItem: React.SFC<Props> = ({ item, index }) => {
           <h4>Attachments ({item.files.length})</h4>
           <div>
             {item.files.map(file => (
-              <ExpenseLineItemImage key={file} image={file} />
+              <ExpenseLineItemImage key={file.id} image={file} />
             ))}
           </div>
         </Images>

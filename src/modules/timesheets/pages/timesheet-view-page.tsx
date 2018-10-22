@@ -1,42 +1,53 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { Icon, Button } from 'genui';
+import * as moment from 'moment';
+import {
+  compose,
+  branch,
+  renderNothing,
+  withHandlers,
+  withState,
+  renderComponent,
+} from 'recompose';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
-import { Calendar, TimesheetInfo, TimesheetLogs } from '../components';
-import { TimesheetItem, TimesheetStatus } from '../store/models';
-import { selectTimesheet, updateTimesheet } from '../store/actions';
-import {
-  getSelectedTimesheet,
-  getSelectedTimesheetId,
-} from '../store/selectors';
-import {
-  getTimesheetsInProjectsWhereAdmin,
-  getProjectOfSelectedTimesheet,
-  getOwnerOfSelectedTimesheet,
-} from '../../common/store/selectors';
-import { fetchProjects } from '../../projects/store/actions';
-import { Project } from '../../projects/store/models';
-import { Box } from '../../ui';
-import { PageHeader, ToggleView } from '../../common';
+import { TimesheetInfo, TimesheetLogs, Calendar } from '../components';
+import { TimesheetStatus } from '../store/models';
+import { Box, PageLoader } from '../../ui';
+import { PageHeader, ToggleView, NotFoundPage } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { User } from '../../users/store/models';
+import { UserRole } from '../../users/store/models';
+import { paddEmptyDates } from '../../../utils/calendar';
+import { UPDATE_TIMESHEET } from '../store/mutations';
+import { CREATE_NOTIFICATION } from '../../auth/store/mutations';
+import { CREATE_LOG } from '../../common/store/mutations';
 
 type Props = {
   match: any;
-  timesheet: TimesheetItem;
-  timesheetId: number;
-  owner: User;
-  selectTimesheet(timesheetId: number): any;
-  updateTimesheet(timesheetId: number, timesheet: TimesheetItem): any;
-  fetchProjects(): any;
-  timesheetsWhereAdmin: TimesheetItem[];
-  project: Project | null | undefined;
 };
 
-type State = Readonly<{
-  logView: boolean;
-}>;
+type DataProps = {
+  timesheet: any;
+  loading: boolean;
+  loggedInUser: any;
+  updateTimesheet(options: any): any;
+  createNotification(options: any): any;
+  createLog(options: any): any;
+};
+type HandlerProps = {
+  onSaveDraft(dates: any[]): any;
+  onSubmit(dates: any[]): any;
+  onApprove(): any;
+  onDecline(): any;
+};
+type StateProps = { logView: boolean };
+type StateHandlerProps = { setLogView(logView: boolean): void };
+type EnhancedProps = Props &
+  HandlerProps &
+  DataProps &
+  StateProps &
+  StateHandlerProps;
 
 const calendarEditable = (
   status: TimesheetStatus,
@@ -54,174 +65,272 @@ const calendarEditable = (
   );
 };
 
-const initialState: State = {
-  logView: false,
+const parseDates = (dates: any) => {
+  const weeks: any[] = [];
+
+  let weekIndex = 0;
+
+  dates.forEach((date: any) => {
+    if (!weeks[weekIndex]) {
+      weeks[weekIndex] = [];
+    }
+
+    const current = moment(date.date);
+
+    weeks[weekIndex].push(date);
+
+    if (current.isoWeekday() === 7) {
+      weekIndex = weekIndex + 1;
+    }
+  });
+
+  return paddEmptyDates(weeks);
 };
 
-class TimesheetViewPage extends React.Component<Props, State> {
-  readonly state = initialState;
-
-  componentWillMount() {
-    const { match, selectTimesheet, fetchProjects, timesheetId } = this.props;
-
-    fetchProjects();
-
-    if (match && match.params.id && +match.params.id !== timesheetId) {
-      selectTimesheet(+match.params.id);
-    }
+const TimesheetViewPage: React.SFC<any> = ({
+  timesheet,
+  onSubmit,
+  onApprove,
+  onSaveDraft,
+  onDecline,
+  loggedInUser,
+  logView,
+  setLogView,
+}) => {
+  if (!timesheet) {
+    return <NotFoundPage />;
   }
 
-  handleSaveDraft = (dates: any[]) => {
-    const { timesheet } = this.props;
-    const data = Object.assign({}, timesheet, {
-      dates,
-      status: TimesheetStatus.InProgressSaved,
-    });
+  // If viewing the timesheet as admin or as user
+  const isAdmin =
+    [UserRole.Manager, UserRole.Admin].indexOf(loggedInUser.role) > -1;
 
-    this.props.updateTimesheet(timesheet.id, data);
-  };
+  // If the calendar (hours) should be editable
+  const editable = calendarEditable(timesheet.status, isAdmin);
 
-  handleApprove = () => {
-    const { timesheet } = this.props;
+  return (
+    <div>
+      <PageHeader
+        options={
+          isAdmin ? (
+            <HeaderOption
+              title="View Timesheet Log"
+              onClick={() => setLogView(true)}
+              active={logView}
+            >
+              <Icon
+                name={logView ? 'fas fa-times fa-fw' : 'fas fa-calendar fa-fw'}
+              />
+            </HeaderOption>
+          ) : null
+        }
+      >
+        {logView ? 'View Timesheet Log' : 'View Timesheet'}
+      </PageHeader>
 
-    const data = Object.assign({}, timesheet, {
-      status: TimesheetStatus.Approved,
-    });
-
-    this.props.updateTimesheet(timesheet.id, data);
-  };
-
-  handleDecline = () => {
-    const { timesheet } = this.props;
-
-    const data = Object.assign({}, timesheet, {
-      status: TimesheetStatus.NeedsRevisement,
-    });
-
-    this.props.updateTimesheet(timesheet.id, data);
-  };
-
-  handleSubmit = (dates: any[]) => {
-    const { timesheet } = this.props;
-    const data = Object.assign({}, timesheet, {
-      dates,
-      status: TimesheetStatus.WaitingForApproval,
-    });
-
-    this.props.updateTimesheet(timesheet.id, data);
-  };
-
-  render() {
-    const { timesheet, timesheetsWhereAdmin, project, owner } = this.props;
-    const { logView } = this.state;
-
-    if (!timesheet) {
-      return null;
-    }
-
-    // If viewing the timesheet as admin or as user
-    const isAdmin = Boolean(
-      timesheetsWhereAdmin.find(item => item.id === timesheet.id)
-    );
-    // If the calendar (hours) should be editable
-    const editable = calendarEditable(timesheet.status, isAdmin);
-
-    return (
-      <div>
-        <PageHeader
-          options={
-            isAdmin ? (
-              <HeaderOption
-                title="View Timesheet Log"
-                onClick={() => this.setState({ logView: !logView })}
-                active={logView}
-              >
-                <Icon
-                  name={
-                    logView ? 'fas fa-times fa-fw' : 'fas fa-calendar fa-fw'
-                  }
+      <ToggleView
+        views={[
+          {
+            name: 'Logs',
+            show: logView,
+            view: (
+              <>
+                <Box title="Logs">
+                  <TimesheetLogs logs={timesheet.logs} />
+                </Box>
+                <Button onClick={() => setLogView(false)}>Close</Button>
+              </>
+            ),
+          },
+          {
+            name: 'Calendar',
+            show: !logView,
+            view: (
+              <>
+                <TimesheetInfo
+                  project={timesheet.project}
+                  timesheet={timesheet}
+                  owner={timesheet.owner}
                 />
-              </HeaderOption>
-            ) : null
-          }
-        >
-          {logView ? 'View Timesheet Log' : 'View Timesheet'}
-        </PageHeader>
-
-        <ToggleView
-          views={[
-            {
-              name: 'Logs',
-              show: logView,
-              view: (
-                <>
-                  <Box title="Logs">
-                    <TimesheetLogs />
-                  </Box>
-                  <Button onClick={() => this.setState({ logView: !logView })}>
-                    Close
-                  </Button>
-                </>
-              ),
-            },
-            {
-              name: 'Calendar',
-              show: !logView,
-              view: (
-                <>
-                  {project && (
-                    <TimesheetInfo
-                      project={project}
-                      timesheet={timesheet}
-                      owner={owner}
-                    />
-                  )}
-
-                  <div>
-                    <Calendar
-                      onSaveDraft={this.handleSaveDraft}
-                      onSubmit={this.handleSubmit}
-                      onApprove={this.handleApprove}
-                      onDecline={this.handleDecline}
-                      status={timesheet.status}
-                      dates={timesheet.dates}
-                      editable={editable}
-                      startOfMonth={timesheet.periodStart}
-                      isAdmin={isAdmin}
-                    />
-                  </div>
-                </>
-              ),
-            },
-          ]}
-        />
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state: any) => ({
-  timesheet: getSelectedTimesheet(state),
-  timesheetId: getSelectedTimesheetId(state),
-  owner: getOwnerOfSelectedTimesheet(state),
-  timesheetsWhereAdmin: getTimesheetsInProjectsWhereAdmin(state),
-  project: getProjectOfSelectedTimesheet(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      selectTimesheet,
-      updateTimesheet,
-      fetchProjects,
-    },
-    dispatch
+                <Calendar
+                  status={timesheet.status}
+                  dates={parseDates(timesheet.dates)}
+                  editable={editable}
+                  isAdmin={isAdmin}
+                  startOfMonth={timesheet.periodStart}
+                  onSaveDraft={onSaveDraft}
+                  onSubmit={onSubmit}
+                  onApprove={onApprove}
+                  onDecline={onDecline}
+                />
+              </>
+            ),
+          },
+        ]}
+      />
+    </div>
   );
+};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimesheetViewPage);
+const GET_TIMESHEET = gql`
+  query getTimesheet($id: ID!) {
+    Timesheet(id: $id) {
+      id
+      dateApproved
+      dates {
+        id
+        date
+        hours
+        expected {
+          inTime
+          outTime
+          break
+          totalHours
+        }
+        reported {
+          inTime
+          outTime
+          break
+          totalHours
+          message
+        }
+      }
+      project {
+        id
+        name
+      }
+      logs {
+        id
+        message
+        createdAt
+      }
+      owner {
+        id
+        firstName
+        lastName
+      }
+      periodStart
+      status
+      updatedAt
+      createdAt
+    }
+    user {
+      id
+      role
+      firstName
+      lastName
+    }
+  }
+`;
+
+const enhance = compose<EnhancedProps, Props>(
+  graphql(GET_TIMESHEET, {
+    options: (props: any) => ({
+      variables: { id: props.match.params.id },
+    }),
+    props: ({ data }: any) => ({
+      loading: data.loading,
+      timesheet: data.Timesheet,
+      loggedInUser: data.user,
+    }),
+  }),
+  graphql(CREATE_NOTIFICATION, { name: 'createNotification' }),
+  graphql(CREATE_LOG, {
+    name: 'createLog',
+    options: (props: any) => ({
+      update: (proxy, { data }: any) => {
+        const { Timesheet, user }: any = proxy.readQuery({
+          query: GET_TIMESHEET,
+          variables: { id: props.timesheet.id },
+        });
+
+        proxy.writeQuery({
+          query: GET_TIMESHEET,
+          data: {
+            user,
+            Timesheet: {
+              ...Timesheet,
+              logs: Timesheet.logs.concat(data.createLog),
+            },
+          },
+          variables: {
+            id: props.timesheet.IDBCursor,
+          },
+        });
+      },
+    }),
+  }),
+  graphql(UPDATE_TIMESHEET, { name: 'updateTimesheet' }),
+  withState('logView', 'setLogView', false),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onSaveDraft: props => (dates: any[]) => {
+      const { timesheet } = props;
+
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.InProgressSaved,
+        },
+      });
+    },
+    onSubmit: props => (dates: any[]) => {
+      const { timesheet, loggedInUser } = props;
+
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.WaitingForApproval,
+        },
+      });
+    },
+    onApprove: props => () => {
+      const { timesheet, loggedInUser } = props;
+
+      if (timesheet.status === TimesheetStatus.Approved) {
+        return;
+      }
+
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.Approved,
+        },
+      });
+
+      props.createNotification({
+        variables: {
+          message: 'Your timesheet was approved.',
+          icon: 'fas fa-check',
+          notificationType: 'TimesheetApproved',
+          userId: timesheet.owner.id,
+        },
+      });
+
+      props.createLog({
+        variables: {
+          message: `Timesheet was approved by ${loggedInUser.firstName} ${
+            loggedInUser.lastName
+          }`,
+          userId: loggedInUser.id,
+          timesheetId: timesheet.id,
+        },
+      });
+    },
+    onDecline: props => () => {
+      const { timesheet } = props;
+
+      props.updateTimesheet({
+        variables: {
+          id: timesheet.id,
+          status: TimesheetStatus.NeedsRevisement,
+        },
+      });
+    },
+  }),
+  branch(({ loading }) => loading, renderComponent(PageLoader))
+);
+
+export default enhance(TimesheetViewPage);
 
 const HeaderOption = withProps<{ active: boolean }, HTMLDivElement>(styled.div)`
   background: #4c84ff;

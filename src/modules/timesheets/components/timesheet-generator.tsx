@@ -1,75 +1,137 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import gql from 'graphql-tag';
+import { compose } from 'recompose';
+import { graphql } from 'react-apollo';
 import { Button, List, Icon, Select } from 'genui';
 
-import { getGeneratedTimesheets } from '../store/selectors';
-import { getSelectedUserGroupTemplate } from '../../users/store/selectors';
-import {
-  generateTimesheets,
-  confirmTemplates,
-  cancelTemplates,
-  resolveTimesheetConflict,
-} from '../store/actions';
-import {
-  TimesheetTemplateItem,
-  TimesheetItem,
-  ConflictResolve,
-} from '../store/models';
+import { TimesheetItem, ConflictResolve } from '../store/models';
 import { Project } from '../../projects/store/models';
-import { listOfMonthsFromToday } from '../../../utils/calendar';
+import {
+  listOfMonthsFromToday,
+  monthsBetween,
+  generateCalendarFromTemplate,
+} from '../../../utils/calendar';
 import { Translate, Form } from '../../common';
 import styled from '../../../styled/styled-components';
+import { DELETE_TIMESHEET } from '../store/mutations';
+import { USER_VIEW_PAGE_QUERY } from '../../users/pages/user-view-page';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
 type Props = {
-  template: TimesheetTemplateItem;
-  generated: any;
+  userProjectId: any;
   previousTimesheets: TimesheetItem[];
-  resolveTimesheetConflict: (
-    timesheetId: number,
-    periodStart: string,
-    resolve: ConflictResolve
-  ) => any;
-  confirmTemplates: (timesheets: any) => any;
-  cancelTemplates: () => any;
-  generateTimesheets: (
-    from: string,
-    to: string,
-    projectId: number,
-    userId: number,
-    template: TimesheetTemplateItem
-  ) => any;
   projects: Project[];
-  userId: number;
+  userId: string;
+  group: any;
+};
+type DataProps = {
+  confirmTemplates(options: any): any;
+  deleteTimesheet(options: any): any;
+};
+type EnhancedProps = Props & DataProps & WithToastrProps;
+
+type State = {
+  generated: {
+    timesheets: any[];
+    ownerId: string;
+    projectId: string;
+  } | null;
 };
 
-class TimesheetGenerator extends React.Component<Props> {
+const generator = (payload: {
+  from: string;
+  to: string;
+  template: any;
+  projectId: string;
+  ownerId: string;
+}) => {
+  const months = monthsBetween(payload.from, payload.to);
+
+  const timesheets = months.map((startOfMonth: string) => {
+    const dates = generateCalendarFromTemplate(
+      startOfMonth,
+      payload.template.hoursDays
+    );
+
+    return {
+      dates,
+      periodStart: startOfMonth,
+      status: 'IN_PROGRESS',
+    };
+  });
+
+  return {
+    timesheets,
+    projectId: payload.projectId,
+    ownerId: payload.ownerId,
+  };
+};
+
+class TimesheetGenerator extends React.Component<EnhancedProps, State> {
+  state: State = {
+    generated: null,
+  };
+
   handleGenerateTimesheets = (model: any) => {
-    const project = this.props.projects.find(item => {
-      return (
-        item.members.map(member => member.user).indexOf(this.props.userId) > -1
-      );
+    const generated = generator({
+      from: model.from,
+      to: model.to,
+      template: this.props.group.template,
+      projectId: this.props.userProjectId,
+      ownerId: this.props.userId,
     });
 
-    if (!project) {
+    this.setState({ generated });
+  };
+
+  handleConfirmTemplates = async (e: any) => {
+    const { generated } = this.state;
+
+    if (!generated || !generated.timesheets) {
       return;
     }
 
-    this.props.generateTimesheets(
-      model.from,
-      model.to,
-      project.id,
-      this.props.userId,
-      this.props.template
+    const inserts = generated.timesheets.map((item: any) => {
+      const dates: any[] = [];
+      item.dates.forEach((week: any) => {
+        week.forEach((day: any) => {
+          if (day.date) {
+            dates.push({
+              date: day.date,
+              expected: {
+                holiday: false,
+                inTime: day.expected.inTime,
+                outTime: day.expected.outTime,
+                break: day.expected.break,
+                totalHours: day.expected.totalHours,
+              },
+              hours: day.hours,
+            });
+          }
+        });
+      });
+      return this.props.confirmTemplates({
+        variables: {
+          dates,
+          projectId: generated.projectId,
+          ownerId: generated.ownerId,
+          periodStart: item.periodStart,
+          status: item.status,
+        },
+      });
+    });
+
+    await Promise.all(inserts);
+    this.setState({ generated: null });
+    this.props.addToast(
+      'Timesheets generated',
+      'The timesheets were generated.',
+      'positive'
     );
   };
 
-  handleConfirmTemplates = (e: any) => {
-    this.props.confirmTemplates(this.props.generated);
-  };
-
   handleCancelTemplates = (e: any) => {
-    this.props.cancelTemplates();
+    this.setState({ generated: null });
   };
 
   handleResolveConflict = (
@@ -77,11 +139,38 @@ class TimesheetGenerator extends React.Component<Props> {
     periodStart: string,
     resolve: ConflictResolve
   ) => {
-    this.props.resolveTimesheetConflict(timesheetId, periodStart, resolve);
+    if (!this.state.generated) {
+      return;
+    }
+
+    if (resolve === ConflictResolve.DISCARD_NEW) {
+      // Remove generated timesheet from state
+      this.setState({
+        generated: {
+          ...this.state.generated,
+          timesheets: this.state.generated.timesheets.filter(
+            (item: any) => item.periodStart !== periodStart
+          ),
+        },
+      });
+    } else {
+      this.props.deleteTimesheet({
+        variables: {
+          id: timesheetId,
+        },
+        optimisticResponse: {
+          deleteTimesheet: {
+            id: timesheetId,
+            __typename: 'Timesheet',
+          },
+        },
+      });
+    }
   };
 
   render() {
-    const { template, generated, previousTimesheets } = this.props;
+    const { previousTimesheets, group } = this.props;
+    const { generated } = this.state;
 
     const pastMonths = listOfMonthsFromToday(
       6,
@@ -98,12 +187,12 @@ class TimesheetGenerator extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        {template && (
+        {group.template && (
           <React.Fragment>
             <h4>
               <Translate text="timesheet.labels.GENERATE_TIMESHEETS_USING_TEMPLATE" />
               : &nbsp;
-              {template.name}
+              {group.template.name}
             </h4>
 
             {generated &&
@@ -116,7 +205,7 @@ class TimesheetGenerator extends React.Component<Props> {
                   <List divided>
                     {generated.timesheets.map((month: any, index: any) => {
                       const hasConflict = previousTimesheets.find(
-                        item => item.periodStart === month.month
+                        item => item.periodStart === month.periodStart
                       );
 
                       if (hasConflict) {
@@ -135,7 +224,7 @@ class TimesheetGenerator extends React.Component<Props> {
                                 onClick={() =>
                                   this.handleResolveConflict(
                                     hasConflict.id,
-                                    month.month,
+                                    month.periodStart,
                                     ConflictResolve.DISCARD_OLD
                                   )
                                 }
@@ -146,7 +235,7 @@ class TimesheetGenerator extends React.Component<Props> {
                                 onClick={() =>
                                   this.handleResolveConflict(
                                     hasConflict.id,
-                                    month.month,
+                                    month.periodStart,
                                     ConflictResolve.DISCARD_NEW
                                   )
                                 }
@@ -155,7 +244,7 @@ class TimesheetGenerator extends React.Component<Props> {
                               </span>
                             </Conflict>
                           )}
-                          {month.month}
+                          {month.periodStart}
                         </List.Item>
                       );
                     })}
@@ -232,7 +321,7 @@ class TimesheetGenerator extends React.Component<Props> {
           </React.Fragment>
         )}
 
-        {!template && (
+        {!group.template && (
           <React.Fragment>
             <Translate text="timesheet.messages.NEED_GROUP_TO_GENERATE" />
           </React.Fragment>
@@ -242,26 +331,58 @@ class TimesheetGenerator extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  template: getSelectedUserGroupTemplate(state),
-  generated: getGeneratedTimesheets(state),
-});
+const CONFIRM_TEMPLATES_MUTATION = gql`
+  mutation(
+    $periodStart: String!
+    $status: String
+    $dates: [TimesheetdatesTimesheetDate!]
+    $ownerId: ID!
+    $projectId: ID!
+  ) {
+    createTimesheet(
+      periodStart: $periodStart
+      status: $status
+      projectId: $projectId
+      ownerId: $ownerId
+      dates: $dates
+    ) {
+      id
+    }
+  }
+`;
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      generateTimesheets,
-      confirmTemplates,
-      cancelTemplates,
-      resolveTimesheetConflict,
-    },
-    dispatch
-  );
+const enhance = compose<EnhancedProps, Props>(
+  withToastr,
+  graphql(CONFIRM_TEMPLATES_MUTATION, { name: 'confirmTemplates' }),
+  graphql(DELETE_TIMESHEET, {
+    name: 'deleteTimesheet',
+    options: (props: Props) => ({
+      update: (proxy, { data }: any) => {
+        const { User, ...rest }: any = proxy.readQuery({
+          query: USER_VIEW_PAGE_QUERY,
+          variables: {
+            id: props.userId,
+          },
+        });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimesheetGenerator);
+        proxy.writeQuery({
+          query: USER_VIEW_PAGE_QUERY,
+          data: {
+            ...rest,
+            User: {
+              ...User,
+              timesheets: User.timesheets.filter(
+                (item: any) => item.id !== data.deleteTimesheet.id
+              ),
+            },
+          },
+        });
+      },
+    }),
+  })
+);
+
+export default enhance(TimesheetGenerator);
 
 const Conflict = styled.div`
   float: right;

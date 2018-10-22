@@ -1,17 +1,22 @@
 import React, { Component } from 'react';
 import { Icon } from 'genui';
+import { compose } from 'recompose';
 
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { searchArticlesClear, searchArticles } from '../store/actions';
-import { getArticleSearchQuery } from '../store/selectors';
+import { graphql, Query } from 'react-apollo';
+import gql from 'graphql-tag';
+import { withRouter } from 'react-router';
+import { Location } from 'history';
+import { SEARCH_QUERY } from '../store/queries';
 
-type Props = {
-  query: any;
-  clearSearch: () => any;
-  searchArticles: (query: string) => any;
+type Props = {};
+type DataProps = {
+  history: any;
+  location: Location;
+  searchMutation(options: any): any;
 };
+type EnhancedProps = Props & DataProps;
+
 type State = Readonly<{
   focused: boolean;
   value: string;
@@ -22,20 +27,24 @@ const initialState: State = {
   value: '',
 };
 
-class Search extends Component<Props, State> {
+class Search extends Component<EnhancedProps, State> {
   readonly state = initialState;
-
-  componentWillMount() {
-    if (this.props.query) {
-      this.setState({ value: this.props.query });
-    }
-  }
 
   handleSubmit = (e: any) => {
     e.preventDefault();
 
     if (this.state.value.length) {
-      this.props.searchArticles(this.state.value);
+      this.props
+        .searchMutation({
+          variables: {
+            value: this.state.value,
+          },
+        })
+        .then(() => {
+          if (this.props.location.pathname !== '/help/search') {
+            this.props.history.push('/help/search');
+          }
+        });
     }
   };
 
@@ -53,39 +62,71 @@ class Search extends Component<Props, State> {
 
   handleClear = (e: any) => {
     this.setState({ value: '' });
-    this.props.clearSearch();
+
+    this.props
+      .searchMutation({
+        variables: {
+          value: '',
+        },
+      })
+      .then(() => {
+        this.props.history.push('/help');
+      });
   };
 
   render() {
-    const { focused, value } = this.state;
+    const { focused } = this.state;
 
     return (
-      <Container>
-        <h3>Help Center</h3>
-        <Form onSubmit={this.handleSubmit}>
-          <Input
-            onFocus={this.handleFocus}
-            onBlur={this.handleBlur}
-            onChange={this.handleChange}
-            value={value}
-            placeholder="Search in our Help Center..."
-          />
-          <SearchButton type="submit" focused={focused}>
-            <Icon name="fas fa-search" />
-          </SearchButton>
+      <Query query={SEARCH_QUERY}>
+        {({ data, loading }) => {
+          if (loading) {
+            return null;
+          }
+          const searchValue = data.helpSearch.value;
 
-          <ClearButton
-            focused={focused}
-            hasValue={value.length > 0}
-            onClick={this.handleClear}
-          >
-            <Icon name="fas fa-times" />
-          </ClearButton>
-        </Form>
-      </Container>
+          return (
+            <Container>
+              <h3>Help Center</h3>
+              <Form onSubmit={this.handleSubmit}>
+                <Input
+                  onFocus={this.handleFocus}
+                  onBlur={this.handleBlur}
+                  onChange={this.handleChange}
+                  defaultValue={searchValue}
+                  placeholder="Search in our Help Center..."
+                />
+                <SearchButton type="submit" focused={focused}>
+                  <Icon name="fas fa-search" />
+                </SearchButton>
+
+                <ClearButton
+                  focused={focused}
+                  hasValue={searchValue.length > 0}
+                  onClick={this.handleClear}
+                >
+                  <Icon name="fas fa-times" />
+                </ClearButton>
+              </Form>
+            </Container>
+          );
+        }}
+      </Query>
     );
   }
 }
+
+const SEARCH_MUTATION = gql`
+  mutation($value: string) {
+    helpSearch(value: $value) @client
+  }
+`;
+
+const enhance = compose<EnhancedProps, Props>(
+  withRouter,
+  graphql(SEARCH_MUTATION, { name: 'searchMutation' })
+);
+export default enhance(Search);
 
 const Container = styled.div`
   background-color: #9088d9;
@@ -193,14 +234,3 @@ const Input = styled.input`
     color: #3a3c4c;
   }
 `;
-
-export default connect(
-  (state: any) => ({
-    query: getArticleSearchQuery(state),
-  }),
-  (dispatch: any) =>
-    bindActionCreators(
-      { searchArticles, clearSearch: searchArticlesClear },
-      dispatch
-    )
-)(Search);
