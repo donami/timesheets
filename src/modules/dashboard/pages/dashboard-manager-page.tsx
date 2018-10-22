@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { Button, Icon } from 'genui';
 import { compose } from 'recompose';
 import { graphql } from 'react-apollo';
@@ -12,20 +12,60 @@ import {
 } from '../../timesheets';
 import { Translate, PageHeader } from '../../common';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
+import {
+  Button as BPButton,
+  Intent,
+  Popover,
+  Menu,
+  MenuItem,
+  MenuDivider,
+  Position,
+} from '@blueprintjs/core';
+import { RouterProps } from 'react-router';
 
 type Props = {};
 type DataProps = {
   user: any;
 };
-type EnhancedProps = Props & DataProps;
+type EnhancedProps = Props & DataProps & RouterProps;
 
 class DashboardManagerPage extends React.Component<EnhancedProps> {
   render() {
-    const { user } = this.props;
+    const { user, history } = this.props;
 
     return (
       <div>
-        <PageHeader>Welcome {user.firstName}!</PageHeader>
+        <PageHeader
+          options={
+            <Popover position={Position.BOTTOM}>
+              <BPButton
+                text="Quick Actions"
+                intent={Intent.PRIMARY}
+                rightIcon="caret-down"
+              />
+
+              <Menu>
+                <MenuItem
+                  text="Manage help pages"
+                  icon="document"
+                  onClick={() => history.push('/help/manage')}
+                />
+                <MenuItem
+                  text="New project"
+                  icon="projects"
+                  onClick={() => history.push('/projects/add')}
+                />
+                <MenuItem
+                  text="New user"
+                  icon="user"
+                  onClick={() => history.push('/users/add')}
+                />
+              </Menu>
+            </Popover>
+          }
+        >
+          Welcome {user.firstName}!
+        </PageHeader>
 
         <Row>
           <Column xs={12} sm={6}>
@@ -44,21 +84,6 @@ class DashboardManagerPage extends React.Component<EnhancedProps> {
           </Column>
           <Column xs={12} sm={6}>
             <Box
-              title={() => <Translate text={`help.labels.SUPPORT_AND_HELP`} />}
-            >
-              <div style={{ textAlign: 'center' }}>
-                <Button to="/help/manage">
-                  <Icon name="fas fa-cog" />
-                  <Translate text={`help.labels.MANAGE_HELP_PAGES`} />
-                </Button>
-              </div>
-            </Box>
-          </Column>
-        </Row>
-
-        <Row>
-          <Column xs={12} sm={6}>
-            <Box
               actions={
                 <Link to="/manage-timesheets">
                   <Icon name="fas fa-external-link-alt" />
@@ -73,7 +98,10 @@ class DashboardManagerPage extends React.Component<EnhancedProps> {
               <TimesheetsPastDueDate limit={10} />
             </Box>
           </Column>
-          <Column xs={12} sm={6}>
+        </Row>
+
+        <Row>
+          <Column xs={12} sm={12}>
             <Box
               actions={
                 <Link to="/manage-timesheets">
@@ -92,6 +120,7 @@ class DashboardManagerPage extends React.Component<EnhancedProps> {
 }
 
 const enhance = compose(
+  withRouter,
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
       user: data.user || null,

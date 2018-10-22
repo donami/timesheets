@@ -80,7 +80,7 @@ class CreateChat extends Component<Props> {
                   >
                     {createChat => (
                       <div
-                        style={{ cursor: 'pointer ' }}
+                        style={{ cursor: 'pointer' }}
                         onClick={() => {
                           createChat({
                             variables: {

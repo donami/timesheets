@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { graphql } from 'react-apollo';
+import { branch, compose, renderComponent } from 'recompose';
+import { Spinner } from '@blueprintjs/core';
 
 import { TimesheetList } from '../components';
 import { sortByRecentUpdatedDates } from '../../../utils/helpers';
-import { graphql } from 'react-apollo';
 import { GET_TIMESHEETS } from '../store/queries';
-import { branch, renderNothing, compose } from 'recompose';
 
 type Props = {
   limit?: number;
@@ -35,7 +36,7 @@ const enhance = compose<EnhancedProps, Props>(
       loading: data.loading,
     }),
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(Spinner))
 );
 
 export default enhance(TimesheetsRecentlyUpdated);

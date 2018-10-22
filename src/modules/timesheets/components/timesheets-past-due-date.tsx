@@ -1,5 +1,5 @@
 import React from 'react';
-import { compose, renderNothing, branch } from 'recompose';
+import { compose, branch, renderComponent } from 'recompose';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
@@ -7,6 +7,7 @@ import { TimesheetList } from '../components';
 import { TIMESHEET_LIST_ITEM_FRAGMENT } from '../store/queries';
 import { monthIsInPast } from '../../../utils/calendar';
 import { TimesheetStatus } from '../store/models';
+import { Spinner } from '@blueprintjs/core';
 
 type Props = {
   limit?: number;
@@ -53,7 +54,7 @@ const enhance = compose<EnhancedProps, Props>(
       loading: data.loading,
     }),
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(Spinner))
 );
 
 export default enhance(TimesheetsPastDueDate);

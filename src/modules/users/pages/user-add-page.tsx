@@ -1,5 +1,5 @@
 import React from 'react';
-import { compose, branch, renderNothing } from 'recompose';
+import { compose, branch, renderNothing, renderComponent } from 'recompose';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
@@ -7,6 +7,7 @@ import { UserForm } from '../components';
 import { PageHeader } from '../../common';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { GET_USERS, USER_LIST_ITEM_FRAGMENT } from '../store/queries';
+import { PageLoader } from 'src/modules/ui';
 
 type Props = {};
 type DataProps = {
@@ -136,7 +137,7 @@ const enhance = compose(
       },
     },
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(UserAddPage);

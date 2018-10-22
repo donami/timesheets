@@ -1,10 +1,11 @@
 import * as React from 'react';
 
 import { TimesheetList } from '../components';
-import { compose, branch, renderNothing } from 'recompose';
+import { compose, branch, renderComponent } from 'recompose';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { TIMESHEET_LIST_ITEM_FRAGMENT } from '../store/queries';
+import { Spinner } from '@blueprintjs/core';
 
 type Props = {
   limit?: number;
@@ -44,7 +45,7 @@ const enhance = compose<EnhancedProps, Props>(
       loading: data.loading,
     }),
   }),
-  branch(({ loading }) => loading, renderNothing)
+  branch(({ loading }) => loading, renderComponent(Spinner))
 );
 
 export default enhance(TimesheetsReadyForReview);

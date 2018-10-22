@@ -2,6 +2,9 @@ import * as React from 'react';
 import { Button, Dropdown, Message, Icon } from 'genui';
 import gql from 'graphql-tag';
 import { History } from 'history';
+import { Link, Switch, Route } from 'react-router-dom';
+import { compose, withHandlers, branch, renderComponent } from 'recompose';
+import { graphql } from 'react-apollo';
 
 import { UserInfo, UserGroups, EditUser, EditUserStatus } from '../components';
 import { Group } from '../../groups/store/models';
@@ -9,15 +12,6 @@ import { Box, Row, Column, PageLoader } from '../../ui';
 import { TimesheetGenerator, TimesheetList } from '../../timesheets';
 import { PageHeader, Translate, Avatar } from '../../common';
 import styled, { withProps, css } from '../../../styled/styled-components';
-import { Link, Switch, Route } from 'react-router-dom';
-import {
-  compose,
-  withHandlers,
-  renderNothing,
-  branch,
-  renderComponent,
-} from 'recompose';
-import { graphql } from 'react-apollo';
 import { DISABLE_USER, ENABLE_USER } from '../store/mutations';
 import CreateChat from '../../common/components/chat/create-chat';
 import { fullName } from 'src/utils/helpers';
@@ -25,7 +19,8 @@ import { fullName } from 'src/utils/helpers';
 type DropdownItem = {
   label: string;
   icon: string;
-  onClick: any;
+  onClick?: any;
+  to?: string;
 };
 
 type Props = {
@@ -59,6 +54,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
       user,
       groups,
       projects,
+      history,
       match,
       onEnableUser,
       onDisableUser,
@@ -68,7 +64,14 @@ class UserViewPage extends React.Component<EnhancedProps> {
       return null;
     }
 
-    const items: DropdownItem[] = [];
+    const items: DropdownItem[] = [
+      {
+        label: 'Edit',
+        icon: 'fas fa-pencil-alt',
+        onClick: (userId: string) =>
+          this.props.history.push(`/user/${userId}/edit`),
+      },
+    ];
 
     if (user.disabled) {
       items.push({
@@ -91,12 +94,22 @@ class UserViewPage extends React.Component<EnhancedProps> {
             <StyledDropdown
               className="dropdown"
               items={items}
-              renderItem={(item: DropdownItem) => (
-                <div onClick={item.onClick}>
-                  <i className={item.icon} />
-                  {item.label}
-                </div>
-              )}
+              renderItem={(item: DropdownItem) => {
+                if (item.to) {
+                  return (
+                    <Link to={item.to}>
+                      <i className={item.icon} />
+                      {item.label}
+                    </Link>
+                  );
+                }
+                return (
+                  <div onClick={() => item.onClick(user.id)}>
+                    <i className={item.icon} />
+                    {item.label}
+                  </div>
+                );
+              }}
             >
               <Button icon="fas fa-cog" />
             </StyledDropdown>
@@ -132,7 +145,6 @@ class UserViewPage extends React.Component<EnhancedProps> {
                 <Avatar view="lg" avatar={user.image} name={fullName(user)} />
 
                 <h3>{`${user.firstName} ${user.lastName}`}</h3>
-                <Link to={`/user/${user.id}/edit`}>Edit User</Link>
               </UserCard>
 
               <UserNavigation>
@@ -353,7 +365,6 @@ const StyledDropdown = withProps<any>(styled(Dropdown))`
 
 const UserCard = styled.div`
   text-align: center;
-  padding: 20px;
 
   h3 {
     font-size: 1.2em;
@@ -379,8 +390,17 @@ const UserCard = styled.div`
 
 const UserCardActions = styled.div`
   margin-bottom: 20px;
+  padding: 10px;
   display: flex;
   justify-content: flex-end;
+
+  a {
+    color: inherit;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 
   span {
     font-size: 1em;

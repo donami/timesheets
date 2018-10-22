@@ -7,6 +7,7 @@ import { capitalize } from '../../../utils/helpers';
 import styled from '../../../styled/styled-components';
 import { toDuration, timeDiff } from '../../../utils/calendar';
 import { BackButton } from '../../common';
+import { Card, Elevation } from '@blueprintjs/core';
 
 type Props = {
   onSubmit: (data: State) => any;
@@ -244,86 +245,90 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
 
     return (
       <form onSubmit={this.handleSubmit}>
-        <Field>
-          <label>Name *</label>
-          <Input
-            placeholder="Name of the template"
-            name="name"
-            value={name}
-            onChange={this.handleChange}
-          />
-        </Field>
+        <StyledCard elevation={Elevation.ONE}>
+          <Field>
+            <label>Name *</label>
+            <Input
+              placeholder="Name of the template"
+              name="name"
+              value={name}
+              onChange={this.handleChange}
+            />
+          </Field>
 
-        <Field>
-          <label>Work hours per day *</label>
-          <Input
-            placeholder="8"
-            type="number"
-            name="workHoursPerDay"
-            value={workHoursPerDay}
-            onChange={this.handleChange}
-          />
-        </Field>
+          <Field>
+            <label>Work hours per day *</label>
+            <Input
+              placeholder="8"
+              type="number"
+              name="workHoursPerDay"
+              value={workHoursPerDay}
+              onChange={this.handleChange}
+            />
+          </Field>
+        </StyledCard>
 
-        <FieldLabels>Work hours per individual day</FieldLabels>
+        <StyledCard elevation={Elevation.ONE}>
+          <FieldLabels>Work hours per individual day</FieldLabels>
 
-        {hoursDays.map((day, index) => {
-          const date = moment()
-            .isoWeekday(index + 1)
-            .format('dddd')
-            .toLowerCase();
+          {hoursDays.map((day, index) => {
+            const date = moment()
+              .isoWeekday(index + 1)
+              .format('dddd')
+              .toLowerCase();
 
-          return (
-            <DayField key={index} className="day-field">
-              <label>{capitalize(date)} *</label>
+            return (
+              <DayField key={index} className="day-field">
+                <label>{capitalize(date)} *</label>
 
-              <DayFieldInputs>
-                <div>
-                  <label>IN Time</label>
-                  <Input
-                    placeholder="8"
-                    type="time"
-                    name={`${date}.inTime`}
-                    value={hoursDays[index].inTime}
-                    disabled={hoursDays[index].holiday}
-                    onChange={this.handleNewHoursDayChange}
-                  />
-                </div>
-                <div>
-                  <label>OUT Time</label>
-                  <Input
-                    placeholder="8"
-                    type="time"
-                    name={`${date}.outTime`}
-                    value={hoursDays[index].outTime}
-                    disabled={hoursDays[index].holiday}
-                    onChange={this.handleNewHoursDayChange}
-                  />
-                </div>
-                <div>
-                  <label>Break (mins)</label>
-                  <Input
-                    placeholder="8"
-                    type="number"
-                    name={`${date}.break`}
-                    value={hoursDays[index].break}
-                    disabled={hoursDays[index].holiday}
-                    onChange={this.handleNewHoursDayChange}
-                  />
-                </div>
-                <div style={{ alignSelf: 'center' }}>
-                  Holiday{' '}
-                  <input
-                    type="checkbox"
-                    name={`${date}.holiday`}
-                    checked={hoursDays[index].holiday}
-                    onChange={this.handleNewHoursDayChange}
-                  />
-                </div>
-              </DayFieldInputs>
-            </DayField>
-          );
-        })}
+                <DayFieldInputs>
+                  <div>
+                    <label>IN Time</label>
+                    <Input
+                      placeholder="8"
+                      type="time"
+                      name={`${date}.inTime`}
+                      value={hoursDays[index].inTime}
+                      disabled={hoursDays[index].holiday}
+                      onChange={this.handleNewHoursDayChange}
+                    />
+                  </div>
+                  <div>
+                    <label>OUT Time</label>
+                    <Input
+                      placeholder="8"
+                      type="time"
+                      name={`${date}.outTime`}
+                      value={hoursDays[index].outTime}
+                      disabled={hoursDays[index].holiday}
+                      onChange={this.handleNewHoursDayChange}
+                    />
+                  </div>
+                  <div>
+                    <label>Break (mins)</label>
+                    <Input
+                      placeholder="8"
+                      type="number"
+                      name={`${date}.break`}
+                      value={hoursDays[index].break}
+                      disabled={hoursDays[index].holiday}
+                      onChange={this.handleNewHoursDayChange}
+                    />
+                  </div>
+                  <div style={{ alignSelf: 'center' }}>
+                    Holiday{' '}
+                    <input
+                      type="checkbox"
+                      name={`${date}.holiday`}
+                      checked={hoursDays[index].holiday}
+                      onChange={this.handleNewHoursDayChange}
+                    />
+                  </div>
+                </DayFieldInputs>
+              </DayField>
+            );
+          })}
+        </StyledCard>
 
         <Button type="submit" color="green">
           {this.state.id ? 'Save' : 'Add'}
@@ -335,6 +340,10 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
 }
 
 export default TimesheetTemplateForm;
+
+const StyledCard = styled(Card)`
+  margin-bottom: 10px;
+`;
 
 const DayField = styled.div`
   margin-bottom: 20px;
