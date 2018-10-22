@@ -2,9 +2,14 @@ import * as React from 'react';
 import { Input, Button, Field } from 'genui';
 
 import styled from '../../../styled/styled-components';
+import { History } from 'history';
+import { Spinner } from '@blueprintjs/core';
 
 type Props = {
-  onSubmit: (email: string, password: string) => any;
+  mutate(options: any): void;
+  addToast: any;
+  loading: boolean;
+  history: History;
 };
 type State = Readonly<{
   email: string;
@@ -17,10 +22,29 @@ class AuthForm extends React.Component<Props, State> {
     password: '',
   };
 
-  handleSubmit = (e: any) => {
+  handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    this.props.onSubmit(this.state.email, this.state.password);
+    const { mutate, addToast, history } = this.props;
+    try {
+      const res: any = await mutate({
+        variables: {
+          email: this.state.email,
+          password: this.state.password,
+        },
+      });
+
+      if (res.data.authenticateUser && res.data.authenticateUser.token) {
+        localStorage.setItem('token', res.data.authenticateUser.token);
+        history.replace('/');
+      }
+    } catch (error) {
+      addToast(
+        'Invalid credentials',
+        'No user with that email and password exists.',
+        'negative'
+      );
+    }
   };
 
   handleChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -37,6 +61,14 @@ class AuthForm extends React.Component<Props, State> {
 
   render() {
     const { email, password } = this.state;
+
+    if (this.props.loading) {
+      return (
+        <SpinnerContainer>
+          <Spinner />
+        </SpinnerContainer>
+      );
+    }
 
     return (
       <StyledForm onSubmit={this.handleSubmit}>
@@ -78,6 +110,13 @@ const StyledForm = styled.form`
 
 const Buttons = styled.div`
   margin-bottom: 30px;
+`;
+
+const SpinnerContainer = styled.div`
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 export default AuthForm;

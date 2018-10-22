@@ -2,10 +2,12 @@ import React from 'react';
 
 import styled from '../../../../styled/styled-components';
 
-type Props = {};
+type Props = {
+  className?: string;
+};
 
-const FeedContent: React.SFC<Props> = ({ children }) => {
-  return <Container>{children}</Container>;
+const FeedContent: React.SFC<Props> = ({ className, children }) => {
+  return <Container className={className}>{children}</Container>;
 };
 
 const Container = styled.div`

@@ -29,18 +29,18 @@ class EditProfileForm extends Component<Props> {
             <h3>Personal Info</h3>
 
             <Form.Field
-              name="firstname"
+              name="firstName"
               label="Firstname"
-              defaultValue={initialValues.firstname}
+              defaultValue={initialValues.firstName}
               validations={{ isRequired: true }}
             >
               <Input placeholder="John" />
             </Form.Field>
 
             <Form.Field
-              name="lastname"
+              name="lastName"
               label="Lastname"
-              defaultValue={initialValues.lastname}
+              defaultValue={initialValues.lastName}
               validations={{ isRequired: true }}
             >
               <Input placeholder="Doe" />
@@ -62,7 +62,7 @@ class EditProfileForm extends Component<Props> {
               />
             </Form.Field>
 
-            <h3>Contact Info</h3>
+            {/* <h3>Contact Info</h3>
             <Form.Field
               name="email"
               label="Email"
@@ -70,7 +70,7 @@ class EditProfileForm extends Component<Props> {
               validations={{ isRequired: true, isEmail: true }}
             >
               <Input placeholder="your@email.com" />
-            </Form.Field>
+            </Form.Field> */}
 
             <Button type="submit" color="green" disabled={!formState.isValid}>
               Save

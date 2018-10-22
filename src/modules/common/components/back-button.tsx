@@ -1,26 +1,16 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Button } from 'genui';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { goBack } from 'connected-react-router';
+import { withRouter, RouteComponentProps } from 'react-router';
 
 type Props = {
-  goBack: () => any;
+  history: any;
 };
+type EnhancedProps = Props & RouteComponentProps<{}>;
 
-class BackButton extends Component<Props> {
-  render() {
-    const { children, goBack } = this.props;
+const BackButton: React.SFC<EnhancedProps> = ({ children, history }) => (
+  <Button type="button" onClick={() => history.goBack()}>
+    {children}
+  </Button>
+);
 
-    return (
-      <Button type="button" onClick={() => goBack()}>
-        {children}
-      </Button>
-    );
-  }
-}
-
-export default connect(
-  undefined,
-  (dispatch: any) => bindActionCreators({ goBack }, dispatch)
-)(BackButton);
+export default withRouter(BackButton);

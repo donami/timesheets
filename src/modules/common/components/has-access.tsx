@@ -1,29 +1,38 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { getAuthedUserRole } from '../../auth/store/selectors';
-import { UserRole } from '../../users/store/models';
+import { graphql } from 'react-apollo';
+import { compose, branch, renderNothing } from 'recompose';
 
-type Props = {
-  userRole: UserRole;
-  roles: UserRole[];
-};
+import { UserRole } from '../../users/store/models';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 const isAllowed = (userRole: UserRole, allowedRoles: UserRole[]) => {
   return allowedRoles.indexOf(userRole) > -1;
 };
 
-class HasAccess extends React.Component<Props> {
-  render() {
-    if (!isAllowed(this.props.userRole, this.props.roles)) {
-      return null;
-    }
+type Props = {
+  roles: UserRole[];
+};
 
-    return <>{this.props.children}</>;
-  }
-}
+type DataProps = {
+  userRole: UserRole;
+};
 
-const mapStateToProps = (state: any) => ({
-  userRole: getAuthedUserRole(state),
-});
+type EnhancedProps = Props & DataProps;
 
-export default connect(mapStateToProps)(HasAccess);
+const HasAccess: React.SFC<EnhancedProps> = ({ children }) => {
+  return <>{children}</>;
+};
+
+const enhance = compose<EnhancedProps, Props>(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      userRole: (data.user && data.user.role) || null,
+    }),
+  }),
+  branch<EnhancedProps>(
+    ({ userRole, roles }) => !isAllowed(userRole, roles) || !userRole,
+    renderNothing
+  )
+);
+
+export default enhance(HasAccess);

@@ -1,18 +1,15 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
-import { logout } from '../store/actions';
-import { getIsAuthed } from '../store/selectors';
+type Props = {
+  history: any;
+};
 
-export interface LogoutPageProps {
-  logout: () => any;
-  authed: boolean;
-}
-
-class LogoutPage extends React.Component<LogoutPageProps> {
+class LogoutPage extends React.Component<Props> {
   componentWillMount() {
-    this.props.logout();
+    localStorage.removeItem('token');
+  }
+  componentDidMount() {
+    this.props.history.goBack();
   }
 
   render() {
@@ -20,19 +17,4 @@ class LogoutPage extends React.Component<LogoutPageProps> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  authed: getIsAuthed(state),
-});
-
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      logout,
-    },
-    dispatch
-  );
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LogoutPage);
+export default LogoutPage;

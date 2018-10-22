@@ -1,11 +1,230 @@
 import * as React from 'react';
-import { Provider } from 'react-redux';
+// import { Provider } from 'react-redux';
 import { injectGlobal } from 'styled-components';
-import ReduxToastr from 'react-redux-toastr';
+import { ApolloClient } from 'apollo-client';
+import { ApolloProvider } from 'react-apollo';
+import uuidv4 from 'uuid/v4';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
+import { onError } from 'apollo-link-error';
+import { ApolloLink, Observable } from 'apollo-link';
+import { withClientState } from 'apollo-link-state';
+import { createNetworkStatusNotifier } from 'react-apollo-network-status';
+import gql from 'graphql-tag';
 
-import store from './store';
-import { Routing } from './modules/common';
+// import store from './store';
+import { Routing, Toastr } from './modules/common';
 import { theme } from './styled/theme';
+import { resolvers, defaults } from './resolvers';
+import { API_ENDPOINT } from './config/constants';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/select/lib/css/blueprint-select.css';
+
+const {
+  NetworkStatusNotifier,
+  link: networkStatusNotifierLink,
+} = createNetworkStatusNotifier();
+
+const request = async (operation: any) => {
+  const token = localStorage.getItem('token');
+  const authorizationHeader = token ? `Bearer ${token}` : null;
+  operation.setContext({
+    headers: {
+      authorization: authorizationHeader,
+    },
+  });
+};
+
+export const StatusNotifier = NetworkStatusNotifier;
+
+const requestLink = new ApolloLink(
+  (operation, forward) =>
+    new Observable(observer => {
+      let handle: any;
+      Promise.resolve(operation)
+        .then(oper => request(oper))
+        .then(() => {
+          if (forward) {
+            handle = forward(operation).subscribe({
+              next: observer.next.bind(observer),
+              error: observer.error.bind(observer),
+              complete: observer.complete.bind(observer),
+            });
+          }
+        })
+        .catch(observer.error.bind(observer));
+
+      return () => {
+        if (handle) handle.unsubscribe();
+      };
+    })
+);
+
+const stateLink = withClientState({
+  defaults: {
+    networkStatus: {
+      __typename: 'NetworkStatus',
+      isConnected: true,
+    },
+    toasts: {
+      __typename: 'Toasts',
+      items: [],
+    },
+    search: {
+      __typename: 'Search',
+      value: '',
+    },
+    helpSearch: {
+      __typename: 'HelpSearch',
+      value: '',
+    },
+    chatUserInfo: {
+      __typename: 'ChatUserInfo',
+      user: null,
+      open: false,
+    },
+  },
+  resolvers: {
+    Mutation: {
+      updateNetworkStatus: (_: any, { isConnected }: any, { cache }: any) => {
+        cache.writeData({
+          data: {
+            networkStatus: {
+              isConnected,
+              __typename: 'NetworkStatus',
+            },
+          },
+        });
+        return null;
+      },
+      search: (_: any, { value }: any, { cache }: any) => {
+        cache.writeData({
+          data: {
+            search: {
+              value,
+              __typename: 'Search',
+            },
+          },
+        });
+        return null;
+      },
+      helpSearch: (_: any, { value }: any, { cache }: any) => {
+        cache.writeData({
+          data: {
+            helpSearch: {
+              value,
+              __typename: 'HelpSearch',
+            },
+          },
+        });
+        return null;
+      },
+      chatUserInfo: (_: any, { user, open }: any, { cache }: any) => {
+        cache.writeData({
+          data: {
+            chatUserInfo: {
+              user,
+              open,
+              __typename: 'ChatUserInfo',
+            },
+          },
+        });
+        return null;
+      },
+      addToast: (
+        _: any,
+        {
+          title,
+          message,
+          type,
+        }: { title: string; message: string; type: string },
+        { cache }: any
+      ) => {
+        const query = gql`
+          query {
+            toasts @client {
+              __typename
+              items {
+                id
+                title
+                message
+                type
+              }
+            }
+          }
+        `;
+        const previous = cache.readQuery({ query });
+        cache.writeData({
+          data: {
+            toasts: {
+              items: previous.toasts.items.concat({
+                title,
+                message,
+                type,
+                id: uuidv4(),
+                __typename: 'ToastItem',
+              }),
+              __typename: 'Toasts',
+            },
+          },
+        });
+        return null;
+      },
+      removeToast: (_: any, { id }: { id: string }, { cache }: any) => {
+        const query = gql`
+          query {
+            toasts @client {
+              __typename
+              items {
+                id
+                title
+                message
+                type
+              }
+            }
+          }
+        `;
+        const previous = cache.readQuery({ query });
+        cache.writeData({
+          data: {
+            toasts: {
+              items: previous.toasts.items.filter(
+                (item: any) => item.id !== id
+              ),
+              __typename: 'Toasts',
+            },
+          },
+        });
+        return null;
+      },
+    },
+  },
+});
+
+const client = new ApolloClient({
+  link: ApolloLink.from([
+    onError(({ graphQLErrors, networkError }) => {
+      if (graphQLErrors) {
+        graphQLErrors.map(({ message, locations, path }) =>
+          console.log(
+            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+          )
+        );
+      }
+      if (networkError) {
+        console.log(`[Network error]: ${networkError}`);
+      }
+    }),
+    requestLink,
+    networkStatusNotifierLink,
+    stateLink,
+    new HttpLink({
+      uri: API_ENDPOINT,
+      credentials: 'same-origin',
+    }),
+  ]),
+  cache: new InMemoryCache(),
+});
 
 injectGlobal`
   html {
@@ -21,29 +240,45 @@ injectGlobal`
   }
   a {
     color: ${theme.linkColor};
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #ddd;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #666; 
   }
   #root {
     height: 100%;
+    font-size: 12px;
+    font-family: 'Roboto', sans-serif;
+
+    a {
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
   }
 `;
 
 class App extends React.Component {
   render() {
     return (
-      <Provider store={store}>
+      <ApolloProvider client={client}>
         <React.Fragment>
-          <ReduxToastr
-            timeOut={4000}
-            newestOnTop={false}
-            preventDuplicates
-            position="top-left"
-            transitionIn="fadeIn"
-            transitionOut="fadeOut"
-            progressBar
-          />
+          <Toastr />
           <Routing />
         </React.Fragment>
-      </Provider>
+      </ApolloProvider>
     );
   }
 }

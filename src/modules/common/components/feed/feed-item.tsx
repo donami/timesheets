@@ -1,14 +1,18 @@
 import React from 'react';
 
-import styled from '../../../../styled/styled-components';
+import styled, { withProps } from '../../../../styled/styled-components';
 
-type Props = {};
-
-const FeedItem: React.SFC<Props> = ({ children }) => {
-  return <Container>{children}</Container>;
+type Props = {
+  noPadding?: boolean;
 };
 
-const Container = styled.div`
+const FeedItem: React.SFC<Props> = ({ children, noPadding }) => (
+  <Container className="feed-item" noPadding={!!noPadding}>
+    {children}
+  </Container>
+);
+
+const Container = withProps<Props>(styled.div)`
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -16,20 +20,22 @@ const Container = styled.div`
   -webkit-box-direction: normal;
   -ms-flex-direction: row;
   flex-direction: row;
-  width: 100%;
-  padding: 0.21428571rem 0;
+  width: ${props => (props.noPadding ? '100%' : 'calc(100% - 20px)')};
   margin: 0;
   background: 0 0;
   border-top: none;
 
   border-bottom: #eee 1px solid;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  padding: ${props => (props.noPadding ? '0' : '10px')};
+  margin-bottom: 0;
 
   &:last-of-type {
     border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
+  }
+
+  a {
+    color: ${props => props.theme.primaryColor};
+    text-decoration: none;
   }
 `;
 

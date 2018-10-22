@@ -1,79 +1,93 @@
-import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { Input, Button } from 'genui';
+import React from 'react';
+import { Query } from 'react-apollo';
+import { compose, withHandlers, withState } from 'recompose';
+import { Input, Button, Message } from 'genui';
+import gql from 'graphql-tag';
 
 import { Form, BackButton } from '../../common';
-import { recoverPassword } from '../store/actions';
+import ForgottenPassword from '../components/forgotten-password';
 
-type Props = {
-  recoverPassword(email: string): any;
+type Props = {};
+type HandlerProps = {
+  onSubmit(model: { email: string }): void;
 };
-
-type State = Readonly<{
-  submitted: boolean;
-}>;
-
-const initialState: State = {
-  submitted: false,
+type DataProps = {
+  sendMail(options: any): any;
+  createRecoveryCode(options: any): any;
 };
+type StateProps = {
+  submitted: string | null;
+};
+type StateHandlers = { setSubmitted(submitted: string): void };
+type EnhancedProps = Props &
+  HandlerProps &
+  StateProps &
+  StateHandlers &
+  DataProps;
 
-class ForgottenPasswordPage extends Component<Props, State> {
-  readonly state = initialState;
+const ForgottenPasswordPage: React.SFC<EnhancedProps> = ({
+  submitted,
+  onSubmit,
+}) => (
+  <div>
+    <h3>Recover Password</h3>
 
-  handleSubmit = (model: any) => {
-    this.props.recoverPassword(model.email);
-
-    this.setState({ submitted: true });
-  };
-
-  render() {
-    const { submitted } = this.state;
-
-    return (
-      <div>
-        <h3>Recover Password</h3>
-
-        {submitted ? (
+    {submitted ? (
+      <Query query={GET_USER_BY_EMAIL} variables={{ email: submitted }}>
+        {({ loading, data }) => {
+          if (loading) {
+            return null;
+          }
+          if (data && data.allUsers.length) {
+            return <ForgottenPassword user={data.allUsers[0]} />;
+          }
+          return (
+            <Message negative>
+              We could not find any user with that email address.
+            </Message>
+          );
+        }}
+      </Query>
+    ) : (
+      <Form onValidSubmit={onSubmit}>
+        {formState => (
           <>
-            <p>
-              An email with a verification link and information on how to reset
-              your password has been sent to your email.
-            </p>
-            <Button to="/" color="green">
-              Go Back
+            <Form.Field
+              name="email"
+              label="Email"
+              validations={{ isEmail: true, isRequired: true }}
+            >
+              <Input placeholder="john@email.com" />
+            </Form.Field>
+
+            <Button type="submit" disabled={!formState.isValid} color="green">
+              Recover
             </Button>
+            <BackButton>Cancel</BackButton>
           </>
-        ) : (
-          <Form onValidSubmit={this.handleSubmit}>
-            {formState => (
-              <>
-                <Form.Field
-                  name="email"
-                  label="Email"
-                  validations={{ isEmail: true, isRequired: true }}
-                >
-                  <Input placeholder="john@email.com" />
-                </Form.Field>
-
-                <Button
-                  type="submit"
-                  disabled={!formState.isValid}
-                  color="green"
-                >
-                  Recover
-                </Button>
-                <BackButton>Cancel</BackButton>
-              </>
-            )}
-          </Form>
         )}
-      </div>
-    );
-  }
-}
+      </Form>
+    )}
+  </div>
+);
 
-export default connect(
-  undefined,
-  (dispatch: any) => bindActionCreators({ recoverPassword }, dispatch)
-)(ForgottenPasswordPage);
+const GET_USER_BY_EMAIL = gql`
+  query($email: String!) {
+    allUsers(filter: { email: $email }) {
+      id
+      firstName
+      email
+    }
+  }
+`;
+
+const enhance = compose<EnhancedProps, Props>(
+  withState('submitted', 'setSubmitted', null),
+  withHandlers<EnhancedProps, HandlerProps>({
+    onSubmit: ({ setSubmitted }) => async model => {
+      setSubmitted(model.email);
+    },
+  })
+);
+
+export default enhance(ForgottenPasswordPage);

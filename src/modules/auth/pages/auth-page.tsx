@@ -1,28 +1,30 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
+import gql from 'graphql-tag';
+import { Link } from 'react-router-dom';
+import { compose } from 'recompose';
+import { graphql, Mutation } from 'react-apollo';
 
-import { auth } from '../store/actions';
 import { AuthForm } from '../components';
-import { getIsAuthed } from '../store/selectors';
 import { Redirect, Switch, Route } from 'react-router';
 import ForgottenPasswordPage from './forgotten-password-page';
-import { Link } from 'react-router-dom';
 import RecoverPasswordPage from './recover-password-page';
+import { WithToastrProps, withToastr } from '../../common/components/toastr';
 
 type Props = {
   auth: (email: string, password: string) => any;
+  data: any;
+  authenticateUser: any;
   authed: boolean;
+  history: any;
+  user: any;
 };
+type EnhancedProps = Props & WithToastrProps;
 
-class AuthPage extends React.Component<Props> {
-  handleAuth = (email: string, password: string): void => {
-    this.props.auth(email, password);
-  };
-
+class AuthPage extends React.Component<EnhancedProps> {
   render() {
-    if (this.props.authed) {
+    // redirect if user is logged in
+    if (this.props.user && this.props.user.id) {
       return <Redirect to="/" />;
     }
 
@@ -49,7 +51,18 @@ class AuthPage extends React.Component<Props> {
                   <>
                     <Title>Sign in to Timefly</Title>
 
-                    <AuthForm onSubmit={this.handleAuth} />
+                    <Mutation mutation={AUTHENTICATE_USER}>
+                      {(mutate, { loading }) => {
+                        return (
+                          <AuthForm
+                            mutate={mutate}
+                            loading={loading}
+                            addToast={this.props.addToast}
+                            history={this.props.history}
+                          />
+                        );
+                      }}
+                    </Mutation>
 
                     <Link to="/auth/forgotten-password">
                       Forgotten password?
@@ -129,23 +142,41 @@ const LogoContainer = styled.div`
 `;
 
 const Title = styled.h3`
-  // margin: 30px 0;
+  /* margin: 30px 0; */
   text-transform: uppercase;
 `;
 
-const mapStateToProps = (state: any) => ({
-  authed: getIsAuthed(state),
-});
+export const AUTHENTICATE_USER = gql`
+  mutation authenticateUser($email: String!, $password: String!) {
+    authenticateUser(email: $email, password: $password) {
+      id
+      token
+    }
+  }
+`;
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      auth,
-    },
-    dispatch
-  );
+export const LOGGED_IN_USER = gql`
+  query user {
+    user {
+      id
+      firstName
+      lastName
+      image {
+        id
+        url
+      }
+    }
+  }
+`;
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AuthPage);
+const enhance = compose(
+  withToastr,
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      user: data.user || null,
+    }),
+    options: { fetchPolicy: 'network-only' },
+  })
+);
+
+export default enhance(AuthPage);

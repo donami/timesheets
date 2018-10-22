@@ -4,10 +4,28 @@ import styled from 'styled-components';
 import Footer from './footer';
 import Header from './header';
 import Sidebar from './sidebar';
+import { StatusNotifier } from '../../../App';
+import { Loader } from '../../ui';
+import { match } from 'react-router';
 
-class LayoutDefault extends React.Component {
+const loaderDuration = 300;
+
+type Props = {
+  match: match<any>;
+};
+
+const shouldRenderLoader = (path: string) => {
+  if (['/help/search', '/messages', '/messages/:chatId?'].indexOf(path) > -1) {
+    return false;
+  }
+  return true;
+};
+
+class LayoutDefault extends React.Component<Props> {
   render() {
-    const { children } = this.props;
+    const { children, match } = this.props;
+
+    const renderLoader = shouldRenderLoader(match.path);
 
     return (
       <React.Fragment>
@@ -21,6 +39,11 @@ class LayoutDefault extends React.Component {
             </HeaderContainer>
 
             <MainContentContainer className="main-content-container">
+              {/* <StatusNotifier
+                render={({ loading, error }: any) =>
+                  loading && renderLoader ? <Loader /> : null
+                }
+              /> */}
               <MainContent className="main-content">{children}</MainContent>
             </MainContentContainer>
 
@@ -56,11 +79,14 @@ const ContentContainer = styled.div`
 
 const MainContentContainer = styled.div`
   min-height: calc(100% - ${footerHeight + headerHeight}px);
+  position: relative;
+  /* height: 1px; */
 `;
 
 const MainContent = styled.div`
   padding: 20px;
-  position: relative;
+  min-height: calc(100% - 40px);
+  /* height: 1px; */
 `;
 
 const SideBarContainer = styled.div`

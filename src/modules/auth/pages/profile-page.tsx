@@ -1,47 +1,55 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { List, Button } from 'genui';
 
-import { getAuthedUser } from '../store/selectors';
-import { User, UserRole } from '../../users/store/models';
+import { UserRole } from '../../users/store/models';
 import { Box, Column, Row } from '../../ui';
-import { TimesheetItem } from '../../timesheets/store/models';
-import { getTimesheetsForAuthedUser } from '../../common/store/selectors';
-import { TimesheetList } from '../../timesheets';
+import { AuthedUserTimesheets } from '../../timesheets';
 import { PageHeader, Avatar } from '../../common';
-import { fetchProjects } from '../../projects/store/actions';
 import { Switch, Route } from 'react-router';
-import { updateProfile } from '../store/actions';
-import {
-  EditPasswordForm,
-  EditProfileForm,
-  EditAvatarForm,
-} from '../components';
+import { EditProfileForm, EditAvatarForm } from '../components';
 import { Link } from 'react-router-dom';
 import styled from '../../../styled/styled-components';
+import { compose, branch, renderComponent } from 'recompose';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import { UPDATE_USER } from '../../users/store/mutations';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import PageLoader from 'src/modules/ui/components/page-loader';
 
 type Props = {
-  user: User;
-  timesheets: TimesheetItem[];
+  user: any;
   match: any;
-  fetchProjects(): any;
-  updateProfile(data: any): any;
 };
 
-class ProfilePage extends React.Component<Props> {
-  componentWillMount() {
-    this.props.fetchProjects();
-  }
+type DataProps = {
+  user: any;
+  loading: boolean;
+  updateUser(options: any): Promise<any>;
+};
+type EnhancedProps = Props & DataProps & WithToastrProps;
 
-  handleUpdateProfile = (data: any) => {
-    this.props.updateProfile(data);
+class ProfilePage extends React.Component<EnhancedProps> {
+  handleUpdateProfile = async (data: any) => {
+    await this.props.updateUser({
+      variables: {
+        id: data.id,
+        // email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        gender: data.gender,
+      },
+    });
+
+    this.props.addToast(
+      'Profile updated',
+      'Your profile was updated.',
+      'positive'
+    );
   };
 
   render() {
     const {
       user,
-      timesheets,
       match: { params },
     } = this.props;
 
@@ -62,7 +70,7 @@ class ProfilePage extends React.Component<Props> {
           <Column sm={3} md={2}>
             <UserLeftNode>
               <UserCard>
-                <Avatar view="lg" avatar={user.image} gender={user.gender} />
+                <Avatar view="lg" user={user} />
 
                 <h3>{user.fullName}</h3>
                 <Link to="/profile/edit">Edit Profile</Link>
@@ -82,18 +90,15 @@ class ProfilePage extends React.Component<Props> {
                       />
                     </Box>
 
-                    <Box title="Change password">
+                    {/* <Box title="Change password">
                       <EditPasswordForm
                         initialValues={user}
                         onUpdateProfile={this.handleUpdateProfile}
                       />
-                    </Box>
+                    </Box> */}
 
                     <Box title="Change profile image">
-                      <EditAvatarForm
-                        initialValues={user}
-                        onUpdateProfile={this.handleUpdateProfile}
-                      />
+                      <EditAvatarForm initialValues={user} />
                     </Box>
                   </>
                 )}
@@ -105,7 +110,7 @@ class ProfilePage extends React.Component<Props> {
                     <Box title="Profile">
                       <List divided>
                         <List.Item>
-                          Name: {`${user.firstname} ${user.lastname}`}
+                          Name: {`${user.firstName} ${user.lastName}`}
                         </List.Item>
                         <List.Item>Role: {user.role}</List.Item>
                       </List>
@@ -113,7 +118,7 @@ class ProfilePage extends React.Component<Props> {
 
                     {user.role === UserRole.User && (
                       <Box title="Your Timesheets">
-                        <TimesheetList items={timesheets} />
+                        <AuthedUserTimesheets userId={user.id} />
                       </Box>
                     )}
                   </>
@@ -127,24 +132,38 @@ class ProfilePage extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  user: getAuthedUser(state),
-  timesheets: getTimesheetsForAuthedUser(state),
-});
+const GET_PROFILE = gql`
+  query user {
+    user {
+      id
+      firstName
+      lastName
+      email
+      image {
+        __typename
+        id
+        name
+        url
+      }
+      role
+      gender
+    }
+  }
+`;
 
-const mapDispatchToProps = (dispatch: any) =>
-  bindActionCreators(
-    {
-      fetchProjects,
-      updateProfile,
-    },
-    dispatch
-  );
+const enhance = compose(
+  withToastr,
+  graphql(GET_PROFILE, {
+    props: ({ data }: any) => ({
+      user: data.user,
+      loading: data.loading,
+    }),
+  }),
+  graphql(UPDATE_USER, { name: 'updateUser' }),
+  branch(({ loading }) => loading, renderComponent(PageLoader))
+);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProfilePage);
+export default enhance(ProfilePage);
 
 const UserLeftNode = styled.div`
   background: #fff;

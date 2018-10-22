@@ -1,44 +1,41 @@
 import * as React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { graphql } from 'react-apollo';
 
 import { LayoutDefault, HasAccess } from '../components';
-import { getIsAuthed } from '../../auth/store/selectors';
 import { UserRole } from '../../users/store/models';
-import { getIsInitialized, getAppIsLoading } from '../store/selectors';
-import { Loader } from '../../ui';
+import { compose, renderNothing, branch } from 'recompose';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
-export interface ProtectedRouteProps {
+type Props = {
   component: any;
-  appIsLoading: boolean;
-  isAuthed: boolean;
   exact?: boolean;
-  initialized: boolean;
   path: string;
   roles?: UserRole[];
-}
+  user: { id: string } | null;
+  loading: boolean;
+};
 
-const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
+const ProtectedRoute: React.SFC<Props> = ({
   component: Component,
   roles,
-  isAuthed,
-  initialized,
-  appIsLoading,
+  user,
+  loading,
   ...rest
 }) => {
-  if (!initialized) {
-    return <Loader />;
+  if (!user) {
+    <Redirect to="/auth" />;
   }
 
   return (
     <Route
       {...rest}
       render={props =>
-        isAuthed ? (
-          <LayoutDefault>
+        user ? (
+          <LayoutDefault {...props}>
             {roles ? (
               <HasAccess roles={roles}>
-                <Component isLoading={appIsLoading} {...props} />
+                <Component {...props} />
               </HasAccess>
             ) : (
               <Component {...props} />
@@ -52,10 +49,15 @@ const ProtectedRoute: React.SFC<ProtectedRouteProps> = ({
   );
 };
 
-const mapStateToProps = (state: any) => ({
-  isAuthed: getIsAuthed(state),
-  initialized: getIsInitialized(state),
-  appIsLoading: getAppIsLoading(state),
-});
+const enhance = compose<any, any>(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      user: data.user || null,
+      loading: data.loading,
+    }),
+    options: { fetchPolicy: 'network-only' },
+  }),
+  branch(({ loading }) => loading, renderNothing)
+);
 
-export default connect(mapStateToProps)(ProtectedRoute);
+export default enhance(ProtectedRoute);

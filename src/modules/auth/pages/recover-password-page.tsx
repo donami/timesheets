@@ -1,20 +1,20 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { Input, Button, Message } from 'genui';
-
-import { Form } from '../../common';
-import { verifyRecoverCode, recoverPasswordChange } from '../store/actions';
 import { Redirect } from 'react-router';
-import { getPasswordRecoveryState } from '../store/selectors';
+import { compose } from 'recompose';
+import gql from 'graphql-tag';
+import { Query, graphql } from 'react-apollo';
+
 import styled from '../../../styled/styled-components';
+import { RecoverPassword } from '../components';
+import { withToastr, WithToastrProps } from '../../common/components/toastr';
 
 type Props = {
-  verifyRecoverCode(userID: number, code: string): any;
-  recoverPasswordChange(data: any, code: string): any;
-  passwordRecovery: any;
   match: any;
 };
+type DataProps = {
+  changePassword(options: any): any;
+};
+type EnhancedProps = Props & DataProps & WithToastrProps;
 
 type State = Readonly<{
   submitted: boolean;
@@ -24,124 +24,92 @@ const initialState: State = {
   submitted: false,
 };
 
-class RecoverPasswordPage extends Component<Props, State> {
+class RecoverPasswordPage extends Component<EnhancedProps, State> {
   readonly state = initialState;
 
-  componentWillMount() {
+  handleSubmit = async (model: any) => {
     const {
       match: { params },
     } = this.props;
 
-    if (params.userId && params.code) {
-      this.props.verifyRecoverCode(params.userId, params.code);
-    }
-  }
+    await this.props.changePassword({
+      variables: {
+        password: model.password,
+        code: params.code,
+      },
+    });
+    this.props.addToast(
+      'Password changed!',
+      'You can now login using your new password',
+      'positive'
+    );
 
-  componentWillReceiveProps(nextProps: Props) {
-    const {
-      match: { params },
-    } = this.props;
-
-    if (
-      params.userId !== nextProps.match.params.userId ||
-      params.code !== nextProps.match.params.code
-    ) {
-      this.props.verifyRecoverCode(
-        nextProps.match.params.userId,
-        nextProps.match.params.code
-      );
-    }
-  }
-
-  handleSubmit = (model: any) => {
-    const data = {
-      ...model,
-      id: +this.props.passwordRecovery.userId,
-    };
-
-    delete data.passwordConfirm;
-
-    this.props.recoverPasswordChange(data, this.props.passwordRecovery.code);
     this.setState({ submitted: true });
   };
 
   render() {
     const {
       match: { params },
-      passwordRecovery,
     } = this.props;
 
     if (!params.userId || !params.code) {
       return <Redirect to="/auth/forgotten-password" />;
     }
 
-    const verified =
-      passwordRecovery &&
-      passwordRecovery.verified &&
-      passwordRecovery.userId === params.userId &&
-      passwordRecovery.code === params.code;
-
     return (
       <Container>
         <h3>Recover Password</h3>
 
-        {passwordRecovery.error && (
-          <Message negative className="password-recover-message">
-            {passwordRecovery.error}
-          </Message>
-        )}
+        <Query
+          query={VERIFY_CODE}
+          variables={{ code: params.code, userId: params.userId }}
+        >
+          {({ loading, data }) => {
+            if (loading) {
+              return null;
+            }
 
-        {verified && (
-          <div>
-            <Form onValidSubmit={this.handleSubmit}>
-              {formState => (
-                <>
-                  <Form.Field
-                    name="password"
-                    label="Password"
-                    type="password"
-                    validations={{ isRequired: true }}
-                  >
-                    <Input placeholder="New password" />
-                  </Form.Field>
+            if (!data.allRecoverCodes.length) {
+              return <p>Invalid or expired recovery code.</p>;
+            }
 
-                  <Form.Field
-                    name="passwordConfirm"
-                    label="Confirm password"
-                    type="password"
-                    validations={{
-                      isRequired: true,
-                      equalsField: 'password',
-                    }}
-                  >
-                    <Input placeholder="Enter password again" />
-                  </Form.Field>
-
-                  <Button
-                    type="submit"
-                    disabled={!formState.isValid}
-                    color="green"
-                  >
-                    Change password
-                  </Button>
-                  {/* <BackButton>Cancel</BackButton> */}
-                </>
-              )}
-            </Form>
-          </div>
-        )}
+            return (
+              <RecoverPassword
+                onSubmit={this.handleSubmit}
+                userId={data.allRecoverCodes[0].user.id}
+              />
+            );
+          }}
+        </Query>
       </Container>
     );
   }
 }
 
-export default connect(
-  (state: any) => ({
-    passwordRecovery: getPasswordRecoveryState(state),
-  }),
-  (dispatch: any) =>
-    bindActionCreators({ verifyRecoverCode, recoverPasswordChange }, dispatch)
-)(RecoverPasswordPage);
+const VERIFY_CODE = gql`
+  query($code: String!, $userId: ID!) {
+    allRecoverCodes(filter: { code: $code, user: { id: $userId } }) {
+      user {
+        id
+      }
+    }
+  }
+`;
+
+const UPDATE_USER_PASSWORD = gql`
+  mutation($password: String!, $code: String!) {
+    resetPassword(password: $password, code: $code) {
+      id
+    }
+  }
+`;
+
+const enhance = compose(
+  withToastr,
+  graphql(UPDATE_USER_PASSWORD, { name: 'changePassword' })
+);
+
+export default enhance(RecoverPasswordPage);
 
 const Container = styled.div`
   .password-recover-message {

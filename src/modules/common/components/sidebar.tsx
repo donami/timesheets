@@ -71,6 +71,12 @@ class Sidebar extends React.Component {
             icon="fas fa-question-circle"
             label="Support"
           />
+
+          <SidebarLink
+            to="/help-desk"
+            icon="fas fa-question-circle"
+            label="Help Desk"
+          />
         </ul>
       </Container>
     );

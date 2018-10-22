@@ -5,14 +5,16 @@ import { TextManager } from '../../../services/text-manager';
 type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
 type Subtract<T, K> = Omit<T, keyof K>;
 
-interface WithLoadingProps {
+interface WithTextManagerProps {
   textManager: TextManager;
 }
 
-const withTextManager = <P extends WithLoadingProps>(
+const withTextManager = <P extends WithTextManagerProps>(
   Component: React.ComponentType<P>
 ) =>
-  class WithTextManager extends React.Component<Subtract<P, WithLoadingProps>> {
+  class WithTextManager extends React.Component<
+    Subtract<P, WithTextManagerProps>
+  > {
     render() {
       return (
         <TextManagerContext.Consumer>
