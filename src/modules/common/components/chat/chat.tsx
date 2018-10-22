@@ -225,6 +225,7 @@ const ChatTop = styled.div`
 
 const ChatContent = styled.div`
   height: calc(100% - 61px);
+  max-height: 600px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

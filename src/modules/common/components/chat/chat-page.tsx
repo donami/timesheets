@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { Button, Input } from 'genui';
 import { History } from 'history';
 import { match } from 'react-router';
-import { Query, Mutation } from 'react-apollo';
+import { Query } from 'react-apollo';
 
 import styled, { withProps, css } from '../../../../styled/styled-components';
-import ChatPageMessageList from './chat-page-message-list';
 import gql from 'graphql-tag';
 import ChatPageChats from './chat-page-chats';
 import { LOGGED_IN_USER } from '../../../auth/store/queries';

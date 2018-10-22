@@ -1,14 +1,14 @@
 import * as React from 'react';
 import styled from 'styled-components';
+import gql from 'graphql-tag';
+import { Link } from 'react-router-dom';
+import { compose } from 'recompose';
+import { graphql, Mutation } from 'react-apollo';
 
 import { AuthForm } from '../components';
 import { Redirect, Switch, Route } from 'react-router';
 import ForgottenPasswordPage from './forgotten-password-page';
-import { Link } from 'react-router-dom';
 import RecoverPasswordPage from './recover-password-page';
-import { compose } from 'recompose';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
 import { WithToastrProps, withToastr } from '../../common/components/toastr';
 
 type Props = {
@@ -22,28 +22,6 @@ type Props = {
 type EnhancedProps = Props & WithToastrProps;
 
 class AuthPage extends React.Component<EnhancedProps> {
-  handleAuth = async (email: string, password: string): Promise<void> => {
-    const { authenticateUser, addToast, history } = this.props;
-    try {
-      const res = await authenticateUser({
-        variables: {
-          email,
-          password,
-        },
-      });
-      if (res.data.authenticateUser && res.data.authenticateUser.token) {
-        localStorage.setItem('token', res.data.authenticateUser.token);
-        history.replace('/');
-      }
-    } catch (error) {
-      addToast(
-        'Invalid credentials',
-        'No user with that email and password exists.',
-        'negative'
-      );
-    }
-  };
-
   render() {
     // redirect if user is logged in
     if (this.props.user && this.props.user.id) {
@@ -73,7 +51,18 @@ class AuthPage extends React.Component<EnhancedProps> {
                   <>
                     <Title>Sign in to Timefly</Title>
 
-                    <AuthForm onSubmit={this.handleAuth} />
+                    <Mutation mutation={AUTHENTICATE_USER}>
+                      {(mutate, { loading }) => {
+                        return (
+                          <AuthForm
+                            mutate={mutate}
+                            loading={loading}
+                            addToast={this.props.addToast}
+                            history={this.props.history}
+                          />
+                        );
+                      }}
+                    </Mutation>
 
                     <Link to="/auth/forgotten-password">
                       Forgotten password?
@@ -182,7 +171,6 @@ export const LOGGED_IN_USER = gql`
 
 const enhance = compose(
   withToastr,
-  graphql(AUTHENTICATE_USER, { name: 'authenticateUser' }),
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
       user: data.user || null,

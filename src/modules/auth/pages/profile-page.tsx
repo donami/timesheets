@@ -6,24 +6,21 @@ import { Box, Column, Row } from '../../ui';
 import { AuthedUserTimesheets } from '../../timesheets';
 import { PageHeader, Avatar } from '../../common';
 import { Switch, Route } from 'react-router';
-import {
-  EditPasswordForm,
-  EditProfileForm,
-  EditAvatarForm,
-} from '../components';
+import { EditProfileForm, EditAvatarForm } from '../components';
 import { Link } from 'react-router-dom';
 import styled from '../../../styled/styled-components';
-import { compose, branch, renderNothing } from 'recompose';
+import { compose, branch, renderComponent } from 'recompose';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import { UPDATE_USER } from '../../users/store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
-import { fullName } from 'src/utils/helpers';
+import PageLoader from 'src/modules/ui/components/page-loader';
 
 type Props = {
   user: any;
   match: any;
 };
+
 type DataProps = {
   user: any;
   loading: boolean;
@@ -163,7 +160,7 @@ const enhance = compose(
     }),
   }),
   graphql(UPDATE_USER, { name: 'updateUser' }),
-  branch(({ loading, user }) => loading || !user, renderNothing)
+  branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 
 export default enhance(ProfilePage);
