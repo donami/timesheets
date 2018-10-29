@@ -47,6 +47,7 @@ import { ThemeProvider } from '../../../styled/styled-components';
 import { theme } from '../../../styled/theme';
 import { ChatPage } from './chat';
 import { HelpDeskPage } from '../../tickets';
+import { AccountPage } from '../../account/pages';
 
 type Props = {};
 
@@ -139,6 +140,11 @@ class Routing extends React.Component<Props> {
                 path="/help"
                 component={HelpPage}
                 roles={[UserRole.User, UserRole.Manager, UserRole.Admin]}
+              />
+              <ProtectedRoute
+                path="/account/:page?"
+                component={AccountPage}
+                roles={[UserRole.Admin]}
               />
               <ProtectedRoute
                 path="/timesheet/:id"

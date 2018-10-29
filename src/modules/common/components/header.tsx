@@ -52,6 +52,11 @@ const items: DropdownItem[] = [
     to: '/profile/edit',
   },
   {
+    label: 'Billing',
+    icon: 'fas fa-credit-card',
+    to: '/account/billing',
+  },
+  {
     label: 'Sign out',
     icon: 'fas fa-power-off',
     to: '/logout',

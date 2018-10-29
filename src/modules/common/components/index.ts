@@ -25,4 +25,5 @@ export { default as Search } from './search';
 export { default as Notifications } from './notifications';
 export { default as Uploader } from './uploader';
 export { default as Attention } from './attention';
+export { Toaster as AppToaster } from './app-toaster';
 export { Form } from './form';

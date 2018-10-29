@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { PageHeader, NotFoundPage } from 'src/modules/common';
-import { TicketList } from '../components';
+import { PageHeader } from 'src/modules/common';
 import { Switch, Route, match, Link } from 'react-router-dom';
 import TicketView from '../components/ticket-view';
 import {
@@ -13,7 +12,6 @@ import CreateTicket from '../components/create-ticket';
 import { Button } from 'genui';
 import { Mutation } from 'react-apollo';
 import { CREATE_TICKET_MUTATION } from '../store/mutations';
-import { TicketStatus, TicketPriority } from '../store/types';
 import HelpDeskHome from '../components/help-desk-home';
 
 type Props = {
