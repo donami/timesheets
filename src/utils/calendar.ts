@@ -197,4 +197,11 @@ export const generateCalendarFromTemplate = (
   return paddEmptyDates(dates);
 };
 
-export const timeAgo = (date: string) => moment(date).fromNow();
+export const timeAgo = (date: string | Date) => moment(date).fromNow();
+
+export const diff = (date: Date) => {
+  const now = moment();
+  const other = moment(date);
+
+  return now.diff(other, 'days');
+};

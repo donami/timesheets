@@ -12,8 +12,8 @@ export const GROUP_LIST_ITEM_FRAGMENT = gql`
 `;
 
 export const GET_GROUPS = gql`
-  query allGroups {
-    allGroups {
+  query allGroups($companyId: ID!) {
+    allGroups(filter: { project: { company: { id: $companyId } } }) {
       ...GroupListItem
     }
   }

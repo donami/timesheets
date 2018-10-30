@@ -6,13 +6,16 @@ import { LayoutDefault, HasAccess } from '../components';
 import { UserRole } from '../../users/store/models';
 import { compose, renderNothing, branch } from 'recompose';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { Company } from '../../account/store/types';
+import { AccountDisabled } from '../pages';
+import { diff } from '../../../utils/calendar';
 
 type Props = {
   component: any;
   exact?: boolean;
   path: string;
   roles?: UserRole[];
-  user: { id: string } | null;
+  user: { id: string; company: Company } | null;
   loading: boolean;
 };
 
@@ -25,6 +28,16 @@ const ProtectedRoute: React.SFC<Props> = ({
 }) => {
   if (!user) {
     <Redirect to="/auth" />;
+  }
+
+  if (user) {
+    const timeDifference = diff(user.company.subscriptionEnds);
+
+    // if the subscription ends date is in the past it means the account is disabled
+    if (timeDifference > 0) {
+      localStorage.removeItem('token');
+      return <AccountDisabled />;
+    }
   }
 
   return (

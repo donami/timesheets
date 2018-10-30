@@ -6,6 +6,7 @@ import { Search, Category } from '../components';
 import { GET_CATEGORIES, SEARCH_QUERY } from '../store/queries';
 import styled from '../../../styled/styled-components';
 import { PageLoader } from 'src/modules/ui';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {};
 type DataProps = {
@@ -17,25 +18,29 @@ const HelpPage: React.SFC<EnhancedProps> = ({ query }) => (
   <div>
     <Search />
 
-    <Query query={GET_CATEGORIES}>
-      {({ data, loading }) => {
-        if (loading) {
-          return <PageLoader />;
-        }
+    <CompanyContext.Consumer>
+      {({ company }: any) => (
+        <Query query={GET_CATEGORIES} variables={{ companyId: company.id }}>
+          {({ data, loading }) => {
+            if (loading) {
+              return <PageLoader />;
+            }
 
-        if (data.allCategories.length === 0) {
-          return <NoArticles>No articles published yet.</NoArticles>;
-        }
+            if (data.allCategories.length === 0) {
+              return <NoArticles>No articles published yet.</NoArticles>;
+            }
 
-        return (
-          <>
-            {data.allCategories.map((category: any) => (
-              <Category key={category.id} category={category} />
-            ))}
-          </>
-        );
-      }}
-    </Query>
+            return (
+              <>
+                {data.allCategories.map((category: any) => (
+                  <Category key={category.id} category={category} />
+                ))}
+              </>
+            );
+          }}
+        </Query>
+      )}
+    </CompanyContext.Consumer>
   </div>
 );
 

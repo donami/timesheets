@@ -2,17 +2,18 @@ import * as React from 'react';
 import { Button } from 'genui';
 
 import { ExpenseReportList } from '../components';
-import { Box } from '../../ui';
+import { Box, PageLoader } from '../../ui';
 import { PageHeader } from '../../common';
 import { Switch, Route } from 'react-router';
 import ExpenseAddPage from './expense-add-page';
 import { compose, withHandlers, renderNothing, branch } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Query } from 'react-apollo';
 import { LOGGED_IN_USER } from '../../auth/pages/auth-page';
 import { CREATE_EXPENSE, CREATE_EXPENSE_ITEM } from '../store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { GET_EXPENSES } from '../store/queries';
 import { API_ENDPOINT_FILE } from '../../../config/constants';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {
   history: any;
@@ -21,14 +22,13 @@ type DataProps = {
   user: any;
   userLoading: boolean;
   loading: boolean;
-  expenses: any;
   createExpense(options: any): any;
   createExpenseItem(options: any): any;
 };
 type HandlerProps = { onAddExpense(data: any): void };
 type EnhancedProps = Props & HandlerProps & DataProps & WithToastrProps;
 
-const ExpensesPage: React.SFC<EnhancedProps> = ({ expenses, onAddExpense }) => (
+const ExpensesPage: React.SFC<EnhancedProps> = ({ onAddExpense }) => (
   <Switch>
     <Route
       path="/expense-reports/add"
@@ -39,20 +39,34 @@ const ExpensesPage: React.SFC<EnhancedProps> = ({ expenses, onAddExpense }) => (
     <Route
       path="/expense-reports"
       render={props => (
-        <div>
-          <PageHeader
-            options={() => (
-              <Button to="/expense-reports/add" color="purple">
-                Create Expense Report
-              </Button>
-            )}
-          >
-            Expense Reports
-          </PageHeader>
-          <Box title="Expenses">
-            <ExpenseReportList items={expenses} paginated />
-          </Box>
-        </div>
+        <CompanyContext.Consumer>
+          {({ company }: any) => (
+            <Query query={GET_EXPENSES} variables={{ companyId: company.id }}>
+              {({ data, loading }) => {
+                if (loading) {
+                  return <PageLoader />;
+                }
+
+                return (
+                  <div>
+                    <PageHeader
+                      options={() => (
+                        <Button to="/expense-reports/add" color="purple">
+                          Create Expense Report
+                        </Button>
+                      )}
+                    >
+                      Expense Reports
+                    </PageHeader>
+                    <Box title="Expenses">
+                      <ExpenseReportList items={data.allExpenses} paginated />
+                    </Box>
+                  </div>
+                );
+              }}
+            </Query>
+          )}
+        </CompanyContext.Consumer>
       )}
     />
   </Switch>
@@ -64,12 +78,6 @@ const enhance = compose<EnhancedProps, Props>(
     props: ({ data }: any) => ({
       user: data.user,
       userLoading: data.loading,
-    }),
-  }),
-  graphql(GET_EXPENSES, {
-    props: ({ data }: any) => ({
-      expenses: data.allExpenses,
-      loading: data.loading,
     }),
   }),
   graphql(CREATE_EXPENSE_ITEM, { name: 'createExpenseItem' }),
@@ -148,7 +156,7 @@ const enhance = compose<EnhancedProps, Props>(
       history.goBack();
     },
   }),
-  branch(({ userLoading, loading }) => userLoading || loading, renderNothing)
+  branch(({ userLoading }) => userLoading, renderNothing)
 );
 
 export default enhance(ExpensesPage);

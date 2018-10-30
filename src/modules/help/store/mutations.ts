@@ -10,8 +10,8 @@ export const DELETE_CATEGORY = gql`
 `;
 
 export const CREATE_CATEGORY = gql`
-  mutation createCategory($title: String!, $icon: String!) {
-    createCategory(title: $title, icon: $icon) {
+  mutation createCategory($title: String!, $icon: String!, $companyId: ID!) {
+    createCategory(title: $title, icon: $icon, companyId: $companyId) {
       ...categoryItemFragment
     }
   }

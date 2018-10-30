@@ -6,6 +6,10 @@ export const LOGGED_IN_USER = gql`
       id
       firstName
       lastName
+      company {
+        id
+        subscriptionEnds
+      }
       image {
         __typename
         id

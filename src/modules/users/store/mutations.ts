@@ -13,26 +13,25 @@ export const UPDATE_USER = gql`
     $id: ID!
     $firstName: String
     $lastName: String
-    # $email: String
     $gender: String
     $role: String
     $groupId: ID
     $imageId: ID
+    $companyId: ID
   ) {
     updateUser(
       id: $id
       firstName: $firstName
       lastName: $lastName
-      # email: $email
       gender: $gender
       role: $role
       groupId: $groupId
       imageId: $imageId
+      companyId: $companyId
     ) {
       id
       firstName
       lastName
-      # email
       gender
       image {
         __typename

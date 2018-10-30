@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, StatusColor, TableBuilder, Table } from 'genui';
 import { Link } from 'react-router-dom';
-import { graphql } from 'react-apollo';
+import { graphql, Query } from 'react-apollo';
 import {
   compose,
   withHandlers,
@@ -16,6 +16,7 @@ import { GET_USERS } from '../store/queries';
 import { DELETE_USER, DISABLE_USER, ENABLE_USER } from '../store/mutations';
 import { PageLoader } from 'src/modules/ui';
 import { fullName } from 'src/utils/helpers';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {};
 type DataProps = {
@@ -30,7 +31,7 @@ type HandlerProps = {
 };
 type EnhancedProps = Props & DataProps & HandlerProps;
 
-const UserListPage: React.SFC<EnhancedProps> = ({ users, onDisableUser }) => (
+const UserListPage: React.SFC<EnhancedProps> = ({ onDisableUser }) => (
   <div>
     <PageHeader
       options={() => (
@@ -42,113 +43,136 @@ const UserListPage: React.SFC<EnhancedProps> = ({ users, onDisableUser }) => (
       <Translate text="users.labels.USERS" />
     </PageHeader>
 
-    <TableBuilder
-      selectable
-      items={users}
-      filters={[
-        {
-          label: 'Status',
-          placeholder: 'Filter by status',
-          property: 'disabled',
-          filterAs: (item: any, filterState: any) => {
-            return item.disabled === filterState.disabled;
-          },
-          options: [
-            {
-              label: 'Disabled',
-              value: true,
-            },
-            {
-              label: 'Active',
-              value: false,
-            },
-          ],
-        },
-        {
-          label: 'Name',
-          placeholder: 'Filter by name',
-          inputType: 'text',
-          property: 'fullName',
-          filterAs: (item: any, filterState: any) => {
-            const regex = new RegExp(filterState.fullName, 'i');
-            return item.fullName.match(regex);
-          },
-          options: [
-            {
-              label: 'Disabled',
-              value: true,
-            },
-            {
-              label: 'Active',
-              value: false,
-            },
-          ],
-        },
-      ]}
-      itemsOptions={(item: any) => [
-        {
-          label: 'View user',
-          icon: 'fas fa-eye',
-          to: `/user/${item.id}`,
-        },
-      ]}
-      renderHeaders={
-        <>
-          <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
-          <Table.HeaderCell sortableBy="fullName">User</Table.HeaderCell>
-          <Table.HeaderCell sortableBy="disabled">Status</Table.HeaderCell>
-          <Table.HeaderCell length="5%" />
-          <Table.HeaderCell length="5%" />
-          <Table.HeaderCell length="5%" />
-        </>
-      }
-      renderItem={(item: any) => (
-        <>
-          <Table.Cell>
-            <Link to={`/user/${item.id}`}>#{item.id}</Link>
-          </Table.Cell>
-          <UserCell>
-            <Avatar view="sm" avatar={item.image} name={fullName(item)} />
-            <div>
-              <Link to={`/user/${item.id}`}>{`${item.firstName} ${
-                item.lastName
-              }`}</Link>
-              {item.group && <span>{item.group.name}</span>}
-              {!item.group && <em>No group</em>}
-            </div>
-          </UserCell>
-          <Table.Cell>
-            <StatusColor
-              style={{ marginRight: 5 }}
-              positive={!item.disabled}
-              negative={item.disabled}
-            />
-          </Table.Cell>
-          <Table.Cell
-            option={{
-              icon: 'fas fa-pencil-alt',
-              to: `/user/${item.id}/edit`,
-            }}
-          />
-          <Table.Cell
-            option={{
-              icon: item.disabled ? 'fas fa-toggle-off' : 'fas fa-toggle-on',
-              onClick: () => onDisableUser(item.id, !item.disabled),
-            }}
-          />
-        </>
+    <CompanyContext.Consumer>
+      {(companyContext: any) => (
+        <Query
+          query={GET_USERS}
+          variables={{
+            companyId: companyContext.company.id,
+          }}
+        >
+          {({ data, loading }) => {
+            if (loading) {
+              return <PageLoader />;
+            }
+
+            return (
+              <TableBuilder
+                selectable
+                items={data.allUsers}
+                filters={[
+                  {
+                    label: 'Status',
+                    placeholder: 'Filter by status',
+                    property: 'disabled',
+                    filterAs: (item: any, filterState: any) => {
+                      return item.disabled === filterState.disabled;
+                    },
+                    options: [
+                      {
+                        label: 'Disabled',
+                        value: true,
+                      },
+                      {
+                        label: 'Active',
+                        value: false,
+                      },
+                    ],
+                  },
+                  {
+                    label: 'Name',
+                    placeholder: 'Filter by name',
+                    inputType: 'text',
+                    property: 'fullName',
+                    filterAs: (item: any, filterState: any) => {
+                      const regex = new RegExp(filterState.fullName, 'i');
+                      return item.fullName.match(regex);
+                    },
+                    options: [
+                      {
+                        label: 'Disabled',
+                        value: true,
+                      },
+                      {
+                        label: 'Active',
+                        value: false,
+                      },
+                    ],
+                  },
+                ]}
+                itemsOptions={(item: any) => [
+                  {
+                    label: 'View user',
+                    icon: 'fas fa-eye',
+                    to: `/user/${item.id}`,
+                  },
+                ]}
+                renderHeaders={
+                  <>
+                    <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+                    <Table.HeaderCell sortableBy="fullName">
+                      User
+                    </Table.HeaderCell>
+                    <Table.HeaderCell sortableBy="disabled">
+                      Status
+                    </Table.HeaderCell>
+                    <Table.HeaderCell length="5%" />
+                    <Table.HeaderCell length="5%" />
+                    <Table.HeaderCell length="5%" />
+                  </>
+                }
+                renderItem={(item: any) => (
+                  <>
+                    <Table.Cell>
+                      <Link to={`/user/${item.id}`}>#{item.id}</Link>
+                    </Table.Cell>
+                    <UserCell>
+                      <Avatar
+                        view="sm"
+                        avatar={item.image}
+                        name={fullName(item)}
+                      />
+                      <div>
+                        <Link to={`/user/${item.id}`}>{`${item.firstName} ${
+                          item.lastName
+                        }`}</Link>
+                        {item.group && <span>{item.group.name}</span>}
+                        {!item.group && <em>No group</em>}
+                      </div>
+                    </UserCell>
+                    <Table.Cell>
+                      <StatusColor
+                        style={{ marginRight: 5 }}
+                        positive={!item.disabled}
+                        negative={item.disabled}
+                      />
+                    </Table.Cell>
+                    <Table.Cell
+                      option={{
+                        icon: 'fas fa-pencil-alt',
+                        to: `/user/${item.id}/edit`,
+                      }}
+                    />
+                    <Table.Cell
+                      option={{
+                        icon: item.disabled
+                          ? 'fas fa-toggle-off'
+                          : 'fas fa-toggle-on',
+                        onClick: () => onDisableUser(item.id, !item.disabled),
+                      }}
+                    />
+                  </>
+                )}
+              />
+            );
+          }}
+        </Query>
       )}
-    />
+    </CompanyContext.Consumer>
   </div>
 );
 
 const enhance = compose<EnhancedProps, Props>(
-  graphql(GET_USERS, {
-    props: ({ data }: any) => ({
-      users: data.allUsers,
-      loading: data.loading,
-    }),
-  }),
   graphql(DELETE_USER, {
     name: 'deleteUser',
     options: {
@@ -204,8 +228,7 @@ const enhance = compose<EnhancedProps, Props>(
         });
       }
     },
-  }),
-  branch(({ loading }) => loading, renderComponent(PageLoader))
+  })
 );
 
 export default enhance(UserListPage);

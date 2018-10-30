@@ -1,42 +1,50 @@
 import React, { Component } from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, Query } from 'react-apollo';
 import { branch, compose, renderComponent } from 'recompose';
 import { Spinner } from '@blueprintjs/core';
 
 import { TimesheetList } from '../components';
 import { sortByRecentUpdatedDates } from '../../../utils/helpers';
 import { GET_TIMESHEETS } from '../store/queries';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {
   limit?: number;
 };
 
-type DataProps = { timesheets: any };
+type DataProps = {};
 type EnhancedProps = Props & DataProps;
 
 class TimesheetsRecentlyUpdated extends Component<EnhancedProps> {
   render() {
-    const { timesheets, ...rest } = this.props;
+    const { ...rest } = this.props;
 
     return (
-      <TimesheetList
-        sortFunction={sortByRecentUpdatedDates}
-        items={timesheets}
-        includeUser
-        {...rest}
-      />
+      <CompanyContext.Consumer>
+        {(companyContext: any) => (
+          <Query
+            query={GET_TIMESHEETS}
+            variables={{ companyId: companyContext.company.id }}
+          >
+            {({ data, loading }) => {
+              if (loading) {
+                return <Spinner />;
+              }
+
+              return (
+                <TimesheetList
+                  sortFunction={sortByRecentUpdatedDates}
+                  items={data.allTimesheets}
+                  includeUser
+                  {...rest}
+                />
+              );
+            }}
+          </Query>
+        )}
+      </CompanyContext.Consumer>
     );
   }
 }
 
-const enhance = compose<EnhancedProps, Props>(
-  graphql(GET_TIMESHEETS, {
-    props: ({ data }: any) => ({
-      timesheets: data.allTimesheets,
-      loading: data.loading,
-    }),
-  }),
-  branch(({ loading }) => loading, renderComponent(Spinner))
-);
-
-export default enhance(TimesheetsRecentlyUpdated);
+export default TimesheetsRecentlyUpdated;

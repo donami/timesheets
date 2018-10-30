@@ -13,6 +13,7 @@ import { Button } from 'genui';
 import { Mutation } from 'react-apollo';
 import { CREATE_TICKET_MUTATION } from '../store/mutations';
 import HelpDeskHome from '../components/help-desk-home';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {
   match: match<{ id: string }>;
@@ -143,14 +144,23 @@ class HelpDeskPage extends Component<Props, State> {
             path={`/help-desk`}
             render={props => {
               return (
-                <AllTicketsQuery query={GET_ALL_TICKETS}>
-                  {({ data, loading }) => (
-                    <HelpDeskHome
-                      loading={loading}
-                      tickets={(data && data.allTickets) || []}
-                    />
+                <CompanyContext.Consumer>
+                  {({ company }: any) => (
+                    <AllTicketsQuery
+                      query={GET_ALL_TICKETS}
+                      variables={{
+                        companyId: company.id,
+                      }}
+                    >
+                      {({ data, loading }) => (
+                        <HelpDeskHome
+                          loading={loading}
+                          tickets={(data && data.allTickets) || []}
+                        />
+                      )}
+                    </AllTicketsQuery>
                   )}
-                </AllTicketsQuery>
+                </CompanyContext.Consumer>
               );
             }}
           />

@@ -79,7 +79,9 @@ export class AllTicketsQuery extends Query<
   GetAllTicketQueryVariables
 > {}
 
-type GetAllTicketQueryVariables = {};
+type GetAllTicketQueryVariables = {
+  companyId: string;
+};
 
 export const TICKET_LIST_ITEM_FRAGMENT = gql`
   fragment TicketListItem on Ticket {
@@ -128,8 +130,8 @@ export const TICKET_LIST_ITEM_FRAGMENT = gql`
 `;
 
 export const GET_ALL_TICKETS = gql`
-  query {
-    allTickets {
+  query($companyId: ID!) {
+    allTickets(filter: { owner: { company: { id: $companyId } } }) {
       ...TicketListItem
     }
   }

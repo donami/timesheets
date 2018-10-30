@@ -8,6 +8,7 @@ import { List } from '../../common';
 import styled from '../../../styled/styled-components';
 import { DELETE_CATEGORY } from '../store/mutations';
 import { GET_CATEGORIES } from '../store/queries';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {
   deleteCategory: (options: any) => void;
@@ -41,28 +42,32 @@ const itemRenderer = (item: any, index: number) => {
 
 const ManageCategoriesList: React.SFC<Props> = ({ deleteCategory }) => (
   <div>
-    <Query query={GET_CATEGORIES}>
-      {({ data, loading }) => {
-        if (loading) {
-          return null;
-        }
-        const categories = data.allCategories.map((category: any) => ({
-          ...category,
-          onDeleteAction: (id: string) => {
-            deleteCategory({
-              variables: { id },
-              optimisticResponse: {
-                deleteCategory: {
-                  id,
-                  __typename: 'Category',
-                },
+    <CompanyContext.Consumer>
+      {({ company }: any) => (
+        <Query query={GET_CATEGORIES} variables={{ companyId: company.id }}>
+          {({ data, loading }) => {
+            if (loading) {
+              return null;
+            }
+            const categories = data.allCategories.map((category: any) => ({
+              ...category,
+              onDeleteAction: (id: string) => {
+                deleteCategory({
+                  variables: { id },
+                  optimisticResponse: {
+                    deleteCategory: {
+                      id,
+                      __typename: 'Category',
+                    },
+                  },
+                });
               },
-            });
-          },
-        }));
-        return <List items={categories} renderItem={itemRenderer} />;
-      }}
-    </Query>
+            }));
+            return <List items={categories} renderItem={itemRenderer} />;
+          }}
+        </Query>
+      )}
+    </CompanyContext.Consumer>
   </div>
 );
 

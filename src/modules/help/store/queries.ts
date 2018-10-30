@@ -14,8 +14,8 @@ export const CATEGORY_ITEM_FRAGMENT = gql`
 `;
 
 export const GET_CATEGORIES = gql`
-  query allCategories {
-    allCategories {
+  query allCategories($companyId: ID!) {
+    allCategories(filter: { company: { id: $companyId } }) {
       ...categoryItemFragment
     }
   }

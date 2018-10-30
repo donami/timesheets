@@ -21,8 +21,8 @@ export const TIMESHEET_LIST_ITEM_FRAGMENT = gql`
 `;
 
 export const GET_TIMESHEETS = gql`
-  query allTimesheets {
-    allTimesheets {
+  query allTimesheets($companyId: ID) {
+    allTimesheets(filter: { owner: { company: { id: $companyId } } }) {
       ...TimesheetListItem
     }
   }

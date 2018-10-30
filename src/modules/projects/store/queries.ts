@@ -9,8 +9,8 @@ export const PROJECT_LIST_ITEM_FRAGMENT = gql`
 `;
 
 export const GET_PROJECTS = gql`
-  query allProjects {
-    allProjects {
+  query allProjects($companyId: ID!) {
+    allProjects(filter: { company: { id: $companyId } }) {
       ...ProjectListItem
     }
   }

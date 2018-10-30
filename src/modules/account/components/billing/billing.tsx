@@ -1,12 +1,13 @@
 import React from 'react';
 import { CreditCardForm } from './billing.css';
-import { Input, Icon, Button, TableList, Label } from 'genui';
+import { Input, Icon, Button, TableList, Label, List } from 'genui';
 import {
   ContentBody,
   Content,
   ContentTitle,
 } from '../../pages/account-page.css';
 import { Company } from '../../store/types';
+import { dateFormat } from '../../../../utils/calendar';
 
 // const invoices = [
 //   {
@@ -33,6 +34,26 @@ const Billing: React.SFC<Props> = ({ company }) => {
       <Content>
         <ContentTitle>
           <Icon name="fas fa-file" />
+          Current Subscription
+        </ContentTitle>
+        <ContentBody>
+          <List>
+            <List.Item>
+              Subscription status: <Label>{company.subscriptionStatus}</Label>{' '}
+            </List.Item>
+            <List.Item>
+              Subscription ends:{' '}
+              <strong>
+                {dateFormat(company.subscriptionEnds, 'YYYY-MM-DD')}
+              </strong>
+            </List.Item>
+          </List>
+        </ContentBody>
+      </Content>
+
+      <Content>
+        <ContentTitle>
+          <Icon name="fas fa-file" />
           Invoices
         </ContentTitle>
         <ContentBody>
@@ -55,6 +76,7 @@ const Billing: React.SFC<Props> = ({ company }) => {
           )}
         </ContentBody>
       </Content>
+
       <Content>
         <ContentTitle>
           <Icon name="fas fa-credit-card" /> Add Card

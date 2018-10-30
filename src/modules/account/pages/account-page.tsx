@@ -14,6 +14,7 @@ import { LOGGED_IN_USER } from '../../auth/store/queries';
 import { PageLoader } from '../../ui';
 import { GET_COMPANIES_BY_USER_ID } from '../store/queries';
 import { UPDATE_COMPANY } from '../store/mutations';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {
   match: match<any>;
@@ -21,7 +22,6 @@ type Props = {
 
 type DataProps = {
   data: any;
-  loading: boolean;
 };
 type EnhancedProps = Props & DataProps;
 
@@ -29,83 +29,60 @@ class AccountPage extends Component<EnhancedProps> {
   render() {
     const {
       match: { params },
-      loading,
       data: { user },
     } = this.props;
 
-    if (loading) {
-      return <PageLoader />;
-    }
-
     return (
-      <Query query={GET_COMPANIES_BY_USER_ID} variables={{ userId: user.id }}>
-        {({ data: { allCompanies }, loading }) => {
-          if (loading) {
-            return null;
-          }
+      <CompanyContext.Consumer>
+        {({ company }: any) => (
+          <Container>
+            <AccountMenu active={params.page} />
 
-          if (!allCompanies.length) {
-            return null;
-          }
-
-          const company = allCompanies[0];
-
-          return (
-            <Container>
-              <AccountMenu active={params.page} />
-
-              <ContentWrapper>
-                <Switch>
-                  <Route
-                    path="/account/billing"
-                    render={props => {
-                      return (
-                        <Billing {...props} company={company} user={user} />
-                      );
-                    }}
-                  />
-                  <Route
-                    path="/account/integrations"
-                    render={props => {
-                      return (
-                        <Integrations
-                          {...props}
-                          company={company}
-                          user={user}
-                        />
-                      );
-                    }}
-                  />
-                  <Route
-                    path="/account/company-settings"
-                    render={props => {
-                      return (
-                        <Mutation mutation={UPDATE_COMPANY}>
-                          {(mutate, { loading }) => (
-                            <CompanySettings
-                              {...props}
-                              updateCompany={mutate}
-                              loading={loading}
-                              company={company}
-                              user={user}
-                            />
-                          )}
-                        </Mutation>
-                      );
-                    }}
-                  />
-                  <Route
-                    path="/account"
-                    render={() => {
-                      return <Redirect to="/account/billing" />;
-                    }}
-                  />
-                </Switch>
-              </ContentWrapper>
-            </Container>
-          );
-        }}
-      </Query>
+            <ContentWrapper>
+              <Switch>
+                <Route
+                  path="/account/billing"
+                  render={props => {
+                    return <Billing {...props} company={company} user={user} />;
+                  }}
+                />
+                <Route
+                  path="/account/integrations"
+                  render={props => {
+                    return (
+                      <Integrations {...props} company={company} user={user} />
+                    );
+                  }}
+                />
+                <Route
+                  path="/account/company-settings"
+                  render={props => {
+                    return (
+                      <Mutation mutation={UPDATE_COMPANY}>
+                        {(mutate, { loading }) => (
+                          <CompanySettings
+                            {...props}
+                            updateCompany={mutate}
+                            loading={loading}
+                            company={company}
+                            user={user}
+                          />
+                        )}
+                      </Mutation>
+                    );
+                  }}
+                />
+                <Route
+                  path="/account"
+                  render={() => {
+                    return <Redirect to="/account/billing" />;
+                  }}
+                />
+              </Switch>
+            </ContentWrapper>
+          </Container>
+        )}
+      </CompanyContext.Consumer>
     );
   }
 }

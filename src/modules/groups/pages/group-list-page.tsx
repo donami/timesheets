@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, Query } from 'react-apollo';
 import { Link } from 'react-router-dom';
 import {
   compose,
@@ -18,19 +18,18 @@ import {
   WithToastrProps,
 } from '../../common/components/toastr/toastr';
 import { PageLoader } from 'src/modules/ui';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {};
 type HandlerProps = {
   onRemoveGroup(groupId: string): void;
 };
 type DataProps = {
-  groups: any[];
   deleteGroup(options: any): any;
-  loading: boolean;
 };
 type EnhancedProps = Props & HandlerProps & DataProps & WithToastrProps;
 
-const GroupListPage: React.SFC<EnhancedProps> = ({ groups, onRemoveGroup }) => (
+const GroupListPage: React.SFC<EnhancedProps> = ({ onRemoveGroup }) => (
   <div>
     <PageHeader
       options={() => (
@@ -42,74 +41,93 @@ const GroupListPage: React.SFC<EnhancedProps> = ({ groups, onRemoveGroup }) => (
       <Translate text="groups.labels.GROUPS" />
     </PageHeader>
 
-    <TableBuilder
-      selectable
-      items={groups}
-      itemsOptions={(item: any) => [
-        {
-          label: 'View group',
-          icon: 'fas fa-eye',
-          to: `/group/${item.id}`,
-        },
-      ]}
-      renderHeaders={
-        <>
-          <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
-          <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
-          <Table.HeaderCell sortableBy="project">Project</Table.HeaderCell>
-          <Table.HeaderCell length="5%" />
-          <Table.HeaderCell length="5%" />
-          <Table.HeaderCell length="5%" />
-        </>
-      }
-      renderItem={(item: any) => {
-        return (
-          <>
-            <Table.Cell>
-              <Link to={`/group/${item.id}`}>#{item.id}</Link>
-            </Table.Cell>
-            <Table.Cell>{item.name}</Table.Cell>
-            <Table.Cell>
-              {(item.project && item.project.name) || 'No project'}
-            </Table.Cell>
+    <CompanyContext.Consumer>
+      {({ company }: any) => (
+        <Query
+          query={GET_GROUPS}
+          variables={{
+            companyId: company.id,
+          }}
+        >
+          {({ data, loading }) => {
+            if (loading) {
+              return <PageLoader />;
+            }
 
-            <Table.Cell
-              option={{
-                icon: 'fas fa-pencil-alt',
-                to: `/group/${item.id}/edit`,
-              }}
-            />
-            <Table.Cell
-              option={{
-                confirm: {
-                  trigger: <Icon name="fas fa-trash" title="Remove" />,
-                  content: `Do you really want to remove "${item.name}"?`,
-                  onActionClick: (
-                    e: React.MouseEvent<HTMLElement>,
-                    actionProps: ActionProps
-                  ) => {
-                    if (actionProps.positive) {
-                      onRemoveGroup(item.id);
-                    }
+            return (
+              <TableBuilder
+                selectable
+                items={data.allGroups}
+                itemsOptions={(item: any) => [
+                  {
+                    label: 'View group',
+                    icon: 'fas fa-eye',
+                    to: `/group/${item.id}`,
                   },
-                },
-              }}
-            />
-          </>
-        );
-      }}
-    />
+                ]}
+                renderHeaders={
+                  <>
+                    <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+                    <Table.HeaderCell sortableBy="name">Name</Table.HeaderCell>
+                    <Table.HeaderCell sortableBy="project">
+                      Project
+                    </Table.HeaderCell>
+                    <Table.HeaderCell length="5%" />
+                    <Table.HeaderCell length="5%" />
+                    <Table.HeaderCell length="5%" />
+                  </>
+                }
+                renderItem={(item: any) => {
+                  return (
+                    <>
+                      <Table.Cell>
+                        <Link to={`/group/${item.id}`}>#{item.id}</Link>
+                      </Table.Cell>
+                      <Table.Cell>{item.name}</Table.Cell>
+                      <Table.Cell>
+                        {(item.project && item.project.name) || 'No project'}
+                      </Table.Cell>
+
+                      <Table.Cell
+                        option={{
+                          icon: 'fas fa-pencil-alt',
+                          to: `/group/${item.id}/edit`,
+                        }}
+                      />
+                      <Table.Cell
+                        option={{
+                          confirm: {
+                            trigger: (
+                              <Icon name="fas fa-trash" title="Remove" />
+                            ),
+                            content: `Do you really want to remove "${
+                              item.name
+                            }"?`,
+                            onActionClick: (
+                              e: React.MouseEvent<HTMLElement>,
+                              actionProps: ActionProps
+                            ) => {
+                              if (actionProps.positive) {
+                                onRemoveGroup(item.id);
+                              }
+                            },
+                          },
+                        }}
+                      />
+                    </>
+                  );
+                }}
+              />
+            );
+          }}
+        </Query>
+      )}
+    </CompanyContext.Consumer>
   </div>
 );
 
 const enhance = compose<EnhancedProps, Props>(
   withToastr,
-  graphql(GET_GROUPS, {
-    props: ({ data }: any) => ({
-      groups: data.allGroups,
-      loading: data.loading,
-    }),
-  }),
   graphql(DELETE_GROUP, {
     name: 'deleteGroup',
     options: {
@@ -138,8 +156,7 @@ const enhance = compose<EnhancedProps, Props>(
         'positive'
       );
     },
-  }),
-  branch<EnhancedProps>(({ loading }) => loading, renderComponent(PageLoader))
+  })
 );
 
 export default enhance(GroupListPage);
