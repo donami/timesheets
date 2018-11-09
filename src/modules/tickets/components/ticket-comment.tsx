@@ -69,7 +69,7 @@ const Meta = styled.div`
 const Body = styled.div`
   border-radius: 10px;
   padding: 10px;
-  background: #f1f1f1;
+  background: #fafafa;
 
   p {
     margin: 0;

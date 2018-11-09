@@ -4,8 +4,11 @@ import { Input, Button } from 'genui';
 import { TicketPriority, TicketStatus } from '../store/types';
 import { Query, graphql } from 'react-apollo';
 import { LOGGED_IN_USER } from 'src/modules/auth/store/queries';
+import { History } from 'history';
 
 type Props = {
+  history: History;
+  loading?: boolean;
   createTicket(options: any): any;
 };
 type EnhancedProps = {
@@ -13,8 +16,10 @@ type EnhancedProps = {
 } & Props;
 
 class CreateTicket extends Component<EnhancedProps> {
-  handleSubmit = (model: any) => {
-    this.props.createTicket({
+  handleSubmit = async (model: any) => {
+    const {
+      data: { createTicket },
+    } = await this.props.createTicket({
       variables: {
         title: model.title,
         ownerId: this.props.data.user.id,
@@ -24,13 +29,15 @@ class CreateTicket extends Component<EnhancedProps> {
         description: model.description,
       },
     });
+
+    this.props.history.push(`/help-desk/ticket/${createTicket.id}`);
   };
 
   render() {
+    const { loading } = this.props;
+
     return (
       <div>
-        <h3>Create Ticket</h3>
-
         <Form onValidSubmit={this.handleSubmit}>
           {formState => (
             <>
@@ -62,10 +69,15 @@ class CreateTicket extends Component<EnhancedProps> {
                 <Input placeholder="Ticket type" />
               </Form.Field>
 
-              <Button type="submit" color="green" disabled={!formState.isValid}>
+              <Button
+                type="submit"
+                color="green"
+                disabled={!formState.isValid || loading}
+                loading={loading}
+              >
                 Save
               </Button>
-              <BackButton>Cancel</BackButton>
+              <BackButton disabled={loading}>Cancel</BackButton>
             </>
           )}
         </Form>

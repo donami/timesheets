@@ -6,8 +6,8 @@ import {
   Content,
   ContentTitle,
 } from '../../pages/account-page.css';
-import { Company } from '../../store/types';
-import { dateFormat } from '../../../../utils/calendar';
+import { Company, SubscriptionStatus } from '../../store/types';
+import { dateFormat, diff } from '../../../../utils/calendar';
 
 // const invoices = [
 //   {
@@ -42,10 +42,21 @@ const Billing: React.SFC<Props> = ({ company }) => {
               Subscription status: <Label>{company.subscriptionStatus}</Label>{' '}
             </List.Item>
             <List.Item>
-              Subscription ends:{' '}
-              <strong>
-                {dateFormat(company.subscriptionEnds, 'YYYY-MM-DD')}
-              </strong>
+              {company.subscriptionStatus === SubscriptionStatus.Inactive ? (
+                <>
+                  Subscription ended:{' '}
+                  <strong>
+                    {dateFormat(company.subscriptionEnds, 'YYYY-MM-DD')}
+                  </strong>
+                </>
+              ) : (
+                <>
+                  Subscription ends:{' '}
+                  <strong>
+                    {dateFormat(company.subscriptionEnds, 'YYYY-MM-DD')}
+                  </strong>
+                </>
+              )}
             </List.Item>
           </List>
         </ContentBody>

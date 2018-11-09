@@ -246,6 +246,9 @@ injectGlobal`
       text-decoration: none;
     }
   }
+  textarea {
+    font-family: 'Roboto', sans-serif;
+  }
   ::-webkit-scrollbar {
     width: 5px;
   }

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { Box } from '../../ui';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
-import { Translate, HasAccess } from '../../common';
+import { Translate, HasAccess, Avatar } from '../../common';
 import { Project } from '../../projects/store/models';
 import { parseDate } from '../../../utils/helpers';
 import styled from '../../../styled/styled-components';
@@ -46,31 +46,45 @@ const TimesheetInfo: React.SFC<TimesheetInfoProps> = ({
       </>
     )}
   >
-    <List>
-      <List.Item>
-        <strong>Timesheet Period:</strong>{' '}
-        {parseDate(timesheet.periodStart, 'MMMM, YYYY')}
-      </List.Item>
-      <List.Item>
-        <strong>Status: </strong>
-        <Label {...labelProps(timesheet.status)}>
-          <Translate text={`timesheet.status.${timesheet.status}`} />
-        </Label>
-      </List.Item>
+    <div style={{ display: 'flex' }}>
       <HasAccess roles={[UserRole.Manager, UserRole.Admin]}>
-        <List.Item>
-          <strong>User: </strong>{' '}
-          <Link to={`/user/${owner.id}`} style={{ textDecoration: 'none' }}>
+        <UserInfo
+          style={{
+            marginRight: '40px',
+            display: 'flex',
+            flexDirection: 'column',
+            textAlign: 'center',
+          }}
+        >
+          <Avatar user={owner as any} view="lg" />
+          <Link
+            to={`/user/${owner.id}`}
+            style={{ textDecoration: 'none', marginTop: '10px' }}
+          >
             {`${owner.firstName} ${owner.lastName}`}
           </Link>
-        </List.Item>
+        </UserInfo>
       </HasAccess>
-      {timesheet.dateApproved && (
-        <List.Item>
-          <strong>Approval Date:</strong> {timesheet.dateApproved}
-        </List.Item>
-      )}
-    </List>
+      <div>
+        <List>
+          <List.Item>
+            <strong>Timesheet Period:</strong>{' '}
+            {parseDate(timesheet.periodStart, 'MMMM, YYYY')}
+          </List.Item>
+          <List.Item>
+            <strong>Status: </strong>
+            <Label {...labelProps(timesheet.status)}>
+              <Translate text={`timesheet.status.${timesheet.status}`} />
+            </Label>
+          </List.Item>
+          {timesheet.dateApproved && (
+            <List.Item>
+              <strong>Approval Date:</strong> {timesheet.dateApproved}
+            </List.Item>
+          )}
+        </List>
+      </div>
+    </div>
   </Box>
 );
 
@@ -78,4 +92,10 @@ export default TimesheetInfo;
 
 const BoxStatus = styled.div`
   float: right;
+`;
+
+const UserInfo = styled.div`
+  .avatar {
+    align-self: center;
+  }
 `;

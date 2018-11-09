@@ -53,6 +53,7 @@ export const CREATE_TEMPLATE = gql`
     $shiftStartTime: String!
     $shiftEndTime: String!
     $hoursDays: [TemplatehoursDaysTemplateHoursDays!]
+    $companyId: ID!
   ) {
     createTemplate(
       name: $name
@@ -60,6 +61,7 @@ export const CREATE_TEMPLATE = gql`
       shiftStartTime: $shiftStartTime
       shiftEndTime: $shiftEndTime
       hoursDays: $hoursDays
+      companyId: $companyId
     ) {
       ...TemplateListItem
     }

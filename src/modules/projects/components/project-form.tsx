@@ -9,11 +9,16 @@ type Props = {
   onSubmit: (data: { name: string }) => any;
   initialValues?: Project;
   loading?: boolean;
+  submitting?: boolean;
 };
 
 class ProjectForm extends React.Component<Props> {
   handleSubmit = (model: any) => {
-    const { initialValues } = this.props;
+    const { initialValues, submitting } = this.props;
+    if (submitting) {
+      return;
+    }
+
     const data = { ...model };
 
     if (initialValues && initialValues.id) {
@@ -24,7 +29,7 @@ class ProjectForm extends React.Component<Props> {
   };
 
   render() {
-    const { initialValues, loading } = this.props;
+    const { initialValues, loading, submitting } = this.props;
 
     if (loading) {
       return <PageLoader />;
@@ -43,10 +48,15 @@ class ProjectForm extends React.Component<Props> {
               <Input placeholder="Name of the project" />
             </Form.Field>
 
-            <Button type="submit" color="green" disabled={!formState.isValid}>
+            <Button
+              type="submit"
+              color="green"
+              disabled={!formState.isValid || submitting}
+              loading={submitting}
+            >
               {initialValues && initialValues.id ? 'Save' : 'Add'}
             </Button>
-            <BackButton>Cancel</BackButton>
+            <BackButton disabled={submitting}>Cancel</BackButton>
           </>
         )}
       </Form>

@@ -1,78 +1,102 @@
 import React from 'react';
 import { compose, branch, renderNothing, withHandlers } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Query, Mutation } from 'react-apollo';
+import gql from 'graphql-tag';
 
 import { GroupForm } from '../components';
 import { PageHeader } from '../../common';
 import { Project } from '../../projects/store/models';
 import { TimesheetTemplateItem } from '../../timesheets/store/models';
 import { CREATE_GROUP } from '../store/mutations';
-import { GET_PROJECTS } from '../../projects/store/queries';
-import { GET_TEMPLATES } from '../../timesheets/store/queries';
+import { PROJECT_LIST_ITEM_FRAGMENT } from '../../projects/store/queries';
 import { GET_GROUPS } from '../store/queries';
 import { withToastr } from '../../common/components/toastr/toastr';
+import { CompanyContext } from '../../common/components/routing';
+import { TEMPLATE_LIST_ITEM_FRAGMENT } from '../../timesheets/store/fragments';
+import { PageLoader } from '../../ui';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {
   userId: number;
-  projects: Project[];
-  templates: TimesheetTemplateItem[];
 };
 type DataProps = {
   createGroup(options: any): any;
   addToastMutate(options: any): any;
   addToast(title: string, message: string, type: string): Promise<any>;
-  projectsLoading: boolean;
-  templatesLoading: boolean;
   history: any;
 };
-type HandlerProps = { onAdd(data: any): any };
+type HandlerProps = { onAdd(data: any, createGroup: any): any };
 type EnhancedProps = Props & DataProps & HandlerProps;
 
-const GroupAddPage: React.SFC<EnhancedProps> = ({
-  projects,
-  templates,
-  onAdd,
-}) => (
-  <div>
-    <PageHeader>Create new Group</PageHeader>
+const GroupAddPage: React.SFC<EnhancedProps> = ({ onAdd }) => (
+  <CompanyContext.Consumer>
+    {({ company }: any) => (
+      <div>
+        <PageHeader>Create new Group</PageHeader>
 
-    <GroupForm onSubmit={onAdd} projects={projects} templates={templates} />
-  </div>
+        <Query query={QUERY} variables={{ companyId: company.id }}>
+          {({ data, loading }) => {
+            if (loading) {
+              return <PageLoader />;
+            }
+
+            return (
+              <Mutation
+                mutation={CREATE_GROUP}
+                update={(proxy, { data: { createGroup } }: { data: any }) => {
+                  const { allGroups }: any = proxy.readQuery({
+                    query: GET_GROUPS,
+                    variables: {
+                      companyId: createGroup.project.company.id,
+                    },
+                  });
+
+                  proxy.writeQuery({
+                    query: GET_GROUPS,
+                    variables: {
+                      companyId: createGroup.project.company.id,
+                    },
+                    data: {
+                      allGroups: allGroups.concat(createGroup),
+                    },
+                  });
+                }}
+              >
+                {(createGroup, { loading }) => (
+                  <GroupForm
+                    onSubmit={data => onAdd(data, createGroup)}
+                    companyId={company.id}
+                    projects={data.allProjects || []}
+                    templates={data.allTemplates || []}
+                    loading={loading}
+                  />
+                )}
+              </Mutation>
+            );
+          }}
+        </Query>
+      </div>
+    )}
+  </CompanyContext.Consumer>
 );
 
-const enhance = compose<EnhancedProps, Props>(
-  graphql(GET_PROJECTS, {
-    props: ({ data }: any) => ({
-      projectsLoading: data.loading,
-      projects: data.allProjects,
-    }),
-  }),
-  graphql(GET_TEMPLATES, {
-    props: ({ data }: any) => ({
-      templatesLoading: data.loading,
-      templates: data.allTemplates,
-    }),
-  }),
-  withToastr,
-  graphql(CREATE_GROUP, {
-    name: 'createGroup',
-    options: {
-      update: (proxy, { data: { createGroup } }: { data: any }) => {
-        const { allGroups }: any = proxy.readQuery({
-          query: GET_GROUPS,
-        });
+const QUERY = gql`
+  query($companyId: ID!) {
+    allTemplates(filter: { company: { id: $companyId } }) {
+      ...TemplateListItem
+    }
+    allProjects(filter: { company: { id: $companyId } }) {
+      ...ProjectListItem
+    }
+  }
+  ${PROJECT_LIST_ITEM_FRAGMENT}
+  ${TEMPLATE_LIST_ITEM_FRAGMENT}
+`;
 
-        proxy.writeQuery({
-          query: GET_GROUPS,
-          data: {
-            allGroups: allGroups.concat(createGroup),
-          },
-        });
-      },
-    },
-  }),
+const enhance = compose<EnhancedProps, Props>(
+  withToastr,
   withHandlers<EnhancedProps, HandlerProps>({
-    onAdd: ({ createGroup, addToast, history }) => data => {
+    onAdd: ({ addToast, history }) => (data, createGroup) => {
       createGroup({
         variables: {
           name: data.name,
@@ -89,13 +113,7 @@ const enhance = compose<EnhancedProps, Props>(
         });
       });
     },
-  }),
-
-  branch<EnhancedProps>(
-    ({ projectsLoading, templatesLoading }) =>
-      templatesLoading || projectsLoading,
-    renderNothing
-  )
+  })
 );
 
 export default enhance(GroupAddPage);

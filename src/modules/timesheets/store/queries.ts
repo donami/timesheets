@@ -75,8 +75,8 @@ export const GET_TIMESHEET = gql`
 `;
 
 export const GET_TEMPLATES = gql`
-  query allTemplates {
-    allTemplates {
+  query allTemplates($companyId: ID!) {
+    allTemplates(filter: { company: { id: $companyId } }) {
       ...TemplateListItem
     }
   }

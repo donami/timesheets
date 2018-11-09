@@ -5,6 +5,7 @@ import { graphql } from 'react-apollo';
 import { TemplateInfo } from '../components';
 import { PageHeader } from '../../common';
 import { GET_TEMPLATE } from '../store/queries';
+import { Button } from 'genui';
 
 type Props = {
   match: any;
@@ -17,7 +18,17 @@ type EnhancedProps = Props & DataProps;
 
 const TemplateViewPage: React.SFC<EnhancedProps> = ({ template }) => (
   <div>
-    <PageHeader>View Template: {template.name}</PageHeader>
+    <PageHeader
+      options={
+        <Button
+          to={`/timesheet-template/${template.id}/edit`}
+          color="green"
+          icon="fas fa-edit"
+        />
+      }
+    >
+      View Template: {template.name}
+    </PageHeader>
     <TemplateInfo template={template} />
   </div>
 );

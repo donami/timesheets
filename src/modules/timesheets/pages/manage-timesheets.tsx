@@ -1,8 +1,8 @@
 import React from 'react';
-import { StatusColor, Table, TableBuilder, Icon, ActionProps } from 'genui';
-import { graphql, Query } from 'react-apollo';
+import { StatusColor, Table, TableBuilder } from 'genui';
+import { Query, Mutation } from 'react-apollo';
 import { Link } from 'react-router-dom';
-import { compose, withHandlers } from 'recompose';
+import { compose, withState } from 'recompose';
 
 import { Translate, PageHeader } from '../../common';
 import { TimesheetItem, TimesheetStatus } from '../store/models';
@@ -12,14 +12,16 @@ import { GET_TIMESHEETS } from '../store/queries';
 import { DELETE_TIMESHEET } from '../store/mutations';
 import { PageLoader } from 'src/modules/ui';
 import { CompanyContext } from '../../common/components/routing';
+import { Alert, Intent } from '@blueprintjs/core';
 
 type Props = {};
 type DataProps = {
-  loading: boolean;
-  deleteTimesheet(options: any): any;
+  setShowDeleteDialog: any;
 };
-type HandlerProps = { onDeleteTimesheet: any };
-type EnhancedProps = Props & DataProps & HandlerProps;
+type StateProps = {
+  showDeleteDialog: boolean | string;
+};
+type EnhancedProps = Props & DataProps & StateProps;
 
 const getUniqueMonths = (timesheets: TimesheetItem[]) => {
   const months = timesheets.map(timesheet => timesheet.periodStart);
@@ -27,15 +29,71 @@ const getUniqueMonths = (timesheets: TimesheetItem[]) => {
   return [...new Set(months)];
 };
 
-const ManageTimesheets: React.SFC<EnhancedProps> = ({ onDeleteTimesheet }) => {
+const ManageTimesheets: React.SFC<EnhancedProps> = ({
+  showDeleteDialog,
+  setShowDeleteDialog,
+}) => {
   return (
-    <div>
-      <PageHeader>
-        <Translate text="timesheet.labels.MANAGE_TIMESHEETS" />
-      </PageHeader>
+    <CompanyContext.Consumer>
+      {(companyContext: any) => (
+        <div>
+          <PageHeader>
+            <Translate text="timesheet.labels.MANAGE_TIMESHEETS" />
+          </PageHeader>
 
-      <CompanyContext.Consumer>
-        {(companyContext: any) => (
+          <Mutation
+            mutation={DELETE_TIMESHEET}
+            update={(proxy, { data: { deleteTimesheet } }: { data: any }) => {
+              const { allTimesheets }: any = proxy.readQuery({
+                query: GET_TIMESHEETS,
+                variables: {
+                  companyId: companyContext.company.id,
+                },
+              });
+
+              proxy.writeQuery({
+                query: GET_TIMESHEETS,
+                variables: {
+                  companyId: companyContext.company.id,
+                },
+                data: {
+                  allTimesheets: allTimesheets.filter(
+                    (timesheet: any) => timesheet.id !== deleteTimesheet.id
+                  ),
+                },
+              });
+            }}
+            optimisticResponse={{
+              deleteTimesheet: {
+                id: showDeleteDialog,
+                __typename: 'Timesheet',
+              },
+            }}
+          >
+            {mutate => (
+              <Alert
+                cancelButtonText="Cancel"
+                confirmButtonText="Are you sure?"
+                icon="trash"
+                intent={Intent.DANGER}
+                isOpen={showDeleteDialog !== false}
+                onCancel={() => setShowDeleteDialog(false)}
+                onConfirm={() => {
+                  if (showDeleteDialog !== false) {
+                    mutate({
+                      variables: {
+                        id: showDeleteDialog,
+                      },
+                    });
+                  }
+                  setShowDeleteDialog(false);
+                }}
+              >
+                <p>Do you really want to remove this timesheet?</p>
+              </Alert>
+            )}
+          </Mutation>
+
           <Query
             query={GET_TIMESHEETS}
             variables={{ companyId: companyContext.company.id }}
@@ -142,20 +200,8 @@ const ManageTimesheets: React.SFC<EnhancedProps> = ({ onDeleteTimesheet }) => {
                       />
                       <Table.Cell
                         option={{
-                          confirm: {
-                            trigger: (
-                              <Icon name="fas fa-trash" title="Remove" />
-                            ),
-                            content: `Do you really want to remove this timesheet?`,
-                            onActionClick: (
-                              e: React.MouseEvent<HTMLElement>,
-                              actionProps: ActionProps
-                            ) => {
-                              if (actionProps.positive) {
-                                onDeleteTimesheet(item.id);
-                              }
-                            },
-                          },
+                          icon: 'fas fa-trash',
+                          onClick: () => setShowDeleteDialog(item.id),
                         }}
                       />
                     </>
@@ -164,37 +210,14 @@ const ManageTimesheets: React.SFC<EnhancedProps> = ({ onDeleteTimesheet }) => {
               );
             }}
           </Query>
-        )}
-      </CompanyContext.Consumer>
-    </div>
+        </div>
+      )}
+    </CompanyContext.Consumer>
   );
 };
 
 const enhance = compose<EnhancedProps, Props>(
-  graphql(DELETE_TIMESHEET, {
-    name: 'deleteTimesheet',
-    options: {
-      update: (proxy, { data: { deleteTimesheet } }: { data: any }) => {
-        const { allTimesheets }: any = proxy.readQuery({
-          query: GET_TIMESHEETS,
-        });
-
-        proxy.writeQuery({
-          query: GET_TIMESHEETS,
-          data: {
-            allTimesheets: allTimesheets.filter(
-              (timesheet: any) => timesheet.id !== deleteTimesheet.id
-            ),
-          },
-        });
-      },
-    },
-  }),
-  withHandlers<EnhancedProps, HandlerProps>({
-    onDeleteTimesheet: props => (id: string) => {
-      props.deleteTimesheet({ variables: { id } });
-    },
-  })
+  withState('showDeleteDialog', 'setShowDeleteDialog', false)
 );
 
 export default enhance(ManageTimesheets);

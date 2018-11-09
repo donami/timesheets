@@ -1,9 +1,21 @@
 import gql from 'graphql-tag';
 
 export const CREATE_PROJECT = gql`
-  mutation createProject($name: String!, $userId: ID!, $role: String!) {
-    createProject(name: $name, members: { userId: $userId, role: $role }) {
+  mutation createProject(
+    $name: String!
+    $userId: ID!
+    $role: String!
+    $companyId: ID!
+  ) {
+    createProject(
+      name: $name
+      companyId: $companyId
+      members: { userId: $userId, role: $role }
+    ) {
       id
+      company {
+        id
+      }
     }
   }
 `;
@@ -11,6 +23,14 @@ export const CREATE_PROJECT = gql`
 export const DELETE_PROJECT = gql`
   mutation deleteProject($id: ID!) {
     deleteProject(id: $id) {
+      id
+    }
+  }
+`;
+
+export const DELETE_PROJECT_MEMBER = gql`
+  mutation($id: ID!) {
+    deleteProjectMember(id: $id) {
       id
     }
   }

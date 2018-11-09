@@ -6,6 +6,7 @@ import { TimesheetTemplateForm } from '../components';
 import { PageHeader } from '../../common';
 import { GET_TEMPLATE } from '../store/queries';
 import { UPDATE_TEMPLATE, UPDATE_HOURS_DAYS } from '../store/mutations';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {
   match: any;
@@ -29,7 +30,15 @@ const TimesheetTemplateEditPage: React.SFC<EnhancedProps> = ({
   <div>
     <PageHeader>Edit Timesheet Template</PageHeader>
 
-    <TimesheetTemplateForm initialValues={template} onSubmit={onSubmit} />
+    <CompanyContext.Consumer>
+      {({ company }: any) => (
+        <TimesheetTemplateForm
+          initialValues={template}
+          onSubmit={onSubmit}
+          companyId={company.id}
+        />
+      )}
+    </CompanyContext.Consumer>
   </div>
 );
 

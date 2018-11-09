@@ -77,7 +77,17 @@ const TicketView: React.SFC<EnhancedProps> = ({
             <Popover
               content={
                 <Menu>
-                  <Mutation mutation={UPDATE_TICKET_STATUS}>
+                  <Mutation
+                    mutation={UPDATE_TICKET_STATUS}
+                    optimisticResponse={{
+                      updateTicket: {
+                        id: ticket.id,
+                        status: TicketStatus.Closed,
+                        updatedAt: new Date(),
+                        __typename: 'Ticket',
+                      },
+                    }}
+                  >
                     {mutate => (
                       <MenuItem
                         text="Close ticket"
@@ -93,8 +103,17 @@ const TicketView: React.SFC<EnhancedProps> = ({
                       />
                     )}
                   </Mutation>
-                  {/* <MenuDivider /> */}
-                  <Mutation mutation={UPDATE_TICKET_STATUS}>
+                  <Mutation
+                    mutation={UPDATE_TICKET_STATUS}
+                    optimisticResponse={{
+                      updateTicket: {
+                        id: ticket.id,
+                        status: TicketStatus.Pending,
+                        updatedAt: new Date(),
+                        __typename: 'Ticket',
+                      },
+                    }}
+                  >
                     {mutate => (
                       <MenuItem
                         text="Mark as pending"
@@ -119,7 +138,17 @@ const TicketView: React.SFC<EnhancedProps> = ({
               <BPButton intent={Intent.NONE} icon="cog" minimal />
             </Popover>
 
-            <Mutation mutation={UPDATE_TICKET_STATUS}>
+            <Mutation
+              mutation={UPDATE_TICKET_STATUS}
+              optimisticResponse={{
+                updateTicket: {
+                  id: ticket.id,
+                  status: TicketStatus.Closed,
+                  updatedAt: new Date(),
+                  __typename: 'Ticket',
+                },
+              }}
+            >
               {mutate => (
                 <Tooltip content="Mark as done">
                   <BPButton

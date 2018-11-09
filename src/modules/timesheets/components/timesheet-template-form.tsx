@@ -13,6 +13,8 @@ type Props = {
   onSubmit: (data: State) => any;
   initialValues?: TimesheetTemplateItem;
   createTemplate?(options: any): any;
+  companyId: string;
+  loading?: boolean;
 };
 
 type State = Readonly<{
@@ -230,6 +232,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
           shiftEndTime: this.state.shiftEndTime,
           shiftStartTime: this.state.shiftStartTime,
           workHoursPerDay: this.state.workHoursPerDay,
+          companyId: this.props.companyId,
         },
       });
 
@@ -242,6 +245,7 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
 
   render() {
     const { name, workHoursPerDay, hoursDays } = this.state;
+    const { loading } = this.props;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -330,10 +334,15 @@ class TimesheetTemplateForm extends React.Component<Props, State> {
           })}
         </StyledCard>
 
-        <Button type="submit" color="green">
+        <Button
+          type="submit"
+          color="green"
+          disabled={loading}
+          loading={loading}
+        >
           {this.state.id ? 'Save' : 'Add'}
         </Button>
-        <BackButton>Cancel</BackButton>
+        <BackButton disabled={loading}>Cancel</BackButton>
       </form>
     );
   }

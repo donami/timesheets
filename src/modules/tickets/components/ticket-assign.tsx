@@ -5,6 +5,7 @@ import { Mutation, Query } from 'react-apollo';
 import { UPDATE_TICKET } from '../store/mutations';
 import { GET_USERS } from 'src/modules/users/store/queries';
 import styled from 'src/styled/styled-components';
+import { CompanyContext } from '../../common/components/routing';
 
 export interface IUser {
   id: string;
@@ -61,58 +62,67 @@ class TicketAssign extends Component<Props, State> {
     const { selected } = this.state;
 
     return (
-      <Query query={GET_USERS}>
-        {({ loading, data }) => {
-          if (loading) {
-            return null;
-          }
+      <CompanyContext.Consumer>
+        {({ company }: any) => (
+          <Query
+            query={GET_USERS}
+            variables={{
+              companyId: company.id,
+            }}
+          >
+            {({ loading, data }) => {
+              if (loading) {
+                return null;
+              }
 
-          const initialSelected = this.props.initialSelectedId
-            ? data.allUsers.find(
-                (user: IUser) => user.id === this.props.initialSelectedId
-              )
-            : null;
+              const initialSelected = this.props.initialSelectedId
+                ? data.allUsers.find(
+                    (user: IUser) => user.id === this.props.initialSelectedId
+                  )
+                : null;
 
-          const text = selected
-            ? `${selected.firstName} ${selected.lastName}`
-            : initialSelected
-              ? `${initialSelected.firstName} ${initialSelected.lastName}`
-              : 'Select user...';
+              const text = selected
+                ? `${selected.firstName} ${selected.lastName}`
+                : initialSelected
+                  ? `${initialSelected.firstName} ${initialSelected.lastName}`
+                  : 'Select user...';
 
-          return (
-            <Container>
-              <UserSelect
-                activeItem={selected}
-                items={data.allUsers}
-                itemPredicate={filterUser}
-                itemRenderer={renderUser}
-                noResults={<MenuItem disabled={true} text="No results." />}
-                onItemSelect={this.handleValueChange}
-              >
-                <Button text={text} rightIcon="double-caret-vertical" />
-              </UserSelect>
-              <Mutation mutation={UPDATE_TICKET}>
-                {mutate => (
-                  <Button
-                    text="Assign"
-                    onClick={() => {
-                      if (!this.state.selected) {
-                        return;
-                      }
-                      mutate({
-                        variables: {
-                          id: this.props.ticketId,
-                          assignedId: this.state.selected.id,
-                        },
-                      });
-                    }}
-                  />
-                )}
-              </Mutation>
-            </Container>
-          );
-        }}
-      </Query>
+              return (
+                <Container>
+                  <UserSelect
+                    activeItem={selected}
+                    items={data.allUsers}
+                    itemPredicate={filterUser}
+                    itemRenderer={renderUser}
+                    noResults={<MenuItem disabled={true} text="No results." />}
+                    onItemSelect={this.handleValueChange}
+                  >
+                    <Button text={text} rightIcon="double-caret-vertical" />
+                  </UserSelect>
+                  <Mutation mutation={UPDATE_TICKET}>
+                    {mutate => (
+                      <Button
+                        text="Assign"
+                        onClick={() => {
+                          if (!this.state.selected) {
+                            return;
+                          }
+                          mutate({
+                            variables: {
+                              id: this.props.ticketId,
+                              assignedId: this.state.selected.id,
+                            },
+                          });
+                        }}
+                      />
+                    )}
+                  </Mutation>
+                </Container>
+              );
+            }}
+          </Query>
+        )}
+      </CompanyContext.Consumer>
     );
   }
 }

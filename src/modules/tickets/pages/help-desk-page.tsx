@@ -116,7 +116,13 @@ class HelpDeskPage extends Component<Props, State> {
                     } catch {}
                   }}
                 >
-                  {mutation => <CreateTicket createTicket={mutation} />}
+                  {(mutation, { loading }) => (
+                    <CreateTicket
+                      {...props}
+                      createTicket={mutation}
+                      loading={loading}
+                    />
+                  )}
                 </Mutation>
               );
             }}

@@ -3,13 +3,16 @@ import { Input, Button, Select } from 'genui';
 import { compose, withHandlers } from 'recompose';
 import { graphql } from 'react-apollo';
 
-import { Form, BackButton } from '../../common';
+import { Form, BackButton, AppToaster } from '../../common';
 import { Project } from '../../projects/store/models';
 import { CREATE_PROJECT_MEMBER } from '../../../store/mutations';
 import { UPDATE_USER } from '../store/mutations';
+import { Intent } from '@blueprintjs/core';
+import { History } from 'history';
 
 type Props = {
   user: any;
+  history: History;
   projects: Project[];
   userProject: Project[];
 };
@@ -93,8 +96,14 @@ const enhance = compose<EnhancedProps, Props>(
       createProjectMember,
       user,
       userProject,
-    }) => model => {
-      updateUser({
+      history,
+    }) => async model => {
+      AppToaster.show({
+        icon: 'tick',
+        message: 'User was updated.',
+        intent: Intent.SUCCESS,
+      });
+      await updateUser({
         variables: {
           id: user.id,
           firstName: model.firstname,
@@ -102,10 +111,12 @@ const enhance = compose<EnhancedProps, Props>(
         },
       });
       if (!userProject.find(project => project.id === model.project)) {
-        createProjectMember({
+        await createProjectMember({
           variables: { userId: user.id, projectId: model.project },
         });
       }
+
+      history.push(`/user/${user.id}`);
     },
   })
 );

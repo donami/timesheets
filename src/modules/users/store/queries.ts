@@ -20,7 +20,7 @@ export const USER_LIST_ITEM_FRAGMENT = gql`
 `;
 
 export const GET_USERS = gql`
-  query allUsers($companyId: ID) {
+  query allUsers($companyId: ID!) {
     allUsers(filter: { company: { id: $companyId } }) {
       ...UserListItem
     }

@@ -9,6 +9,7 @@ export const LOGGED_IN_USER = gql`
       company {
         id
         subscriptionEnds
+        subscriptionStatus
       }
       image {
         __typename

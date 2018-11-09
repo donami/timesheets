@@ -11,12 +11,14 @@ import { GET_PROJECTS } from '../../projects/store/queries';
 import { GET_TEMPLATES } from '../../timesheets/store/queries';
 import { UPDATE_GROUP } from '../store/mutations';
 import { WithToastrProps, withToastr } from '../../common/components/toastr';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {
   group: Group;
   project: Project;
 };
 type DataProps = {
+  user: any;
   projects: any;
   templates: any;
   templatesLoading: boolean;
@@ -48,16 +50,31 @@ const GroupEditPage: React.SFC<EnhancedProps> = ({
 const enhance = compose<EnhancedProps, Props>(
   withRouter,
   withToastr,
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      user: data.user,
+    }),
+  }),
   graphql(GET_PROJECTS, {
     props: ({ data }: any) => ({
       projectsLoading: data.loading,
       projects: data.allProjects,
+    }),
+    options: (props: any) => ({
+      variables: {
+        companyId: props.user.company.id,
+      },
     }),
   }),
   graphql(GET_TEMPLATES, {
     props: ({ data }: any) => ({
       templatesLoading: data.loading,
       templates: data.allTemplates,
+    }),
+    options: (props: any) => ({
+      variables: {
+        companyId: props.user.company.id,
+      },
     }),
   }),
   graphql(UPDATE_GROUP, {

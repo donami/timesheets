@@ -5,6 +5,9 @@ export const PROJECT_LIST_ITEM_FRAGMENT = gql`
   fragment ProjectListItem on Project {
     id
     name
+    members {
+      id
+    }
   }
 `;
 

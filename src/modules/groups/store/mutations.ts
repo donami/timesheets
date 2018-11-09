@@ -60,6 +60,9 @@ export const CREATE_GROUP = gql`
       project {
         id
         name
+        company {
+          id
+        }
       }
       template {
         id

@@ -5,9 +5,10 @@ import { compose } from 'recompose';
 
 import { Box } from '../../ui';
 import { Group } from '../../groups/store/models';
-import { Translate } from '../../common';
+import { Translate, AppToaster } from '../../common';
 import styled from '../../../styled/styled-components';
 import { UPDATE_USER } from '../store/mutations';
+import { Intent } from '@blueprintjs/core';
 
 type Props = {
   groups: Group[];
@@ -44,18 +45,24 @@ class UserGroups extends React.Component<EnhancedProps, State> {
     });
   };
 
-  handleSubmit = (e: any) => {
+  handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (this.state.selectedGroupId === '') {
       return;
     }
 
-    this.props.updateUser({
+    await this.props.updateUser({
       variables: {
         id: this.props.user.id,
         groupId: this.state.selectedGroupId,
       },
+    });
+
+    AppToaster.show({
+      icon: 'tick',
+      message: 'User group was updated.',
+      intent: Intent.SUCCESS,
     });
   };
 

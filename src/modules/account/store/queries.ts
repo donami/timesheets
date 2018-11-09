@@ -22,7 +22,7 @@ export const COMPANY_VIEW_FRAGMENT = gql`
     address
     createdAt
     updatedAt
-    user {
+    users {
       id
     }
     image {

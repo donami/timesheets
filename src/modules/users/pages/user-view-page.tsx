@@ -15,6 +15,8 @@ import styled, { withProps, css } from '../../../styled/styled-components';
 import { DISABLE_USER, ENABLE_USER } from '../store/mutations';
 import CreateChat from '../../common/components/chat/create-chat';
 import { fullName } from 'src/utils/helpers';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { CompanyContext } from '../../common/components/routing';
 
 type DropdownItem = {
   label: string;
@@ -35,6 +37,7 @@ type DataProps = {
   user: any;
   groups: any[];
   projects: any[];
+  authedUser: any;
   disableUser(options: any): any;
   enableUser(options: any): any;
 };
@@ -184,19 +187,25 @@ class UserViewPage extends React.Component<EnhancedProps> {
                       <Translate text="timesheet.labels.GENERATE_NEW_TIMESHEETS" />
                     )}
                   >
-                    <TimesheetGenerator
-                      userId={user.id}
-                      group={user.group}
-                      userProjectId={
-                        (user.projectMember || []).map(
-                          (member: any) => member.project.id
-                        )[0]
-                      }
-                      projects={(user.projectMember || []).map(
-                        (member: any) => member.project
+                    <CompanyContext.Consumer>
+                      {({ company }: any) => (
+                        <TimesheetGenerator
+                          history={props.history}
+                          userId={user.id}
+                          group={user.group}
+                          companyId={company.id}
+                          userProjectId={
+                            (user.projectMember || []).map(
+                              (member: any) => member.project.id
+                            )[0]
+                          }
+                          projects={(user.projectMember || []).map(
+                            (member: any) => member.project
+                          )}
+                          previousTimesheets={user.timesheets}
+                        />
                       )}
-                      previousTimesheets={user.timesheets}
-                    />
+                    </CompanyContext.Consumer>
                   </Box>
                 )}
               />
@@ -219,6 +228,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
                 render={props => (
                   <>
                     <EditUser
+                      {...props}
                       user={user}
                       userProject={(user.projectMember || []).map(
                         (member: any) => member.project
@@ -240,7 +250,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
                   >
                     <TimesheetList
                       items={user.timesheets || []}
-                      disableFilter={true}
+                      disableFilter={false}
                       noItemsText="There is no generated timesheets for this user."
                     />
                   </Box>
@@ -255,7 +265,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
 }
 
 export const USER_VIEW_PAGE_QUERY = gql`
-  query($id: ID!) {
+  query($id: ID!, $companyId: ID!) {
     User(id: $id) {
       __typename
       id
@@ -301,7 +311,7 @@ export const USER_VIEW_PAGE_QUERY = gql`
         }
       }
     }
-    allGroups {
+    allGroups(filter: { project: { company: { id: $companyId } } }) {
       id
       name
       project {
@@ -309,7 +319,7 @@ export const USER_VIEW_PAGE_QUERY = gql`
         name
       }
     }
-    allProjects {
+    allProjects(filter: { company: { id: $companyId } }) {
       id
       name
     }
@@ -317,9 +327,17 @@ export const USER_VIEW_PAGE_QUERY = gql`
 `;
 
 const enhance = compose(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      authedUser: data.user,
+    }),
+  }),
   graphql(USER_VIEW_PAGE_QUERY, {
     options: (props: any) => ({
-      variables: { id: props.match.params.id },
+      variables: {
+        id: props.match.params.id,
+        companyId: props.authedUser.company.id,
+      },
     }),
     props: ({ data }: any) => ({
       loading: data.loading,

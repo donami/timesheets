@@ -6,24 +6,32 @@ import { LayoutDefault, HasAccess } from '../components';
 import { UserRole } from '../../users/store/models';
 import { compose, renderNothing, branch } from 'recompose';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
-import { Company } from '../../account/store/types';
+import { Company, SubscriptionStatus } from '../../account/store/types';
 import { AccountDisabled } from '../pages';
 import { diff } from '../../../utils/calendar';
+import { UPDATE_COMPANY } from '../../account/store/mutations';
 
 type Props = {
   component: any;
   exact?: boolean;
   path: string;
   roles?: UserRole[];
-  user: { id: string; company: Company } | null;
+  user: { id: string; company: Company; role: UserRole } | null;
   loading: boolean;
 };
 
-const ProtectedRoute: React.SFC<Props> = ({
+type DataProps = {
+  updateCompany(options: any): any;
+};
+
+type EnhancedProps = Props & DataProps;
+
+const ProtectedRoute: React.SFC<EnhancedProps> = ({
   component: Component,
   roles,
   user,
   loading,
+  updateCompany,
   ...rest
 }) => {
   if (!user) {
@@ -35,8 +43,21 @@ const ProtectedRoute: React.SFC<Props> = ({
 
     // if the subscription ends date is in the past it means the account is disabled
     if (timeDifference > 0) {
-      localStorage.removeItem('token');
-      return <AccountDisabled />;
+      if (user.company.subscriptionStatus !== SubscriptionStatus.Inactive) {
+        // update company - set subscription status = inactive
+        updateCompany({
+          variables: {
+            id: user.company.id,
+            subscriptionStatus: SubscriptionStatus.Inactive,
+          },
+        });
+      }
+
+      if (user.role !== UserRole.Admin) {
+        localStorage.removeItem('token');
+
+        return <AccountDisabled />;
+      }
     }
   }
 
@@ -70,6 +91,7 @@ const enhance = compose<any, any>(
     }),
     options: { fetchPolicy: 'network-only' },
   }),
+  graphql(UPDATE_COMPANY, { name: 'updateCompany' }),
   branch(({ loading }) => loading, renderNothing)
 );
 

@@ -14,9 +14,11 @@ type Props = {
       timesheetTemplate: TimesheetTemplateItem;
     }
   ) => any;
+  companyId?: string;
   projects: Project[];
   templates: TimesheetTemplateItem[];
   initialValues?: any;
+  loading?: boolean;
 };
 
 class GroupForm extends React.Component<Props> {
@@ -35,7 +37,7 @@ class GroupForm extends React.Component<Props> {
   };
 
   render() {
-    const { projects, templates, initialValues } = this.props;
+    const { projects, templates, initialValues, loading } = this.props;
 
     return (
       <Form onValidSubmit={this.handleSubmit}>
@@ -88,10 +90,15 @@ class GroupForm extends React.Component<Props> {
               />
             </Form.Field>
 
-            <Button type="submit" color="green" disabled={!formState.isValid}>
+            <Button
+              type="submit"
+              color="green"
+              loading={loading}
+              disabled={!formState.isValid}
+            >
               {initialValues && initialValues.id ? 'Save' : 'Add'}
             </Button>
-            <BackButton>Cancel</BackButton>
+            <BackButton disabled={loading}>Cancel</BackButton>
           </>
         )}
       </Form>

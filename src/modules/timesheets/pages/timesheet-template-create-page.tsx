@@ -7,6 +7,7 @@ import { PageHeader } from '../../common';
 import { CREATE_TEMPLATE } from '../store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { GET_TEMPLATES } from '../store/queries';
+import { CompanyContext } from '../../common/components/routing';
 
 type Props = {
   history: any;
@@ -43,30 +44,44 @@ class TimesheetTemplateCreatePage extends Component<EnhancedProps> {
   render() {
     return (
       <div>
-        <PageHeader>Create Timesheet Template</PageHeader>
+        <CompanyContext.Consumer>
+          {({ company }: any) => (
+            <>
+              <PageHeader>Create Timesheet Template</PageHeader>
 
-        <Mutation
-          mutation={CREATE_TEMPLATE}
-          update={(proxy, { data: { createTemplate } }: any) => {
-            const { allTemplates }: any = proxy.readQuery({
-              query: GET_TEMPLATES,
-            });
+              <Mutation
+                mutation={CREATE_TEMPLATE}
+                update={(proxy, { data: { createTemplate } }: any) => {
+                  const { allTemplates }: any = proxy.readQuery({
+                    query: GET_TEMPLATES,
+                    variables: {
+                      companyId: company.id,
+                    },
+                  });
 
-            proxy.writeQuery({
-              query: GET_TEMPLATES,
-              data: {
-                allTemplates: allTemplates.concat(createTemplate),
-              },
-            });
-          }}
-        >
-          {createTemplate => (
-            <TimesheetTemplateForm
-              onSubmit={this.handleSubmit}
-              createTemplate={createTemplate}
-            />
+                  proxy.writeQuery({
+                    query: GET_TEMPLATES,
+                    variables: {
+                      companyId: company.id,
+                    },
+                    data: {
+                      allTemplates: allTemplates.concat(createTemplate),
+                    },
+                  });
+                }}
+              >
+                {(createTemplate, { loading }) => (
+                  <TimesheetTemplateForm
+                    onSubmit={this.handleSubmit}
+                    createTemplate={createTemplate}
+                    loading={loading}
+                    companyId={company.id}
+                  />
+                )}
+              </Mutation>
+            </>
           )}
-        </Mutation>
+        </CompanyContext.Consumer>
       </div>
     );
   }

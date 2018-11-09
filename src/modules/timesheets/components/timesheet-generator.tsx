@@ -16,6 +16,7 @@ import styled from '../../../styled/styled-components';
 import { DELETE_TIMESHEET } from '../store/mutations';
 import { USER_VIEW_PAGE_QUERY } from '../../users/pages/user-view-page';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
+import { History } from 'history';
 
 type Props = {
   userProjectId: any;
@@ -23,6 +24,8 @@ type Props = {
   projects: Project[];
   userId: string;
   group: any;
+  history: History;
+  companyId: string;
 };
 type DataProps = {
   confirmTemplates(options: any): any;
@@ -128,6 +131,8 @@ class TimesheetGenerator extends React.Component<EnhancedProps, State> {
       'The timesheets were generated.',
       'positive'
     );
+
+    this.props.history.push(`/user/${this.props.userId}`);
   };
 
   handleCancelTemplates = (e: any) => {
@@ -195,85 +200,84 @@ class TimesheetGenerator extends React.Component<EnhancedProps, State> {
               {group.template.name}
             </h4>
 
-            {generated &&
-              generated.timesheets.length > 0 && (
+            {generated && generated.timesheets.length > 0 && (
+              <div>
+                <h4>
+                  <Translate text="timesheet.labels.GENERATED_TIMESHEETS" />
+                </h4>
+
+                <List divided>
+                  {generated.timesheets.map((month: any, index: any) => {
+                    const hasConflict = previousTimesheets.find(
+                      item => item.periodStart === month.periodStart
+                    );
+
+                    if (hasConflict) {
+                      conflictingDates = true;
+                    }
+
+                    return (
+                      <List.Item key={index}>
+                        {hasConflict && (
+                          <Conflict>
+                            <Icon
+                              name="fas fa-exclamation-triangle"
+                              title="Date Conflict"
+                            />
+                            <span
+                              onClick={() =>
+                                this.handleResolveConflict(
+                                  hasConflict.id,
+                                  month.periodStart,
+                                  ConflictResolve.DISCARD_OLD
+                                )
+                              }
+                            >
+                              Keep New,
+                            </span>
+                            <span
+                              onClick={() =>
+                                this.handleResolveConflict(
+                                  hasConflict.id,
+                                  month.periodStart,
+                                  ConflictResolve.DISCARD_NEW
+                                )
+                              }
+                            >
+                              Keep Old
+                            </span>
+                          </Conflict>
+                        )}
+                        {month.periodStart}
+                      </List.Item>
+                    );
+                  })}
+                </List>
+
                 <div>
-                  <h4>
-                    <Translate text="timesheet.labels.GENERATED_TIMESHEETS" />
-                  </h4>
-
-                  <List divided>
-                    {generated.timesheets.map((month: any, index: any) => {
-                      const hasConflict = previousTimesheets.find(
-                        item => item.periodStart === month.periodStart
-                      );
-
-                      if (hasConflict) {
-                        conflictingDates = true;
-                      }
-
-                      return (
-                        <List.Item key={index}>
-                          {hasConflict && (
-                            <Conflict>
-                              <Icon
-                                name="fas fa-exclamation-triangle"
-                                title="Date Conflict"
-                              />
-                              <span
-                                onClick={() =>
-                                  this.handleResolveConflict(
-                                    hasConflict.id,
-                                    month.periodStart,
-                                    ConflictResolve.DISCARD_OLD
-                                  )
-                                }
-                              >
-                                Keep New,
-                              </span>
-                              <span
-                                onClick={() =>
-                                  this.handleResolveConflict(
-                                    hasConflict.id,
-                                    month.periodStart,
-                                    ConflictResolve.DISCARD_NEW
-                                  )
-                                }
-                              >
-                                Keep Old
-                              </span>
-                            </Conflict>
-                          )}
-                          {month.periodStart}
-                        </List.Item>
-                      );
-                    })}
-                  </List>
-
-                  <div>
-                    {conflictingDates && (
-                      <div>
-                        <h4>Conflicting Dates</h4>
-                        <p>
-                          There are already one or more timesheets with the
-                          generated date. Please resolve conflicts by either
-                          keeping the newly generated timesheet, or discard it.
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      color="green"
-                      onClick={this.handleConfirmTemplates}
-                      disabled={conflictingDates}
-                    >
-                      <Translate text="common.labels.CONFIRM" />
-                    </Button>
-                    <Button onClick={this.handleCancelTemplates}>
-                      <Translate text="common.labels.CANCEL" />
-                    </Button>
-                  </div>
+                  {conflictingDates && (
+                    <div>
+                      <h4>Conflicting Dates</h4>
+                      <p>
+                        There are already one or more timesheets with the
+                        generated date. Please resolve conflicts by either
+                        keeping the newly generated timesheet, or discard it.
+                      </p>
+                    </div>
+                  )}
+                  <Button
+                    color="green"
+                    onClick={this.handleConfirmTemplates}
+                    disabled={conflictingDates}
+                  >
+                    <Translate text="common.labels.CONFIRM" />
+                  </Button>
+                  <Button onClick={this.handleCancelTemplates}>
+                    <Translate text="common.labels.CANCEL" />
+                  </Button>
                 </div>
-              )}
+              </div>
+            )}
 
             {!generated && (
               <Form onValidSubmit={this.handleGenerateTimesheets}>
@@ -346,14 +350,44 @@ const CONFIRM_TEMPLATES_MUTATION = gql`
       ownerId: $ownerId
       dates: $dates
     ) {
+      __typename
       id
+      status
+      periodStart
     }
   }
 `;
 
 const enhance = compose<EnhancedProps, Props>(
   withToastr,
-  graphql(CONFIRM_TEMPLATES_MUTATION, { name: 'confirmTemplates' }),
+  graphql(CONFIRM_TEMPLATES_MUTATION, {
+    name: 'confirmTemplates',
+    options: (props: Props) => ({
+      update: (proxy, { data }: any) => {
+        const { User, ...rest }: any = proxy.readQuery({
+          query: USER_VIEW_PAGE_QUERY,
+          variables: {
+            companyId: props.companyId,
+            id: props.userId,
+          },
+        });
+
+        proxy.writeQuery({
+          query: USER_VIEW_PAGE_QUERY,
+          variables: {
+            companyId: props.companyId,
+          },
+          data: {
+            ...rest,
+            User: {
+              ...User,
+              timesheets: User.timesheets.concat(data.createTimesheet),
+            },
+          },
+        });
+      },
+    }),
+  }),
   graphql(DELETE_TIMESHEET, {
     name: 'deleteTimesheet',
     options: (props: Props) => ({
@@ -362,11 +396,15 @@ const enhance = compose<EnhancedProps, Props>(
           query: USER_VIEW_PAGE_QUERY,
           variables: {
             id: props.userId,
+            companyId: props.companyId,
           },
         });
 
         proxy.writeQuery({
           query: USER_VIEW_PAGE_QUERY,
+          variables: {
+            companyId: props.companyId,
+          },
           data: {
             ...rest,
             User: {

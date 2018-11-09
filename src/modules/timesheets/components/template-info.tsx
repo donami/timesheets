@@ -9,6 +9,16 @@ type Props = {
   template: TimesheetTemplateItem;
 };
 
+const days = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+
 const TemplateInfo: React.SFC<Props> = ({ template }) => (
   <Row>
     <Column xs={12} sm={6}>
@@ -26,8 +36,8 @@ const TemplateInfo: React.SFC<Props> = ({ template }) => (
           {Object.keys(template.hoursDays).map(day => (
             <List.Item key={day}>
               {' '}
-              <strong>{capitalize(day)}:</strong>{' '}
-              {template.hoursDays[day].totalHours} hour
+              <strong>{days[day]}:</strong> {template.hoursDays[day].totalHours}{' '}
+              hour
               {template.hoursDays[day].totalHours > 1 && 's'}
             </List.Item>
           ))}

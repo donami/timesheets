@@ -11,6 +11,7 @@ type Props = {
   onSubmit: (data: any) => any;
   projects: Project[];
   groups: Group[];
+  loading?: boolean;
 };
 
 class UserForm extends React.Component<Props> {
@@ -26,7 +27,7 @@ class UserForm extends React.Component<Props> {
   };
 
   render() {
-    const { projects, groups } = this.props;
+    const { projects, groups, loading } = this.props;
 
     return (
       <CompanyContext.Consumer>
@@ -104,12 +105,13 @@ class UserForm extends React.Component<Props> {
 
                 <Button
                   type="submit"
-                  disabled={!formState.isValid}
+                  disabled={!formState.isValid || loading}
                   color="green"
+                  loading={loading}
                 >
                   Add
                 </Button>
-                <BackButton>Cancel</BackButton>
+                <BackButton disabled={loading}>Cancel</BackButton>
               </>
             )}
           </Form>
