@@ -1,21 +1,18 @@
 import React from 'react';
-import { compose, branch, renderNothing, renderComponent } from 'recompose';
-import { graphql, Mutation, Query } from 'react-apollo';
+import { compose } from 'recompose';
+import { Mutation, Query } from 'react-apollo';
 import gql from 'graphql-tag';
+import { adopt } from 'react-adopt';
 
 import { UserForm } from '../components';
 import { PageHeader } from '../../common';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { GET_USERS } from '../store/queries';
-import { PageLoader } from 'src/modules/ui';
 import { UPDATE_USER } from '../store/mutations';
 import { CompanyContext } from '../../common/components/routing';
-import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {};
 type DataProps = {
-  createUser(options: any): any;
-  updateUser(options: any): any;
   history: any;
 };
 type EnhancedProps = Props & DataProps & WithToastrProps;
@@ -30,11 +27,56 @@ type UserFormData = {
   companyId: string;
 };
 
+type RenderProps = {
+  createUser: { mutation: Function; result: { loading: boolean } };
+  updateUser: { mutation: Function; result: { loading: boolean } };
+};
+
+const Mutations = adopt<RenderProps, { companyId: string }>({
+  createUser: ({ render, companyId }: any) => (
+    <Mutation
+      mutation={CREATE_USER}
+      update={(proxy, { data }) => {
+        const { allUsers }: any = proxy.readQuery({
+          query: GET_USERS,
+          variables: {
+            companyId,
+          },
+        });
+
+        const item = {
+          ...data.createAuthUser,
+          __typename: 'User',
+          group: null,
+          image: null,
+        };
+
+        proxy.writeQuery({
+          query: GET_USERS,
+          variables: {
+            companyId,
+          },
+          data: {
+            allUsers: allUsers.concat([item]),
+          },
+        });
+      }}
+    >
+      {(mutation, result) => render({ mutation, result })}
+    </Mutation>
+  ),
+  updateUser: ({ render }: any) => (
+    <Mutation mutation={UPDATE_USER}>
+      {(mutation, result) => render({ mutation, result })}
+    </Mutation>
+  ),
+});
+
 class UserAddPage extends React.Component<EnhancedProps> {
-  handleAdd = async (data: UserFormData, createUser: (options: any) => any) => {
+  handleAdd = async (data: UserFormData, mutations: any) => {
     const {
       data: { createAuthUser },
-    } = await createUser({
+    } = await mutations.createUser.mutation({
       variables: {
         email: data.email,
         firstName: data.firstname,
@@ -45,7 +87,7 @@ class UserAddPage extends React.Component<EnhancedProps> {
       },
     });
 
-    await this.props.updateUser({
+    await mutations.updateUser.mutation({
       variables: {
         id: createAuthUser.id,
         companyId: data.companyId,
@@ -80,45 +122,21 @@ class UserAddPage extends React.Component<EnhancedProps> {
                   return (
                     <>
                       <PageHeader>Add new user</PageHeader>
-                      <Mutation
-                        mutation={CREATE_USER}
-                        update={(proxy, { data }) => {
-                          const { allUsers }: any = proxy.readQuery({
-                            query: GET_USERS,
-                            variables: {
-                              companyId: company.id,
-                            },
-                          });
-
-                          const item = {
-                            ...data.createAuthUser,
-                            __typename: 'User',
-                            group: null,
-                            image: null,
-                          };
-
-                          proxy.writeQuery({
-                            query: GET_USERS,
-                            variables: {
-                              companyId: company.id,
-                            },
-                            data: {
-                              allUsers: allUsers.concat([item]),
-                            },
-                          });
-                        }}
-                      >
-                        {(mutate, { loading }) => (
+                      <Mutations companyId={company.id}>
+                        {({ createUser, updateUser }) => (
                           <UserForm
                             onSubmit={(data: UserFormData) =>
-                              this.handleAdd(data, mutate)
+                              this.handleAdd(data, { createUser, updateUser })
                             }
                             projects={data.allProjects || []}
                             groups={data.allGroups || []}
-                            loading={loading}
+                            loading={
+                              createUser.result.loading ||
+                              updateUser.result.loading
+                            }
                           />
                         )}
-                      </Mutation>
+                      </Mutations>
                     </>
                   );
                 }}
@@ -171,36 +189,6 @@ const CREATE_USER = gql`
   }
 `;
 
-const enhance = compose(
-  withToastr,
-  graphql(CREATE_USER, {
-    name: 'createUser',
-    options: {
-      update: (proxy, { data }: any) => {
-        const { allUsers }: any = proxy.readQuery({
-          query: GET_USERS,
-        });
-
-        const item = {
-          ...data.createAuthUser,
-          __typename: 'User',
-          group: null,
-          image: null,
-        };
-
-        proxy.writeQuery({
-          query: GET_USERS,
-          data: {
-            allUsers: allUsers.concat([item]),
-          },
-        });
-      },
-    },
-  }),
-  graphql(UPDATE_USER, {
-    name: 'updateUser',
-  }),
-  branch(({ loading }) => loading, renderComponent(PageLoader))
-);
+const enhance = compose(withToastr);
 
 export default enhance(UserAddPage);
