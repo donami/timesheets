@@ -10,10 +10,14 @@ import {
 } from '../store/queries';
 import CreateTicket from '../components/create-ticket';
 import { Button } from 'genui';
-import { Mutation } from 'react-apollo';
+import { Mutation, Query } from 'react-apollo';
 import { CREATE_TICKET_MUTATION } from '../store/mutations';
 import HelpDeskHome from '../components/help-desk-home';
 import { CompanyContext } from '../../common/components/routing';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { PageLoader } from '../../ui';
+import { UserRole } from '../../users/store/models';
+import UserTickets, { GET_USER_TICKETS } from '../components/user-tickets';
 
 type Props = {
   match: match<{ id: string }>;
@@ -93,84 +97,111 @@ class HelpDeskPage extends Component<Props, State> {
           </ul>
         )}
 
-        <Switch>
-          <Route
-            exact
-            path={`/help-desk/ticket/create`}
-            render={props => {
-              return (
-                <Mutation
-                  mutation={CREATE_TICKET_MUTATION}
-                  update={(proxy, { data: { createTicket } }) => {
-                    try {
-                      const data: any = proxy.readQuery({
-                        query: GET_ALL_TICKETS,
-                      });
+        <Query query={LOGGED_IN_USER}>
+          {({ data, loading }) => {
+            if (loading) {
+              return <PageLoader />;
+            }
 
-                      data.allTickets.push(createTicket);
+            return (
+              <Switch>
+                <Route
+                  exact
+                  path={`/help-desk/ticket/create`}
+                  render={props => {
+                    return (
+                      <Mutation
+                        mutation={CREATE_TICKET_MUTATION}
+                        update={(proxy, { data: { createTicket } }) => {
+                          try {
+                            let query = GET_ALL_TICKETS;
+                            let variables: any = {
+                              companyId: data.user.company.id,
+                            };
+                            if (data.user.role === UserRole.User) {
+                              query = GET_USER_TICKETS;
+                              variables = {
+                                ownerId: data.user.id,
+                              };
+                            }
 
-                      proxy.writeQuery({
-                        data,
-                        query: GET_ALL_TICKETS,
-                      });
-                    } catch {}
+                            const { allTickets }: any = proxy.readQuery({
+                              query,
+                              variables,
+                            });
+
+                            allTickets.push(createTicket);
+
+                            proxy.writeQuery({
+                              query,
+                              variables,
+                              data: { allTickets },
+                            });
+                          } catch {}
+                        }}
+                      >
+                        {(mutation, { loading }) => (
+                          <CreateTicket
+                            {...props}
+                            createTicket={mutation}
+                            loading={loading}
+                          />
+                        )}
+                      </Mutation>
+                    );
                   }}
-                >
-                  {(mutation, { loading }) => (
-                    <CreateTicket
-                      {...props}
-                      createTicket={mutation}
-                      loading={loading}
-                    />
-                  )}
-                </Mutation>
-              );
-            }}
-          />
-          <Route
-            exact
-            path={`/help-desk/ticket/:id`}
-            render={props => {
-              return (
-                <TicketQuery
-                  query={GET_TICKET}
-                  variables={{ id: this.props.match.params.id }}
-                >
-                  {({ data, loading }) => (
-                    <TicketView
-                      loading={loading}
-                      ticket={data && data.Ticket}
-                    />
-                  )}
-                </TicketQuery>
-              );
-            }}
-          />
-          <Route
-            path={`/help-desk`}
-            render={props => {
-              return (
-                <CompanyContext.Consumer>
-                  {({ company }: any) => (
-                    <AllTicketsQuery
-                      query={GET_ALL_TICKETS}
-                      variables={{
-                        companyId: company.id,
-                      }}
-                    >
-                      {({ data, loading }) => (
-                        <HelpDeskHome
-                          loading={loading}
-                          tickets={(data && data.allTickets) || []}
-                        />
-                      )}
-                    </AllTicketsQuery>
-                  )}
-                </CompanyContext.Consumer>
-              );
-            }}
-          />
-        </Switch>
+                />
+                <Route
+                  exact
+                  path={`/help-desk/ticket/:id`}
+                  render={props => {
+                    return (
+                      <TicketQuery
+                        query={GET_TICKET}
+                        variables={{ id: this.props.match.params.id }}
+                      >
+                        {({ data, loading }) => (
+                          <TicketView
+                            loading={loading}
+                            ticket={data && data.Ticket}
+                          />
+                        )}
+                      </TicketQuery>
+                    );
+                  }}
+                />
+                <Route
+                  path={`/help-desk`}
+                  render={props => {
+                    if (data.user.role === UserRole.User) {
+                      return <UserTickets userId={data.user.id} />;
+                    }
+
+                    return (
+                      <CompanyContext.Consumer>
+                        {({ company }: any) => (
+                          <AllTicketsQuery
+                            query={GET_ALL_TICKETS}
+                            variables={{
+                              companyId: company.id,
+                            }}
+                          >
+                            {({ data, loading }) => (
+                              <HelpDeskHome
+                                loading={loading}
+                                tickets={(data && data.allTickets) || []}
+                              />
+                            )}
+                          </AllTicketsQuery>
+                        )}
+                      </CompanyContext.Consumer>
+                    );
+                  }}
+                />
+              </Switch>
+            );
+          }}
+        </Query>
       </div>
     );
   }

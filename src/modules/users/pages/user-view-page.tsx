@@ -17,6 +17,7 @@ import CreateChat from '../../common/components/chat/create-chat';
 import { fullName } from 'src/utils/helpers';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
 import { CompanyContext } from '../../common/components/routing';
+import { UserRole } from '../store/models';
 
 type DropdownItem = {
   label: string;
@@ -93,30 +94,32 @@ class UserViewPage extends React.Component<EnhancedProps> {
     return (
       <div>
         <PageHeader
-          options={() => (
-            <StyledDropdown
-              className="dropdown"
-              items={items}
-              renderItem={(item: DropdownItem) => {
-                if (item.to) {
+          options={() =>
+            user.role !== UserRole.Admin ? (
+              <StyledDropdown
+                className="dropdown"
+                items={items}
+                renderItem={(item: DropdownItem) => {
+                  if (item.to) {
+                    return (
+                      <Link to={item.to}>
+                        <i className={item.icon} />
+                        {item.label}
+                      </Link>
+                    );
+                  }
                   return (
-                    <Link to={item.to}>
+                    <div onClick={() => item.onClick(user.id)}>
                       <i className={item.icon} />
                       {item.label}
-                    </Link>
+                    </div>
                   );
-                }
-                return (
-                  <div onClick={() => item.onClick(user.id)}>
-                    <i className={item.icon} />
-                    {item.label}
-                  </div>
-                );
-              }}
-            >
-              <Button icon="fas fa-cog" />
-            </StyledDropdown>
-          )}
+                }}
+              >
+                <Button icon="fas fa-cog" />
+              </StyledDropdown>
+            ) : null
+          }
         >
           <Translate text="users.labels.USER_PROFILE" />:{' '}
           {`${user.firstName} ${user.lastName}`}
@@ -152,20 +155,24 @@ class UserViewPage extends React.Component<EnhancedProps> {
 
               <UserNavigation>
                 <ul>
-                  <UserNavigationLink active={!match.params.page}>
-                    <Link to={`/user/${user.id}`}>
-                      <Icon name="fas fa-clock" fixedWidth />
-                      Timesheets
-                    </Link>
-                  </UserNavigationLink>
-                  <UserNavigationLink
-                    active={match.params.page === 'generator'}
-                  >
-                    <Link to={`/user/${user.id}/generator`}>
-                      <Icon name="fas fa-code-branch" fixedWidth />
-                      Generator
-                    </Link>
-                  </UserNavigationLink>
+                  {user.role === UserRole.User && (
+                    <>
+                      <UserNavigationLink active={!match.params.page}>
+                        <Link to={`/user/${user.id}`}>
+                          <Icon name="fas fa-clock" fixedWidth />
+                          Timesheets
+                        </Link>
+                      </UserNavigationLink>
+                      <UserNavigationLink
+                        active={match.params.page === 'generator'}
+                      >
+                        <Link to={`/user/${user.id}/generator`}>
+                          <Icon name="fas fa-code-branch" fixedWidth />
+                          Generator
+                        </Link>
+                      </UserNavigationLink>
+                    </>
+                  )}
                   <UserNavigationLink active={match.params.page === 'details'}>
                     <Link to={`/user/${user.id}/details`}>
                       <Icon name="fas fa-info-circle" fixedWidth />
@@ -214,12 +221,19 @@ class UserViewPage extends React.Component<EnhancedProps> {
                 render={props => (
                   <>
                     <UserInfo user={user} />
-                    <UserGroups
-                      user={user}
-                      groups={groups}
-                      onSubmit={this.handleUpdateGroups}
-                      initialSelectedGroup={user.group ? user.group.id : ''}
-                    />
+                    {user.role !== UserRole.Admin && (
+                      <UserGroups
+                        user={user}
+                        groups={groups.filter((group: any) => {
+                          return !!user.projectMember.find(
+                            (projectMember: any) =>
+                              projectMember.project.id === group.project.id
+                          );
+                        })}
+                        onSubmit={this.handleUpdateGroups}
+                        initialSelectedGroup={user.group ? user.group.id : ''}
+                      />
+                    )}
                   </>
                 )}
               />
@@ -235,8 +249,12 @@ class UserViewPage extends React.Component<EnhancedProps> {
                       )}
                       projects={projects}
                     />
-                    <h3>Change user type</h3>
-                    <EditUserStatus user={user} />
+                    {this.props.authedUser.role === UserRole.Admin && (
+                      <>
+                        <h3>Change user type</h3>
+                        <EditUserStatus user={user} />
+                      </>
+                    )}
                   </>
                 )}
               />

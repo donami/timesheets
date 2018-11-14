@@ -1,6 +1,6 @@
 import React from 'react';
 import { StatusColor, Table, TableBuilder } from 'genui';
-import { Query, Mutation } from 'react-apollo';
+import { Query, Mutation, graphql } from 'react-apollo';
 import { Link } from 'react-router-dom';
 import { compose, withState } from 'recompose';
 
@@ -13,10 +13,14 @@ import { DELETE_TIMESHEET } from '../store/mutations';
 import { PageLoader } from 'src/modules/ui';
 import { CompanyContext } from '../../common/components/routing';
 import { Alert, Intent } from '@blueprintjs/core';
+import { UserRole } from '../../users/store/models';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {};
 type DataProps = {
   setShowDeleteDialog: any;
+  user: any;
+  userLoading: boolean;
 };
 type StateProps = {
   showDeleteDialog: boolean | string;
@@ -32,6 +36,8 @@ const getUniqueMonths = (timesheets: TimesheetItem[]) => {
 const ManageTimesheets: React.SFC<EnhancedProps> = ({
   showDeleteDialog,
   setShowDeleteDialog,
+  user,
+  userLoading,
 }) => {
   return (
     <CompanyContext.Consumer>
@@ -103,12 +109,26 @@ const ManageTimesheets: React.SFC<EnhancedProps> = ({
                 return <PageLoader />;
               }
 
-              const uniqueMonths = getUniqueMonths(data.allTimesheets);
+              let filteredItems = data.allTimesheets;
+
+              if (
+                user.role === UserRole.Manager ||
+                user.role === UserRole.User
+              ) {
+                filteredItems = data.allTimesheets.filter((timesheet: any) => {
+                  return !!user.projectMember.find(
+                    (userProject: any) =>
+                      userProject.project.id === timesheet.project.id
+                  );
+                });
+              }
+
+              const uniqueMonths = getUniqueMonths(filteredItems);
 
               return (
                 <TableBuilder
                   selectable
-                  items={data.allTimesheets}
+                  items={filteredItems}
                   itemsOptions={(item: any) => [
                     {
                       label: 'View timesheet',
@@ -217,6 +237,12 @@ const ManageTimesheets: React.SFC<EnhancedProps> = ({
 };
 
 const enhance = compose<EnhancedProps, Props>(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      user: data.user,
+      userLoading: data.loading,
+    }),
+  }),
   withState('showDeleteDialog', 'setShowDeleteDialog', false)
 );
 

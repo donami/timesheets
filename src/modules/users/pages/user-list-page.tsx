@@ -17,6 +17,7 @@ import { DELETE_USER, DISABLE_USER, ENABLE_USER } from '../store/mutations';
 import { PageLoader } from 'src/modules/ui';
 import { fullName } from 'src/utils/helpers';
 import { CompanyContext } from '../../common/components/routing';
+import { UserRole } from '../store/models';
 
 type Props = {};
 type DataProps = {
@@ -136,8 +137,16 @@ const UserListPage: React.SFC<EnhancedProps> = ({ onDisableUser }) => (
                         <Link to={`/user/${item.id}`}>{`${item.firstName} ${
                           item.lastName
                         }`}</Link>
-                        {item.group && <span>{item.group.name}</span>}
-                        {!item.group && <em>No group</em>}
+                        {item.role === UserRole.Admin ? (
+                          <span>
+                            <em>Admin</em>
+                          </span>
+                        ) : (
+                          <>
+                            {item.group && <span>{item.group.name}</span>}
+                            {!item.group && <em>No group</em>}
+                          </>
+                        )}
                       </div>
                     </UserCell>
                     <Table.Cell>
@@ -150,7 +159,12 @@ const UserListPage: React.SFC<EnhancedProps> = ({ onDisableUser }) => (
                     <Table.Cell
                       option={{
                         icon: 'fas fa-pencil-alt',
-                        to: `/user/${item.id}/edit`,
+                        ...(item.role !== UserRole.Admin && {
+                          to: `/user/${item.id}/edit`,
+                        }),
+                        ...(item.role === UserRole.Admin && {
+                          disabled: true,
+                        }),
                       }}
                     />
                     <Table.Cell
@@ -158,7 +172,12 @@ const UserListPage: React.SFC<EnhancedProps> = ({ onDisableUser }) => (
                         icon: item.disabled
                           ? 'fas fa-toggle-off'
                           : 'fas fa-toggle-on',
-                        onClick: () => onDisableUser(item.id, !item.disabled),
+                        ...(item.role !== UserRole.Admin && {
+                          onClick: () => onDisableUser(item.id, !item.disabled),
+                        }),
+                        ...(item.role === UserRole.Admin && {
+                          disabled: true,
+                        }),
                       }}
                     />
                   </>

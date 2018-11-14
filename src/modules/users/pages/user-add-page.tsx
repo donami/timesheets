@@ -10,6 +10,10 @@ import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { GET_USERS } from '../store/queries';
 import { UPDATE_USER } from '../store/mutations';
 import { CompanyContext } from '../../common/components/routing';
+import { PageLoader } from '../../ui';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { UserRole } from '../store/models';
+import { GET_GROUPS } from '../../groups/store/queries';
 
 type Props = {};
 type DataProps = {
@@ -104,58 +108,87 @@ class UserAddPage extends React.Component<EnhancedProps> {
 
   render() {
     return (
-      <div>
-        <CompanyContext.Consumer>
-          {({ company }: any) => (
-            <>
-              <Query
-                query={QUERY}
-                variables={{
-                  companyId: company.id,
-                }}
-              >
-                {({ data, loading }) => {
-                  if (loading) {
-                    return null;
-                  }
+      <Query query={LOGGED_IN_USER}>
+        {({ data: { user }, loading }: any) => {
+          if (loading) {
+            return <PageLoader />;
+          }
+
+          const projectIds = user.projectMember.map((member: any) => {
+            return member.project.id;
+          });
+
+          return (
+            <div>
+              <CompanyContext.Consumer>
+                {({ company }: any) => {
+                  const queryVariables = {
+                    companyId: company.id,
+                    ...(user.role !== UserRole.Admin && {
+                      projectIds,
+                    }),
+                  };
 
                   return (
                     <>
-                      <PageHeader>Add new user</PageHeader>
-                      <Mutations companyId={company.id}>
-                        {({ createUser, updateUser }) => (
-                          <UserForm
-                            onSubmit={(data: UserFormData) =>
-                              this.handleAdd(data, { createUser, updateUser })
-                            }
-                            projects={data.allProjects || []}
-                            groups={data.allGroups || []}
-                            loading={
-                              createUser.result.loading ||
-                              updateUser.result.loading
-                            }
-                          />
-                        )}
-                      </Mutations>
+                      <Query query={QUERY} variables={queryVariables}>
+                        {({ data, loading }) => {
+                          if (loading) {
+                            return null;
+                          }
+
+                          return (
+                            <>
+                              <PageHeader>Add new user</PageHeader>
+                              <Mutations companyId={company.id}>
+                                {({ createUser, updateUser }) => (
+                                  <UserForm
+                                    onSubmit={(data: UserFormData) =>
+                                      this.handleAdd(data, {
+                                        createUser,
+                                        updateUser,
+                                      })
+                                    }
+                                    projects={data.allProjects || []}
+                                    groups={data.allGroups || []}
+                                    loading={
+                                      createUser.result.loading ||
+                                      updateUser.result.loading
+                                    }
+                                  />
+                                )}
+                              </Mutations>
+                            </>
+                          );
+                        }}
+                      </Query>
                     </>
                   );
                 }}
-              </Query>
-            </>
-          )}
-        </CompanyContext.Consumer>
-      </div>
+              </CompanyContext.Consumer>
+            </div>
+          );
+        }}
+      </Query>
     );
   }
 }
 
 const QUERY = gql`
-  query($companyId: ID!) {
-    allProjects(filter: { company: { id: $companyId } }) {
+  query($companyId: ID!, $projectIds: [ID!]) {
+    allProjects(
+      filter: { AND: [{ id_in: $projectIds }, { company: { id: $companyId } }] }
+    ) {
       id
       name
     }
-    allGroups(filter: { project: { company: { id: $companyId } } }) {
+    allGroups(
+      filter: {
+        project: {
+          AND: [{ id_in: $projectIds }, { company: { id: $companyId } }]
+        }
+      }
+    ) {
       id
       name
     }

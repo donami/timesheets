@@ -6,6 +6,7 @@ export const USER_LIST_ITEM_FRAGMENT = gql`
     firstName
     lastName
     disabled
+    role
     group {
       id
       name

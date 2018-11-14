@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { graphql, Query } from 'react-apollo';
-import { branch, compose, renderComponent } from 'recompose';
+import { Query } from 'react-apollo';
 import { Spinner } from '@blueprintjs/core';
 
 import { TimesheetList } from '../components';
 import { sortByRecentUpdatedDates } from '../../../utils/helpers';
-import { GET_TIMESHEETS } from '../store/queries';
+import { TIMESHEET_LIST_ITEM_FRAGMENT } from '../store/queries';
 import { CompanyContext } from '../../common/components/routing';
+import { UserRole } from '../../users/store/models';
+import gql from 'graphql-tag';
 
 type Props = {
   limit?: number;
@@ -23,7 +24,7 @@ class TimesheetsRecentlyUpdated extends Component<EnhancedProps> {
       <CompanyContext.Consumer>
         {(companyContext: any) => (
           <Query
-            query={GET_TIMESHEETS}
+            query={GET_TIMESHEETS_RECENTLY_UPDATED}
             variables={{ companyId: companyContext.company.id }}
           >
             {({ data, loading }) => {
@@ -31,10 +32,24 @@ class TimesheetsRecentlyUpdated extends Component<EnhancedProps> {
                 return <Spinner />;
               }
 
+              let filteredItems = data.allTimesheets;
+
+              if (
+                data.user.role === UserRole.Manager ||
+                data.user.role === UserRole.User
+              ) {
+                filteredItems = data.allTimesheets.filter((timesheet: any) => {
+                  return !!data.user.projectMember.find(
+                    (userProject: any) =>
+                      userProject.project.id === timesheet.project.id
+                  );
+                });
+              }
+
               return (
                 <TimesheetList
                   sortFunction={sortByRecentUpdatedDates}
-                  items={data.allTimesheets}
+                  items={filteredItems || []}
                   includeUser
                   {...rest}
                 />
@@ -46,5 +61,28 @@ class TimesheetsRecentlyUpdated extends Component<EnhancedProps> {
     );
   }
 }
+
+const GET_TIMESHEETS_RECENTLY_UPDATED = gql`
+  query allTimesheets($companyId: ID) {
+    allTimesheets(filter: { owner: { company: { id: $companyId } } }) {
+      ...TimesheetListItem
+      project {
+        id
+      }
+    }
+    user {
+      id
+      role
+      projectMember {
+        id
+        project {
+          id
+          name
+        }
+      }
+    }
+  }
+  ${TIMESHEET_LIST_ITEM_FRAGMENT}
+`;
 
 export default TimesheetsRecentlyUpdated;

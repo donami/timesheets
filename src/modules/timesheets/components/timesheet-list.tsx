@@ -31,15 +31,7 @@ const getUserLink = (timesheet: any) => {
   );
 };
 
-const renderPastDueDate = (
-  date: string,
-  status: TimesheetStatus,
-  indicateDueDate: boolean
-) => {
-  if (!indicateDueDate) {
-    return null;
-  }
-
+const renderPastDueDate = (date: string, status: TimesheetStatus) => {
   if (
     monthIsInPast(date) &&
     [TimesheetStatus.InProgress, TimesheetStatus.InProgressSaved].indexOf(
@@ -79,6 +71,7 @@ const TimesheetList: React.SFC<EnhancedProps> = ({
   paginated,
   noItemsText,
   filter,
+  indicateDueDate,
   limit,
 }) => {
   return (
@@ -97,6 +90,7 @@ const TimesheetList: React.SFC<EnhancedProps> = ({
             <div>Period</div>
             {includeUser && <div>User</div>}
             <div>Status</div>
+            {indicateDueDate && <div />}
           </Headings>
         }
         className="timesheet-list-content"
@@ -133,11 +127,6 @@ export default compose<EnhancedProps, Props>(
                 {...getStatusColor(item.status)}
               />
               <span>{displayTimesheetStatus(item.status)}</span>
-              {renderPastDueDate(
-                item.periodStart,
-                item.status,
-                props.indicateDueDate || false
-              )}
             </>
           ),
         };
@@ -152,6 +141,9 @@ export default compose<EnhancedProps, Props>(
             <div>{newItem.period}</div>
             {newItem.user && <div>{newItem.user}</div>}
             <div>{newItem.status}</div>
+            {props.indicateDueDate && (
+              <div>{renderPastDueDate(item.periodStart, item.status)}</div>
+            )}
           </Row>
         );
       },

@@ -24,6 +24,9 @@ export const GET_TIMESHEETS = gql`
   query allTimesheets($companyId: ID) {
     allTimesheets(filter: { owner: { company: { id: $companyId } } }) {
       ...TimesheetListItem
+      project {
+        id
+      }
     }
   }
   ${TIMESHEET_LIST_ITEM_FRAGMENT}

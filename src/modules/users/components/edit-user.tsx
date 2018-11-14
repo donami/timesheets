@@ -9,6 +9,7 @@ import { CREATE_PROJECT_MEMBER } from '../../../store/mutations';
 import { UPDATE_USER } from '../store/mutations';
 import { Intent } from '@blueprintjs/core';
 import { History } from 'history';
+import { UserRole } from '../store/models';
 
 type Props = {
   user: any;
@@ -60,22 +61,24 @@ const EditUser: React.SFC<EnhancedProps> = ({
             <Input placeholder="Doe" name="lastname" />
           </Form.Field>
 
-          <Form.Field
-            name="project"
-            label="Assign to project"
-            defaultValue={
-              (userProject[0] && userProject[0].id.toString()) || undefined
-            }
-            validations={{ isRequired: true }}
-          >
-            <Select
-              options={projects.map(project => ({
-                value: project.id,
-                label: project.name,
-              }))}
-              placeholder="Select Project"
-            />
-          </Form.Field>
+          {user.role !== UserRole.Admin && (
+            <Form.Field
+              name="project"
+              label="Assign to project"
+              defaultValue={
+                (userProject[0] && userProject[0].id.toString()) || undefined
+              }
+              validations={{ isRequired: true }}
+            >
+              <Select
+                options={projects.map(project => ({
+                  value: project.id,
+                  label: project.name,
+                }))}
+                placeholder="Select Project"
+              />
+            </Form.Field>
+          )}
 
           <Button type="submit" disabled={!formState.isValid} color="green">
             Save
@@ -110,10 +113,13 @@ const enhance = compose<EnhancedProps, Props>(
           lastName: model.lastname,
         },
       });
-      if (!userProject.find(project => project.id === model.project)) {
-        await createProjectMember({
-          variables: { userId: user.id, projectId: model.project },
-        });
+
+      if (model.project) {
+        if (!userProject.find(project => project.id === model.project)) {
+          await createProjectMember({
+            variables: { userId: user.id, projectId: model.project },
+          });
+        }
       }
 
       history.push(`/user/${user.id}`);

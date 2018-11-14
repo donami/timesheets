@@ -10,9 +10,13 @@ import { GET_PROJECTS } from '../store/queries';
 import { DELETE_PROJECT, DELETE_PROJECT_MEMBER } from '../store/mutations';
 import { PageLoader } from 'src/modules/ui';
 import { CompanyContext } from '../../common/components/routing';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { UserRole } from '../../users/store/models';
 
 type Props = {};
 type DataProps = {
+  user: any;
+  loading: boolean;
   setAwaitingDeleteId: any;
   deleteProjectMember(options: any): any;
 };
@@ -26,6 +30,8 @@ const ProjectListPage: React.SFC<EnhancedProps> = ({
   awaitingDeleteId,
   setAwaitingDeleteId,
   deleteProjectMember,
+  loading: userLoading,
+  user,
 }) => (
   <div>
     <PageHeader
@@ -42,8 +48,18 @@ const ProjectListPage: React.SFC<EnhancedProps> = ({
       {({ company }: any) => (
         <Query query={GET_PROJECTS} variables={{ companyId: company.id }}>
           {({ data, loading }) => {
-            if (loading) {
+            if (loading || userLoading) {
               return <PageLoader />;
+            }
+
+            let filteredProjects = data.allProjects;
+
+            if (user.role === UserRole.Manager || user.role === UserRole.User) {
+              filteredProjects = data.allProjects.filter((project: any) => {
+                return !!user.projectMember.find(
+                  (userProject: any) => userProject.project.id === project.id
+                );
+              });
             }
 
             return (
@@ -117,7 +133,7 @@ const ProjectListPage: React.SFC<EnhancedProps> = ({
 
                 <TableBuilder
                   selectable
-                  items={data.allProjects}
+                  items={filteredProjects}
                   itemsOptions={(item: any) => [
                     {
                       label: 'View project',
@@ -167,6 +183,12 @@ const ProjectListPage: React.SFC<EnhancedProps> = ({
 );
 
 const enhance = compose<EnhancedProps, Props>(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      user: data.user,
+      loading: data.loading,
+    }),
+  }),
   graphql(DELETE_PROJECT_MEMBER, { name: 'deleteProjectMember' }),
   withState('awaitingDeleteId', 'setAwaitingDeleteId', false)
 );

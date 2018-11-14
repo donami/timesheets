@@ -7,6 +7,7 @@ import gql from 'graphql-tag';
 import { TimesheetList } from '../components';
 import { TIMESHEET_LIST_ITEM_FRAGMENT } from '../store/queries';
 import { CompanyContext } from '../../common/components/routing';
+import { UserRole } from '../../users/store/models';
 
 type Props = {
   limit?: number;
@@ -29,11 +30,25 @@ const TimesheetsReadyForReview: React.SFC<EnhancedProps> = ({ ...rest }) => (
             return <Spinner />;
           }
 
+          let filteredItems = data.allTimesheets;
+
+          if (
+            data.user.role === UserRole.Manager ||
+            data.user.role === UserRole.User
+          ) {
+            filteredItems = data.allTimesheets.filter((timesheet: any) => {
+              return !!data.user.projectMember.find(
+                (userProject: any) =>
+                  userProject.project.id === timesheet.project.id
+              );
+            });
+          }
+
           return (
             <div>
               <TimesheetList
                 noItemsText="No timesheets are waiting for approval."
-                items={data.allTimesheets || []}
+                items={filteredItems || []}
                 {...rest}
               />
             </div>
@@ -44,7 +59,7 @@ const TimesheetsReadyForReview: React.SFC<EnhancedProps> = ({ ...rest }) => (
   </CompanyContext.Consumer>
 );
 
-export const GET_TIMESHEETS_READY_FOR_REVIEW = gql`
+const GET_TIMESHEETS_READY_FOR_REVIEW = gql`
   query allTimesheets($companyId: ID!) {
     allTimesheets(
       filter: {
@@ -53,6 +68,20 @@ export const GET_TIMESHEETS_READY_FOR_REVIEW = gql`
       }
     ) {
       ...TimesheetListItem
+      project {
+        id
+      }
+    }
+    user {
+      id
+      role
+      projectMember {
+        id
+        project {
+          id
+          name
+        }
+      }
     }
   }
   ${TIMESHEET_LIST_ITEM_FRAGMENT}

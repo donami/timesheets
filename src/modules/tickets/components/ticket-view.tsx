@@ -26,7 +26,6 @@ import {
   UPDATE_TICKET_STATUS,
   DELETE_TICKET,
 } from '../store/mutations';
-import { LOGGED_IN_USER } from 'src/modules/auth/pages/auth-page';
 import { GET_TICKET } from '../store/queries';
 import TicketStatusLabel from './ticket-status-label';
 import TicketClosed from './ticket-closed';
@@ -38,6 +37,8 @@ import { RouterProps } from 'react-router';
 import { PageLoader } from 'src/modules/ui';
 import { fullName } from 'src/utils/helpers';
 import ChangeTicketType from './change-ticket-type';
+import { UserRole } from '../../users/store/models';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {
   ticket?: Ticket;
@@ -73,153 +74,155 @@ const TicketView: React.SFC<EnhancedProps> = ({
             <TicketStatusLabel status={ticket.status} />
           </Title>
 
-          <TopActions>
-            <Popover
-              content={
-                <Menu>
-                  <Mutation
-                    mutation={UPDATE_TICKET_STATUS}
-                    optimisticResponse={{
-                      updateTicket: {
-                        id: ticket.id,
-                        status: TicketStatus.Closed,
-                        updatedAt: new Date(),
-                        __typename: 'Ticket',
-                      },
-                    }}
-                  >
-                    {mutate => (
-                      <MenuItem
-                        text="Close ticket"
-                        icon="cross"
-                        onClick={() => {
-                          mutate({
-                            variables: {
-                              id: ticket.id,
-                              status: TicketStatus.Closed,
-                            },
-                          });
-                        }}
-                      />
-                    )}
-                  </Mutation>
-                  <Mutation
-                    mutation={UPDATE_TICKET_STATUS}
-                    optimisticResponse={{
-                      updateTicket: {
-                        id: ticket.id,
-                        status: TicketStatus.Pending,
-                        updatedAt: new Date(),
-                        __typename: 'Ticket',
-                      },
-                    }}
-                  >
-                    {mutate => (
-                      <MenuItem
-                        text="Mark as pending"
-                        icon="time"
-                        onClick={() => {
-                          mutate({
-                            variables: {
-                              id: ticket.id,
-                              status: TicketStatus.Pending,
-                            },
-                          });
-                        }}
-                      />
-                    )}
-                  </Mutation>
-                </Menu>
-              }
-              enforceFocus={false}
-              position={Position.BOTTOM_LEFT}
-              interactionKind={PopoverInteractionKind.CLICK}
-            >
-              <BPButton intent={Intent.NONE} icon="cog" minimal />
-            </Popover>
-
-            <Mutation
-              mutation={UPDATE_TICKET_STATUS}
-              optimisticResponse={{
-                updateTicket: {
-                  id: ticket.id,
-                  status: TicketStatus.Closed,
-                  updatedAt: new Date(),
-                  __typename: 'Ticket',
-                },
-              }}
-            >
-              {mutate => (
-                <Tooltip content="Mark as done">
-                  <BPButton
-                    icon="tick"
-                    minimal
-                    intent={Intent.SUCCESS}
-                    onClick={() => {
-                      mutate({
-                        variables: {
+          {data.user.role !== UserRole.User && (
+            <TopActions>
+              <Popover
+                content={
+                  <Menu>
+                    <Mutation
+                      mutation={UPDATE_TICKET_STATUS}
+                      optimisticResponse={{
+                        updateTicket: {
                           id: ticket.id,
                           status: TicketStatus.Closed,
+                          updatedAt: new Date(),
+                          __typename: 'Ticket',
                         },
-                      });
-                    }}
-                  />
-                </Tooltip>
-              )}
-            </Mutation>
-
-            <Popover
-              interactionKind={PopoverInteractionKind.CLICK}
-              popoverClassName="bp3-popover-content-sizing"
-              position={Position.RIGHT}
-              content={
-                <div key="text">
-                  <H5>Confirm deletion</H5>
-                  <p>
-                    Are you sure you want to delete this ticket? You won't be
-                    able to recover it.
-                  </p>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      marginTop: 15,
-                    }}
-                  >
-                    <BPButton
-                      className={Classes.POPOVER_DISMISS}
-                      style={{ marginRight: 10 }}
+                      }}
                     >
-                      Cancel
-                    </BPButton>
-                    <Mutation mutation={DELETE_TICKET}>
                       {mutate => (
-                        <BPButton
-                          intent={Intent.DANGER}
-                          className={Classes.POPOVER_DISMISS}
-                          onClick={async () => {
-                            await mutate({ variables: { id: ticket.id } });
-                            Toaster.show({
-                              icon: 'tick',
-                              message: 'Ticket was removed.',
-                              intent: Intent.SUCCESS,
+                        <MenuItem
+                          text="Close ticket"
+                          icon="cross"
+                          onClick={() => {
+                            mutate({
+                              variables: {
+                                id: ticket.id,
+                                status: TicketStatus.Closed,
+                              },
                             });
-                            history.goBack();
                           }}
-                        >
-                          Delete
-                        </BPButton>
+                        />
                       )}
                     </Mutation>
+                    <Mutation
+                      mutation={UPDATE_TICKET_STATUS}
+                      optimisticResponse={{
+                        updateTicket: {
+                          id: ticket.id,
+                          status: TicketStatus.Pending,
+                          updatedAt: new Date(),
+                          __typename: 'Ticket',
+                        },
+                      }}
+                    >
+                      {mutate => (
+                        <MenuItem
+                          text="Mark as pending"
+                          icon="time"
+                          onClick={() => {
+                            mutate({
+                              variables: {
+                                id: ticket.id,
+                                status: TicketStatus.Pending,
+                              },
+                            });
+                          }}
+                        />
+                      )}
+                    </Mutation>
+                  </Menu>
+                }
+                enforceFocus={false}
+                position={Position.BOTTOM_LEFT}
+                interactionKind={PopoverInteractionKind.CLICK}
+              >
+                <BPButton intent={Intent.NONE} icon="cog" minimal />
+              </Popover>
+
+              <Mutation
+                mutation={UPDATE_TICKET_STATUS}
+                optimisticResponse={{
+                  updateTicket: {
+                    id: ticket.id,
+                    status: TicketStatus.Closed,
+                    updatedAt: new Date(),
+                    __typename: 'Ticket',
+                  },
+                }}
+              >
+                {mutate => (
+                  <Tooltip content="Mark as done">
+                    <BPButton
+                      icon="tick"
+                      minimal
+                      intent={Intent.SUCCESS}
+                      onClick={() => {
+                        mutate({
+                          variables: {
+                            id: ticket.id,
+                            status: TicketStatus.Closed,
+                          },
+                        });
+                      }}
+                    />
+                  </Tooltip>
+                )}
+              </Mutation>
+
+              <Popover
+                interactionKind={PopoverInteractionKind.CLICK}
+                popoverClassName="bp3-popover-content-sizing"
+                position={Position.RIGHT}
+                content={
+                  <div key="text">
+                    <H5>Confirm deletion</H5>
+                    <p>
+                      Are you sure you want to delete this ticket? You won't be
+                      able to recover it.
+                    </p>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        marginTop: 15,
+                      }}
+                    >
+                      <BPButton
+                        className={Classes.POPOVER_DISMISS}
+                        style={{ marginRight: 10 }}
+                      >
+                        Cancel
+                      </BPButton>
+                      <Mutation mutation={DELETE_TICKET}>
+                        {mutate => (
+                          <BPButton
+                            intent={Intent.DANGER}
+                            className={Classes.POPOVER_DISMISS}
+                            onClick={async () => {
+                              await mutate({ variables: { id: ticket.id } });
+                              Toaster.show({
+                                icon: 'tick',
+                                message: 'Ticket was removed.',
+                                intent: Intent.SUCCESS,
+                              });
+                              history.goBack();
+                            }}
+                          >
+                            Delete
+                          </BPButton>
+                        )}
+                      </Mutation>
+                    </div>
                   </div>
-                </div>
-              }
-            >
-              <Tooltip content="Remove ticket" position={Position.RIGHT}>
-                <BPButton icon="trash" minimal intent={Intent.DANGER} />
-              </Tooltip>
-            </Popover>
-          </TopActions>
+                }
+              >
+                <Tooltip content="Remove ticket" position={Position.RIGHT}>
+                  <BPButton icon="trash" minimal intent={Intent.DANGER} />
+                </Tooltip>
+              </Popover>
+            </TopActions>
+          )}
         </Top>
 
         <TicketComment
@@ -259,6 +262,7 @@ const TicketView: React.SFC<EnhancedProps> = ({
                 loading={loading}
                 ticketId={ticket.id}
                 userId={data.user.id}
+                loggedInUserRole={data.user.role}
                 avatar={data.user.image}
                 name={fullName(data.user)}
                 createComment={mutate}
@@ -270,42 +274,47 @@ const TicketView: React.SFC<EnhancedProps> = ({
           <TicketClosed ticketId={ticket.id} />
         )}
       </Left>
-      <Right>
-        <TicketCard>
-          <TicketCardTop>
-            <span>Ticket</span>
+      {data.user.role !== UserRole.User && (
+        <Right>
+          <TicketCard>
+            <TicketCardTop>
+              <span>Ticket</span>
+              <div>
+                <TicketStatusLabel status={ticket.status} />
+              </div>
+            </TicketCardTop>
+            <TicketCardCenter>
+              <Avatar
+                name={fullName(ticket.owner)}
+                view="lg"
+                avatar={ticket.owner.image}
+              />
+
+              <div>
+                <h3>{`${ticket.owner.firstName} ${ticket.owner.lastName}`}</h3>
+                <span>{ticket.owner.email}</span>
+              </div>
+            </TicketCardCenter>
+          </TicketCard>
+          <TicketDetailsCard>
             <div>
-              <TicketStatusLabel status={ticket.status} />
+              <strong>Assignee:</strong>
+              <TicketAssign
+                ticketId={ticket.id}
+                initialSelectedId={ticket.assigned && ticket.assigned.id}
+              />
             </div>
-          </TicketCardTop>
-          <TicketCardCenter>
-            <Avatar
-              name={fullName(ticket.owner)}
-              view="lg"
-              avatar={ticket.owner.image}
-            />
 
             <div>
-              <h3>{`${ticket.owner.firstName} ${ticket.owner.lastName}`}</h3>
-              <span>{ticket.owner.email}</span>
+              <strong>Ticket type:</strong>
+              <ChangeTicketType
+                ticketId={ticket.id}
+                initialType={ticket.type}
+              />
             </div>
-          </TicketCardCenter>
-        </TicketCard>
-        <TicketDetailsCard>
-          <div>
-            <strong>Assignee:</strong>
-            <TicketAssign
-              ticketId={ticket.id}
-              initialSelectedId={ticket.assigned && ticket.assigned.id}
-            />
-          </div>
-
-          <div>
-            <strong>Ticket type:</strong>
-            <ChangeTicketType ticketId={ticket.id} initialType={ticket.type} />
-          </div>
-        </TicketDetailsCard>
-      </Right>
+          </TicketDetailsCard>
+        </Right>
+      )}
     </Container>
   );
 };
@@ -362,24 +371,6 @@ const TopActions = styled.div`
 const Title = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const StyledDropdown = styled(Dropdown)`
-  line-height: normal;
-  align-self: center;
-
-  .g-dropdown-menu {
-    left: -102px;
-    top: 90%;
-
-    a {
-      color: #232c55;
-    }
-
-    i {
-      margin-right: 0.5em;
-    }
-  }
 `;
 
 const TicketCard = styled.div`

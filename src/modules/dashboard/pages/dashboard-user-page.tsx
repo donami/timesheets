@@ -3,7 +3,7 @@ import { compose } from 'recompose';
 import { graphql, Query } from 'react-apollo';
 import { Spinner } from '@blueprintjs/core';
 
-import { Row, Column, Box } from '../../ui';
+import { Row, Column, Box, PageLoader } from '../../ui';
 import { AuthedUserTimesheets } from '../../timesheets';
 import { ExpenseReportList } from '../../expenses';
 import { PageHeader } from '../../common';
@@ -37,7 +37,7 @@ const DashboardUserPage: React.SFC<EnhancedProps> = ({ user }) => (
               <Box title="Expenses">
                 <Query
                   query={GET_EXPENSES}
-                  variables={{ companyId: company.id }}
+                  variables={{ companyId: company.id, ownerId: user.id }}
                 >
                   {({ data, loading }) => {
                     if (loading) {

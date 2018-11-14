@@ -7,12 +7,14 @@ import { UPDATE_TICKET_STATUS } from '../store/mutations';
 import { Avatar } from '../../common';
 import { Button, Intent, TextArea } from '@blueprintjs/core';
 import { fullName } from 'src/utils/helpers';
+import { UserRole } from '../../users/store/models';
 
 type Props = {
   createComment(options: any): any;
   loading: boolean;
   ticketId: string;
   userId: string;
+  loggedInUserRole: UserRole;
   avatar?: {
     id: string;
     url: string;
@@ -44,12 +46,12 @@ class TicketReply extends Component<Props, State> {
   };
 
   render() {
-    const { loading } = this.props;
+    const { loading, loggedInUserRole, avatar, name } = this.props;
 
     return (
       <Container>
         <Left>
-          <Avatar view="md" avatar={this.props.avatar} name={this.props.name} />
+          <Avatar view="md" avatar={avatar} name={name} />
         </Left>
         <Right>
           <form onSubmit={this.handleSubmit}>
@@ -72,34 +74,36 @@ class TicketReply extends Component<Props, State> {
               >
                 Reply
               </Button>
-              <Mutation
-                mutation={UPDATE_TICKET_STATUS}
-                optimisticResponse={{
-                  updateTicket: {
-                    id: this.props.ticketId,
-                    status: TicketStatus.Closed,
-                    updatedAt: new Date(),
-                    __typename: 'Ticket',
-                  },
-                }}
-              >
-                {mutate => (
-                  <Button
-                    type="button"
-                    intent={Intent.NONE}
-                    onClick={() => {
-                      mutate({
-                        variables: {
-                          id: this.props.ticketId,
-                          status: TicketStatus.Closed,
-                        },
-                      });
-                    }}
-                  >
-                    Close ticket
-                  </Button>
-                )}
-              </Mutation>
+              {loggedInUserRole !== UserRole.User && (
+                <Mutation
+                  mutation={UPDATE_TICKET_STATUS}
+                  optimisticResponse={{
+                    updateTicket: {
+                      id: this.props.ticketId,
+                      status: TicketStatus.Closed,
+                      updatedAt: new Date(),
+                      __typename: 'Ticket',
+                    },
+                  }}
+                >
+                  {mutate => (
+                    <Button
+                      type="button"
+                      intent={Intent.NONE}
+                      onClick={() => {
+                        mutate({
+                          variables: {
+                            id: this.props.ticketId,
+                            status: TicketStatus.Closed,
+                          },
+                        });
+                      }}
+                    >
+                      Close ticket
+                    </Button>
+                  )}
+                </Mutation>
+              )}
             </Buttons>
           </form>
         </Right>

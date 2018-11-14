@@ -11,6 +11,13 @@ export const LOGGED_IN_USER = gql`
         subscriptionEnds
         subscriptionStatus
       }
+      projectMember {
+        id
+        role
+        project {
+          id
+        }
+      }
       image {
         __typename
         id

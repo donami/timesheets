@@ -17,8 +17,12 @@ export const EXPENSE_LIST_ITEM_FRAGMENT = gql`
 `;
 
 export const GET_EXPENSES = gql`
-  query allExpenses($companyId: ID!) {
-    allExpenses(filter: { owner: { company: { id: $companyId } } }) {
+  query allExpenses($companyId: ID!, $ownerId: ID) {
+    allExpenses(
+      filter: {
+        owner: { AND: [{ id: $ownerId }, { company: { id: $companyId } }] }
+      }
+    ) {
       ...ExpenseListItem
     }
   }

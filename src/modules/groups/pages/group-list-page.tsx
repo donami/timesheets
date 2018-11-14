@@ -14,6 +14,8 @@ import {
 } from '../../common/components/toastr/toastr';
 import { PageLoader } from 'src/modules/ui';
 import { CompanyContext } from '../../common/components/routing';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { UserRole } from '../../users/store/models';
 
 type Props = {};
 type HandlerProps = {
@@ -25,6 +27,8 @@ type StateProps = {
 type DataProps = {
   setAwaitingDeleteGroup: any;
   deleteGroup(options: any): any;
+  user: any;
+  loading: boolean;
 };
 type EnhancedProps = Props &
   HandlerProps &
@@ -36,151 +40,177 @@ const GroupListPage: React.SFC<EnhancedProps> = ({
   setAwaitingDeleteGroup,
   awaitingDeleteGroup,
   addToast,
-}) => (
-  <div>
-    <PageHeader
-      options={() => (
-        <Button to="/groups/add" color="purple">
-          <Translate text="groups.labels.NEW_GROUP" />
-        </Button>
-      )}
-    >
-      <Translate text="groups.labels.GROUPS" />
-    </PageHeader>
-    <CompanyContext.Consumer>
-      {({ company }: any) => (
-        <>
-          <Mutation
-            mutation={DELETE_GROUP}
-            update={(proxy, { data: { deleteGroup } }: { data: any }) => {
-              const { allGroups }: any = proxy.readQuery({
-                query: GET_GROUPS,
-                variables: {
-                  companyId: company.id,
+  loading,
+  user,
+}) => {
+  if (loading) {
+    return <PageLoader />;
+  }
+
+  const projectIds = user.projectMember.map((member: any) => {
+    return member.project.id;
+  });
+
+  return (
+    <div>
+      <PageHeader
+        options={() => (
+          <Button to="/groups/add" color="purple">
+            <Translate text="groups.labels.NEW_GROUP" />
+          </Button>
+        )}
+      >
+        <Translate text="groups.labels.GROUPS" />
+      </PageHeader>
+      <CompanyContext.Consumer>
+        {({ company }: any) => (
+          <>
+            <Mutation
+              mutation={DELETE_GROUP}
+              update={(proxy, { data: { deleteGroup } }: { data: any }) => {
+                const { allGroups }: any = proxy.readQuery({
+                  query: GET_GROUPS,
+                  variables: {
+                    companyId: company.id,
+                    ...(user.role !== UserRole.Admin && {
+                      projectIds,
+                    }),
+                  },
+                });
+
+                proxy.writeQuery({
+                  query: GET_GROUPS,
+                  variables: {
+                    companyId: company.id,
+                    ...(user.role !== UserRole.Admin && {
+                      projectIds,
+                    }),
+                  },
+                  data: {
+                    allGroups: allGroups.filter(
+                      (group: any) => group.id !== deleteGroup.id
+                    ),
+                  },
+                });
+              }}
+              optimisticResponse={{
+                deleteGroup: {
+                  id: awaitingDeleteGroup,
+                  __typename: 'Group',
                 },
-              });
-
-              proxy.writeQuery({
-                query: GET_GROUPS,
-                variables: {
-                  companyId: company.id,
-                },
-                data: {
-                  allGroups: allGroups.filter(
-                    (group: any) => group.id !== deleteGroup.id
-                  ),
-                },
-              });
-            }}
-            optimisticResponse={{
-              deleteGroup: {
-                id: awaitingDeleteGroup,
-                __typename: 'Group',
-              },
-            }}
-          >
-            {mutate => (
-              <Alert
-                cancelButtonText="Cancel"
-                confirmButtonText="Are you sure?"
-                icon="trash"
-                intent={Intent.DANGER}
-                isOpen={awaitingDeleteGroup !== false}
-                onCancel={() => setAwaitingDeleteGroup(false)}
-                onConfirm={() => {
-                  if (awaitingDeleteGroup !== false) {
-                    mutate({
-                      variables: {
-                        id: awaitingDeleteGroup,
-                      },
-                    });
-                    addToast(
-                      'Group was removed',
-                      'Group was successfully removed',
-                      'positive'
-                    );
-                  }
-                  setAwaitingDeleteGroup(false);
-                }}
-              >
-                <p>Do you really want to remove this group?</p>
-              </Alert>
-            )}
-          </Mutation>
-
-          <Query
-            query={GET_GROUPS}
-            variables={{
-              companyId: company.id,
-            }}
-          >
-            {({ data, loading }) => {
-              if (loading) {
-                return <PageLoader />;
-              }
-
-              return (
-                <TableBuilder
-                  selectable
-                  items={data.allGroups}
-                  itemsOptions={(item: any) => [
-                    {
-                      label: 'View group',
-                      icon: 'fas fa-eye',
-                      to: `/group/${item.id}`,
-                    },
-                  ]}
-                  renderHeaders={
-                    <>
-                      <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
-                      <Table.HeaderCell sortableBy="name">
-                        Name
-                      </Table.HeaderCell>
-                      <Table.HeaderCell sortableBy="project">
-                        Project
-                      </Table.HeaderCell>
-                      <Table.HeaderCell length="5%" />
-                      <Table.HeaderCell length="5%" />
-                      <Table.HeaderCell length="5%" />
-                    </>
-                  }
-                  renderItem={(item: any) => {
-                    return (
-                      <>
-                        <Table.Cell>
-                          <Link to={`/group/${item.id}`}>#{item.id}</Link>
-                        </Table.Cell>
-                        <Table.Cell>{item.name}</Table.Cell>
-                        <Table.Cell>
-                          {(item.project && item.project.name) || 'No project'}
-                        </Table.Cell>
-
-                        <Table.Cell
-                          option={{
-                            icon: 'fas fa-pencil-alt',
-                            to: `/group/${item.id}/edit`,
-                          }}
-                        />
-                        <Table.Cell
-                          option={{
-                            icon: 'fas fa-trash',
-                            onClick: () => setAwaitingDeleteGroup(item.id),
-                          }}
-                        />
-                      </>
-                    );
+              }}
+            >
+              {mutate => (
+                <Alert
+                  cancelButtonText="Cancel"
+                  confirmButtonText="Are you sure?"
+                  icon="trash"
+                  intent={Intent.DANGER}
+                  isOpen={awaitingDeleteGroup !== false}
+                  onCancel={() => setAwaitingDeleteGroup(false)}
+                  onConfirm={() => {
+                    if (awaitingDeleteGroup !== false) {
+                      mutate({
+                        variables: {
+                          id: awaitingDeleteGroup,
+                        },
+                      });
+                      addToast(
+                        'Group was removed',
+                        'Group was successfully removed',
+                        'positive'
+                      );
+                    }
+                    setAwaitingDeleteGroup(false);
                   }}
-                />
-              );
-            }}
-          </Query>
-        </>
-      )}
-    </CompanyContext.Consumer>
-  </div>
-);
+                >
+                  <p>Do you really want to remove this group?</p>
+                </Alert>
+              )}
+            </Mutation>
+
+            <Query
+              query={GET_GROUPS}
+              variables={{
+                companyId: company.id,
+                ...(user.role !== UserRole.Admin && { projectIds }),
+              }}
+            >
+              {({ data, loading }) => {
+                if (loading) {
+                  return <PageLoader />;
+                }
+
+                return (
+                  <TableBuilder
+                    selectable
+                    items={data.allGroups}
+                    itemsOptions={(item: any) => [
+                      {
+                        label: 'View group',
+                        icon: 'fas fa-eye',
+                        to: `/group/${item.id}`,
+                      },
+                    ]}
+                    renderHeaders={
+                      <>
+                        <Table.HeaderCell sortableBy="id">ID</Table.HeaderCell>
+                        <Table.HeaderCell sortableBy="name">
+                          Name
+                        </Table.HeaderCell>
+                        <Table.HeaderCell sortableBy="project">
+                          Project
+                        </Table.HeaderCell>
+                        <Table.HeaderCell length="5%" />
+                        <Table.HeaderCell length="5%" />
+                        <Table.HeaderCell length="5%" />
+                      </>
+                    }
+                    renderItem={(item: any) => {
+                      return (
+                        <>
+                          <Table.Cell>
+                            <Link to={`/group/${item.id}`}>#{item.id}</Link>
+                          </Table.Cell>
+                          <Table.Cell>{item.name}</Table.Cell>
+                          <Table.Cell>
+                            {(item.project && item.project.name) ||
+                              'No project'}
+                          </Table.Cell>
+
+                          <Table.Cell
+                            option={{
+                              icon: 'fas fa-pencil-alt',
+                              to: `/group/${item.id}/edit`,
+                            }}
+                          />
+                          <Table.Cell
+                            option={{
+                              icon: 'fas fa-trash',
+                              onClick: () => setAwaitingDeleteGroup(item.id),
+                            }}
+                          />
+                        </>
+                      );
+                    }}
+                  />
+                );
+              }}
+            </Query>
+          </>
+        )}
+      </CompanyContext.Consumer>
+    </div>
+  );
+};
 
 const enhance = compose<EnhancedProps, Props>(
+  graphql(LOGGED_IN_USER, {
+    props: ({ data }: any) => ({
+      loading: data.loading,
+      user: data.user,
+    }),
+  }),
   withToastr,
   withState('awaitingDeleteGroup', 'setAwaitingDeleteGroup', false)
 );
