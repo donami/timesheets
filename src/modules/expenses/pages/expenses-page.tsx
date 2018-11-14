@@ -8,12 +8,12 @@ import { Switch, Route } from 'react-router';
 import ExpenseAddPage from './expense-add-page';
 import { compose, withHandlers, renderNothing, branch } from 'recompose';
 import { graphql, Query } from 'react-apollo';
-import { LOGGED_IN_USER } from '../../auth/pages/auth-page';
 import { CREATE_EXPENSE, CREATE_EXPENSE_ITEM } from '../store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { GET_EXPENSES } from '../store/queries';
 import { API_ENDPOINT_FILE } from '../../../config/constants';
 import { CompanyContext } from '../../common/components/routing';
+import { LOGGED_IN_USER } from '../../auth/store/queries';
 
 type Props = {
   history: any;
@@ -28,7 +28,7 @@ type DataProps = {
 type HandlerProps = { onAddExpense(data: any): void };
 type EnhancedProps = Props & HandlerProps & DataProps & WithToastrProps;
 
-const ExpensesPage: React.SFC<EnhancedProps> = ({ onAddExpense }) => (
+const ExpensesPage: React.SFC<EnhancedProps> = ({ user, onAddExpense }) => (
   <Switch>
     <Route
       path="/expense-reports/add"
@@ -41,7 +41,10 @@ const ExpensesPage: React.SFC<EnhancedProps> = ({ onAddExpense }) => (
       render={props => (
         <CompanyContext.Consumer>
           {({ company }: any) => (
-            <Query query={GET_EXPENSES} variables={{ companyId: company.id }}>
+            <Query
+              query={GET_EXPENSES}
+              variables={{ ownerId: user.id, companyId: company.id }}
+            >
               {({ data, loading }) => {
                 if (loading) {
                   return <PageLoader />;
@@ -83,20 +86,28 @@ const enhance = compose<EnhancedProps, Props>(
   graphql(CREATE_EXPENSE_ITEM, { name: 'createExpenseItem' }),
   graphql(CREATE_EXPENSE, {
     name: 'createExpense',
-    options: {
+    options: (props: any) => ({
       update: (proxy, { data: { createExpense } }: { data: any }) => {
         const { allExpenses }: any = proxy.readQuery({
           query: GET_EXPENSES,
+          variables: {
+            ownerId: props.user.id,
+            companyId: props.user.company.id,
+          },
         });
 
         proxy.writeQuery({
           query: GET_EXPENSES,
+          variables: {
+            ownerId: props.user.id,
+            companyId: props.user.company.id,
+          },
           data: {
             allExpenses: allExpenses.concat(createExpense),
           },
         });
       },
-    },
+    }),
   }),
   withHandlers<EnhancedProps, HandlerProps>({
     onAddExpense: ({

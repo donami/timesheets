@@ -33,6 +33,7 @@ const ExpenseReportInfo: React.SFC<Props> = ({ expenseReport }) =>
       </Box>
       <Box title="Line Items">
         <LineItems>
+          {!expenseReport.items.length && <p>No items</p>}
           {expenseReport.items.map((item, index) => (
             <ExpenseLineItem item={item} index={index} key={index} />
           ))}

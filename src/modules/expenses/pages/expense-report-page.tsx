@@ -13,7 +13,6 @@ import {
   UPDATE_EXPENSE,
 } from '../store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
-import { map } from 'async';
 import { API_ENDPOINT_FILE } from '../../../config/constants';
 
 type Props = {
@@ -86,7 +85,6 @@ const enhance = compose<EnhancedProps, Props>(
       expense,
       updateExpense,
       updateExpenseItem,
-      createExpenseItem,
       addToast,
       history,
     }) => async (model: any) => {
@@ -120,7 +118,7 @@ const enhance = compose<EnhancedProps, Props>(
 
         return updateExpenseItem({
           variables: {
-            id: item.id,
+            id: item.id || '',
             amount: +item.amount,
             currency: item.currency,
             expenseDate: item.expenseDate,
@@ -130,11 +128,15 @@ const enhance = compose<EnhancedProps, Props>(
         });
       });
 
-      await Promise.all(itemUpdates);
+      const items = await Promise.all(itemUpdates);
+
       await updateExpense({
         variables: {
           id: expense.id,
           description: data.description,
+          itemsIds: items.map(
+            (item: any) => item.data.updateOrCreateExpenseItem.id
+          ),
         },
       });
       addToast(

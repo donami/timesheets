@@ -38,8 +38,8 @@ export const CREATE_EXPENSE = gql`
 `;
 
 export const UPDATE_EXPENSE = gql`
-  mutation updateExpense($id: ID!, $description: String) {
-    updateExpense(id: $id, description: $description) {
+  mutation updateExpense($id: ID!, $description: String, $itemsIds: [ID!]!) {
+    updateExpense(id: $id, description: $description, itemsIds: $itemsIds) {
       __typename
       id
       description
@@ -47,6 +47,20 @@ export const UPDATE_EXPENSE = gql`
         id
         firstName
         lastName
+      }
+      items {
+        __typename
+        id
+        expenseType
+        expenseDate
+        amount
+        currency
+        attachment
+        files {
+          id
+          name
+          url
+        }
       }
       createdAt
       updatedAt
@@ -59,25 +73,48 @@ export const UPDATE_EXPENSE = gql`
 export const UPDATE_EXPENSE_ITEM = gql`
   mutation updateExpenseItem(
     $id: ID!
-    $amount: Int
+    $amount: Int!
     $currency: String
-    $expenseDate: String
-    $expenseType: String
+    $expenseDate: String!
+    $expenseType: String!
     $filesIds: [ID!]
   ) {
-    updateExpenseItem(
-      id: $id
-      amount: $amount
-      currency: $currency
-      expenseDate: $expenseDate
-      expenseType: $expenseType
-      filesIds: $filesIds
+    updateOrCreateExpenseItem(
+      update: {
+        id: $id
+        amount: $amount
+        currency: $currency
+        expenseDate: $expenseDate
+        expenseType: $expenseType
+        filesIds: $filesIds
+      }
+      create: {
+        amount: $amount
+        currency: $currency
+        expenseDate: $expenseDate
+        expenseType: $expenseType
+        filesIds: $filesIds
+      }
     ) {
       __typename
       id
       expense {
         __typename
         id
+        items {
+          __typename
+          id
+          expenseType
+          expenseDate
+          amount
+          currency
+          attachment
+          files {
+            id
+            name
+            url
+          }
+        }
       }
       files {
         __typename

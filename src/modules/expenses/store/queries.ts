@@ -32,6 +32,7 @@ export const GET_EXPENSES = gql`
 export const GET_EXPENSE = gql`
   query getExpense($id: ID!) {
     Expense(id: $id) {
+      __typename
       id
       description
       owner {
