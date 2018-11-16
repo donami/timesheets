@@ -6,14 +6,15 @@ import { Box, PageLoader } from '../../ui';
 import { PageHeader } from '../../common';
 import { Switch, Route } from 'react-router';
 import ExpenseAddPage from './expense-add-page';
-import { compose, withHandlers, renderNothing, branch } from 'recompose';
-import { graphql, Query } from 'react-apollo';
+import { compose, withHandlers } from 'recompose';
+import { graphql, Query, Mutation } from 'react-apollo';
 import { CREATE_EXPENSE, CREATE_EXPENSE_ITEM } from '../store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { GET_EXPENSES } from '../store/queries';
 import { API_ENDPOINT_FILE } from '../../../config/constants';
 import { CompanyContext } from '../../common/components/routing';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
+import { adopt } from 'react-adopt';
 
 type Props = {
   history: any;
@@ -21,59 +22,117 @@ type Props = {
 type DataProps = {
   user: any;
   userLoading: boolean;
-  loading: boolean;
-  createExpense(options: any): any;
-  createExpenseItem(options: any): any;
 };
-type HandlerProps = { onAddExpense(data: any): void };
+type HandlerProps = {
+  onAddExpense(data: any, createExpense: any, createExpenseItem: any): void;
+};
 type EnhancedProps = Props & HandlerProps & DataProps & WithToastrProps;
 
-const ExpensesPage: React.SFC<EnhancedProps> = ({ user, onAddExpense }) => (
-  <Switch>
-    <Route
-      path="/expense-reports/add"
-      render={props => (
-        <ExpenseAddPage onAddExpense={onAddExpense} {...props} />
-      )}
-    />
-    <Route
-      path="/expense-reports"
-      render={props => (
-        <CompanyContext.Consumer>
-          {({ company }: any) => (
-            <Query
-              query={GET_EXPENSES}
-              variables={{ ownerId: user.id, companyId: company.id }}
-            >
-              {({ data, loading }) => {
-                if (loading) {
-                  return <PageLoader />;
-                }
+const Mutations = adopt({
+  createExpenseItem: ({ render }) => (
+    <Mutation mutation={CREATE_EXPENSE_ITEM}>
+      {(mutation, result) => render({ mutation, result })}
+    </Mutation>
+  ),
+  createExpense: ({ user, render }) => (
+    <Mutation
+      mutation={CREATE_EXPENSE}
+      update={(proxy, { data: { createExpense } }: { data: any }) => {
+        const { allExpenses }: any = proxy.readQuery({
+          query: GET_EXPENSES,
+          variables: {
+            ownerId: user.id,
+            companyId: user.company.id,
+          },
+        });
 
-                return (
-                  <div>
-                    <PageHeader
-                      options={() => (
-                        <Button to="/expense-reports/add" color="purple">
-                          Create Expense Report
-                        </Button>
-                      )}
-                    >
-                      Expense Reports
-                    </PageHeader>
-                    <Box title="Expenses">
-                      <ExpenseReportList items={data.allExpenses} paginated />
-                    </Box>
-                  </div>
-                );
-              }}
-            </Query>
-          )}
-        </CompanyContext.Consumer>
-      )}
-    />
-  </Switch>
-);
+        proxy.writeQuery({
+          query: GET_EXPENSES,
+          variables: {
+            ownerId: user.id,
+            companyId: user.company.id,
+          },
+          data: {
+            allExpenses: allExpenses.concat(createExpense),
+          },
+        });
+      }}
+    >
+      {(mutation, result) => render({ mutation, result })}
+    </Mutation>
+  ),
+});
+
+const ExpensesPage: React.SFC<EnhancedProps> = ({
+  user,
+  userLoading,
+  onAddExpense,
+}) =>
+  userLoading ? (
+    <PageLoader />
+  ) : (
+    <Switch>
+      <Route
+        path="/expense-reports/add"
+        render={props => (
+          <Mutations user={user}>
+            {({ createExpenseItem, createExpense }: any) => (
+              <ExpenseAddPage
+                onAddExpense={model =>
+                  onAddExpense(
+                    model,
+                    createExpense.mutation,
+                    createExpenseItem.mutation
+                  )
+                }
+                loading={
+                  createExpenseItem.result.loading ||
+                  createExpense.result.loading
+                }
+                {...props}
+              />
+            )}
+          </Mutations>
+        )}
+      />
+      <Route
+        path="/expense-reports"
+        render={props => (
+          <CompanyContext.Consumer>
+            {({ company }: any) => (
+              <Query
+                query={GET_EXPENSES}
+                variables={{ ownerId: user.id, companyId: company.id }}
+              >
+                {({ data, loading }) => {
+                  if (loading) {
+                    return <PageLoader />;
+                  }
+
+                  return (
+                    <div>
+                      <PageHeader
+                        options={() => (
+                          <Button to="/expense-reports/add" color="purple">
+                            Create Expense Report
+                          </Button>
+                        )}
+                      >
+                        Expense Reports
+                      </PageHeader>
+                      <Box title="Expenses">
+                        <ExpenseReportList items={data.allExpenses} paginated />
+                      </Box>
+                    </div>
+                  );
+                }}
+              </Query>
+            )}
+          </CompanyContext.Consumer>
+        )}
+      />
+    </Switch>
+  );
 
 const enhance = compose<EnhancedProps, Props>(
   withToastr,
@@ -83,40 +142,12 @@ const enhance = compose<EnhancedProps, Props>(
       userLoading: data.loading,
     }),
   }),
-  graphql(CREATE_EXPENSE_ITEM, { name: 'createExpenseItem' }),
-  graphql(CREATE_EXPENSE, {
-    name: 'createExpense',
-    options: (props: any) => ({
-      update: (proxy, { data: { createExpense } }: { data: any }) => {
-        const { allExpenses }: any = proxy.readQuery({
-          query: GET_EXPENSES,
-          variables: {
-            ownerId: props.user.id,
-            companyId: props.user.company.id,
-          },
-        });
-
-        proxy.writeQuery({
-          query: GET_EXPENSES,
-          variables: {
-            ownerId: props.user.id,
-            companyId: props.user.company.id,
-          },
-          data: {
-            allExpenses: allExpenses.concat(createExpense),
-          },
-        });
-      },
-    }),
-  }),
   withHandlers<EnhancedProps, HandlerProps>({
-    onAddExpense: ({
+    onAddExpense: ({ user, history, addToast }) => async (
+      data,
       createExpense,
-      createExpenseItem,
-      user,
-      history,
-      addToast,
-    }) => async (data: any) => {
+      createExpenseItem
+    ) => {
       const items = data.items.map(async (item: any) => {
         const promises = item.files.map(async (file: any) => {
           if (typeof file === 'object') {
@@ -166,8 +197,7 @@ const enhance = compose<EnhancedProps, Props>(
       );
       history.goBack();
     },
-  }),
-  branch(({ userLoading }) => userLoading, renderNothing)
+  })
 );
 
 export default enhance(ExpensesPage);

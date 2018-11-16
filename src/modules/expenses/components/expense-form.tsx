@@ -10,10 +10,12 @@ import { BackButton, Form } from '../../common';
 import ExpenseFormLineItem from './expense-form-line-item';
 import { Box } from '../../ui';
 import styled from '../../../styled/styled-components';
+import { dateFormat } from '../../../utils/calendar';
 
 type Props = {
   initialValues?: ExpenseReport;
   onSubmit(data: any): any;
+  loading?: boolean;
 };
 
 type State = Readonly<{
@@ -54,7 +56,7 @@ class ExpenseForm extends Component<Props, State> {
         ...this.state.items,
         {
           amount: 0,
-          expenseDate: '',
+          expenseDate: dateFormat(new Date(), 'YYYY-MM-DD'),
           expenseType: ExpenseLineItemType.Meal,
           currency: 'USD',
           files: [],
@@ -127,7 +129,7 @@ class ExpenseForm extends Component<Props, State> {
   };
 
   render() {
-    const { initialValues } = this.props;
+    const { initialValues, loading } = this.props;
     const { items } = this.state;
 
     return (
@@ -178,10 +180,15 @@ class ExpenseForm extends Component<Props, State> {
               </div>
             </Box>
 
-            <Button type="submit" color="green" disabled={!formState.isValid}>
+            <Button
+              type="submit"
+              color="green"
+              loading={loading}
+              disabled={!formState.isValid || loading}
+            >
               {initialValues && initialValues.id ? 'Save' : 'Add'}
             </Button>
-            <BackButton>Cancel</BackButton>
+            <BackButton disabled={loading}>Cancel</BackButton>
           </>
         )}
       </Form>

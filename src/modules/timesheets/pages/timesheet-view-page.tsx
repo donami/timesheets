@@ -115,7 +115,7 @@ const TimesheetViewPage: React.SFC<any> = ({
           isAdmin ? (
             <HeaderOption
               title="View Timesheet Log"
-              onClick={() => setLogView(true)}
+              onClick={() => setLogView(!logView)}
               active={logView}
             >
               <Icon
@@ -263,23 +263,43 @@ const enhance = compose<EnhancedProps, Props>(
   graphql(UPDATE_TIMESHEET, { name: 'updateTimesheet' }),
   withState('logView', 'setLogView', false),
   withHandlers<EnhancedProps, HandlerProps>({
-    onSaveDraft: props => (dates: any[]) => {
-      const { timesheet } = props;
-
-      props.updateTimesheet({
+    onSaveDraft: ({ timesheet, loggedInUser, updateTimesheet, createLog }) => (
+      dates: any[]
+    ) => {
+      updateTimesheet({
         variables: {
           id: timesheet.id,
           status: TimesheetStatus.InProgressSaved,
         },
       });
-    },
-    onSubmit: props => (dates: any[]) => {
-      const { timesheet, loggedInUser } = props;
 
-      props.updateTimesheet({
+      createLog({
+        variables: {
+          message: `Timesheet was saved as draft by ${loggedInUser.firstName} ${
+            loggedInUser.lastName
+          }`,
+          userId: loggedInUser.id,
+          timesheetId: timesheet.id,
+        },
+      });
+    },
+    onSubmit: ({ timesheet, loggedInUser, createLog, updateTimesheet }) => (
+      dates: any[]
+    ) => {
+      updateTimesheet({
         variables: {
           id: timesheet.id,
           status: TimesheetStatus.WaitingForApproval,
+        },
+      });
+
+      createLog({
+        variables: {
+          message: `Timesheet was submitted by ${loggedInUser.firstName} ${
+            loggedInUser.lastName
+          }`,
+          userId: loggedInUser.id,
+          timesheetId: timesheet.id,
         },
       });
     },
@@ -316,13 +336,26 @@ const enhance = compose<EnhancedProps, Props>(
         },
       });
     },
-    onDecline: props => () => {
-      const { timesheet } = props;
-
-      props.updateTimesheet({
+    onDecline: ({
+      timesheet,
+      loggedInUser,
+      updateTimesheet,
+      createLog,
+    }) => () => {
+      updateTimesheet({
         variables: {
           id: timesheet.id,
           status: TimesheetStatus.NeedsRevisement,
+        },
+      });
+
+      createLog({
+        variables: {
+          message: `Timesheet was declined by ${loggedInUser.firstName} ${
+            loggedInUser.lastName
+          }`,
+          userId: loggedInUser.id,
+          timesheetId: timesheet.id,
         },
       });
     },

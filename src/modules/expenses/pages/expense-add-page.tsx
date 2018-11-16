@@ -6,12 +6,16 @@ import { ExpenseReport } from '../store/models';
 
 type Props = {
   onAddExpense(data: ExpenseReport): any;
+  loading: boolean;
 };
 
-const ExpenseAddPage: React.SFC<Props> = ({ onAddExpense }) => (
+const ExpenseAddPage: React.SFC<Props> = ({ onAddExpense, loading }) => (
   <div>
     <PageHeader>Create Expense Report</PageHeader>
-    <ExpenseForm onSubmit={(model: any) => onAddExpense(model)} />
+    <ExpenseForm
+      loading={loading}
+      onSubmit={(model: any) => onAddExpense(model)}
+    />
   </div>
 );
 

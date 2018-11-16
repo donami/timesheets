@@ -10,6 +10,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 250px;
+  min-width: 190px;
 
   img {
     max-width: 100%;

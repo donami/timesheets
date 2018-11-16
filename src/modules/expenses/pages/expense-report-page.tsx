@@ -1,19 +1,17 @@
 import * as React from 'react';
 import { Button } from 'genui';
 import { Switch, Route } from 'react-router';
-import { graphql } from 'react-apollo';
+import { graphql, Mutation } from 'react-apollo';
 import { compose, withHandlers, branch, renderNothing } from 'recompose';
 
 import { ExpenseReportInfo, ExpenseForm } from '../components';
 import { PageHeader } from '../../common';
 import { GET_EXPENSE } from '../store/queries';
-import {
-  UPDATE_EXPENSE_ITEM,
-  CREATE_EXPENSE_ITEM,
-  UPDATE_EXPENSE,
-} from '../store/mutations';
+import { UPDATE_EXPENSE_ITEM, UPDATE_EXPENSE } from '../store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
 import { API_ENDPOINT_FILE } from '../../../config/constants';
+import { adopt } from 'react-adopt';
+import { PageLoader } from '../../ui';
 
 type Props = {
   match: any;
@@ -22,49 +20,90 @@ type Props = {
 type DataProps = {
   loading: boolean;
   expense: any;
-  createExpenseItem(options: any): any;
-  updateExpenseItem(options: any): any;
-  updateExpense(options: any): any;
 };
-type HandlersProps = { onSave(model: any): void };
+type HandlersProps = {
+  onSave(model: any, updateExpense: any, updateExpenseItem: any): void;
+};
 type EnhancedProps = Props & HandlersProps & DataProps & WithToastrProps;
 
-const ExpenseReportPage: React.SFC<EnhancedProps> = ({ expense, onSave }) => (
-  <Switch>
-    <Route
-      path="/expense-report/:id/edit"
-      render={props => (
-        <div>
-          <PageHeader
-            options={() => (
-              <Button to={`/expense-report/${expense.id}`}>Cancel</Button>
-            )}
-          >
-            Edit Expense Report
-          </PageHeader>
-          <ExpenseForm initialValues={expense} onSubmit={onSave} />
-        </div>
-      )}
-    />
-    <Route
-      path="/expense-report/:id"
-      render={props => (
-        <div>
-          <PageHeader
-            options={() => (
-              <Button to={`/expense-report/${expense.id}/edit`} color="purple">
-                Edit Report
-              </Button>
-            )}
-          >
-            Expense Report
-          </PageHeader>
-          <ExpenseReportInfo expenseReport={expense} />
-        </div>
-      )}
-    />
-  </Switch>
-);
+const Mutations = adopt({
+  updateExpenseItem: ({ render }) => (
+    <Mutation mutation={UPDATE_EXPENSE_ITEM}>
+      {(mutation, result) => render({ mutation, result })}
+    </Mutation>
+  ),
+  updateExpense: ({ render }) => (
+    <Mutation mutation={UPDATE_EXPENSE}>
+      {(mutation, result) => render({ mutation, result })}
+    </Mutation>
+  ),
+});
+
+const ExpenseReportPage: React.SFC<EnhancedProps> = ({
+  expense,
+  onSave,
+  loading,
+}) =>
+  loading ? (
+    <PageLoader />
+  ) : (
+    <Switch>
+      <Route
+        path="/expense-report/:id/edit"
+        render={props => (
+          <div>
+            <PageHeader
+              options={() => (
+                <Button to={`/expense-report/${expense.id}`}>Cancel</Button>
+              )}
+            >
+              Edit Expense Report
+            </PageHeader>
+            <Mutations>
+              {({ updateExpenseItem, updateExpense }: any) => {
+                return (
+                  <ExpenseForm
+                    initialValues={expense}
+                    loading={
+                      updateExpense.result.loading ||
+                      updateExpenseItem.result.loading
+                    }
+                    onSubmit={(model: any) =>
+                      onSave(
+                        model,
+                        updateExpense.mutation,
+                        updateExpenseItem.mutation
+                      )
+                    }
+                  />
+                );
+              }}
+            </Mutations>
+          </div>
+        )}
+      />
+      <Route
+        path="/expense-report/:id"
+        render={props => (
+          <div>
+            <PageHeader
+              options={() => (
+                <Button
+                  to={`/expense-report/${expense.id}/edit`}
+                  color="purple"
+                >
+                  Edit Report
+                </Button>
+              )}
+            >
+              Expense Report
+            </PageHeader>
+            <ExpenseReportInfo expenseReport={expense} />
+          </div>
+        )}
+      />
+    </Switch>
+  );
 
 const enhance = compose<EnhancedProps, Props>(
   withToastr,
@@ -77,17 +116,12 @@ const enhance = compose<EnhancedProps, Props>(
       expense: data.Expense,
     }),
   }),
-  graphql(UPDATE_EXPENSE, { name: 'updateExpense' }),
-  graphql(UPDATE_EXPENSE_ITEM, { name: 'updateExpenseItem' }),
-  graphql(CREATE_EXPENSE_ITEM, { name: 'createExpenseItem' }),
   withHandlers<EnhancedProps, HandlersProps>({
-    onSave: ({
-      expense,
-      updateExpense,
-      updateExpenseItem,
-      addToast,
-      history,
-    }) => async (model: any) => {
+    onSave: ({ expense, addToast, history }) => async (
+      model: any,
+      updateExpense: any,
+      updateExpenseItem: any
+    ) => {
       const data = {
         ...model,
         id: expense.id,

@@ -10,7 +10,7 @@ import { EditProfileForm, EditAvatarForm } from '../components';
 import { Link } from 'react-router-dom';
 import styled from '../../../styled/styled-components';
 import { compose, branch, renderComponent } from 'recompose';
-import { graphql } from 'react-apollo';
+import { graphql, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import { UPDATE_USER } from '../../users/store/mutations';
 import { withToastr, WithToastrProps } from '../../common/components/toastr';
@@ -29,8 +29,8 @@ type DataProps = {
 type EnhancedProps = Props & DataProps & WithToastrProps;
 
 class ProfilePage extends React.Component<EnhancedProps> {
-  handleUpdateProfile = async (data: any) => {
-    await this.props.updateUser({
+  handleUpdateProfile = async (data: any, updateUser: any) => {
+    await updateUser({
       variables: {
         id: data.id,
         // email: data.email,
@@ -84,10 +84,17 @@ class ProfilePage extends React.Component<EnhancedProps> {
                 render={props => (
                   <>
                     <Box title="Profile settings">
-                      <EditProfileForm
-                        initialValues={user}
-                        onUpdateProfile={this.handleUpdateProfile}
-                      />
+                      <Mutation mutation={UPDATE_USER}>
+                        {(updateUser, { loading }) => (
+                          <EditProfileForm
+                            initialValues={user}
+                            loading={loading}
+                            onUpdateProfile={model =>
+                              this.handleUpdateProfile(model, updateUser)
+                            }
+                          />
+                        )}
+                      </Mutation>
                     </Box>
 
                     {/* <Box title="Change password">
@@ -159,7 +166,6 @@ const enhance = compose(
       loading: data.loading,
     }),
   }),
-  graphql(UPDATE_USER, { name: 'updateUser' }),
   branch(({ loading }) => loading, renderComponent(PageLoader))
 );
 

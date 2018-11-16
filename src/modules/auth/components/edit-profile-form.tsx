@@ -6,6 +6,7 @@ import { User } from '../../users/store/models';
 
 type Props = {
   initialValues: User;
+  loading: boolean;
   onUpdateProfile(data: any): any;
 };
 
@@ -20,7 +21,7 @@ class EditProfileForm extends Component<Props> {
   };
 
   render() {
-    const { initialValues } = this.props;
+    const { initialValues, loading } = this.props;
 
     return (
       <Form onValidSubmit={this.handleSubmit}>
@@ -72,7 +73,12 @@ class EditProfileForm extends Component<Props> {
               <Input placeholder="your@email.com" />
             </Form.Field> */}
 
-            <Button type="submit" color="green" disabled={!formState.isValid}>
+            <Button
+              type="submit"
+              color="green"
+              disabled={!formState.isValid || loading}
+              loading={loading}
+            >
               Save
             </Button>
           </>

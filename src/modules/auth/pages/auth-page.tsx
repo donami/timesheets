@@ -118,7 +118,7 @@ const Page = styled.div`
     rgba(117, 62, 254, 1) 100%
   );
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a770ff', endColorstr='#753efe', GradientType=0 );
-  height: 100%;
+  min-height: 100%;
 `;
 
 const Container = styled.div`

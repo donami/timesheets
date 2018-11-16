@@ -13,7 +13,6 @@ import Search from './search';
 import { HasAccess, Avatar } from '../components';
 import { withProps } from '../../../styled/styled-components';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
-import ChatItem from './chat/chat-item';
 import ChatList from './chat/chat-list';
 import { GET_CHATS } from './chat/queries';
 import { fullName } from 'src/utils/helpers';
@@ -40,29 +39,6 @@ type DropdownItem = {
   to: string;
 };
 
-const items: DropdownItem[] = [
-  {
-    label: 'Profile',
-    icon: 'fas fa-user',
-    to: '/profile',
-  },
-  {
-    label: 'Edit Profile',
-    icon: 'fas fa-cog',
-    to: '/profile/edit',
-  },
-  {
-    label: 'Billing',
-    icon: 'fas fa-credit-card',
-    to: '/account/billing',
-  },
-  {
-    label: 'Sign out',
-    icon: 'fas fa-power-off',
-    to: '/logout',
-  },
-];
-
 class Header extends React.Component<EnhancedProps> {
   render() {
     const { containerHeight } = this.props;
@@ -73,6 +49,21 @@ class Header extends React.Component<EnhancedProps> {
           if (loading) {
             return null;
           }
+
+          const items: DropdownItem[] = [
+            { label: 'Profile', icon: 'fas fa-user', to: '/profile' },
+            { label: 'Edit Profile', icon: 'fas fa-cog', to: '/profile/edit' },
+            ...(user.role === UserRole.Admin
+              ? [
+                  {
+                    label: 'Billing',
+                    icon: 'fas fa-credit-card',
+                    to: '/account/billing',
+                  },
+                ]
+              : []),
+            { label: 'Sign out', icon: 'fas fa-power-off', to: '/logout' },
+          ];
 
           return (
             <Container>
