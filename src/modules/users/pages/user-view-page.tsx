@@ -3,8 +3,8 @@ import { Button, Dropdown, Message, Icon } from 'genui';
 import gql from 'graphql-tag';
 import { History } from 'history';
 import { Link, Switch, Route } from 'react-router-dom';
-import { compose, withHandlers, branch, renderComponent } from 'recompose';
-import { graphql } from 'react-apollo';
+import { compose, withHandlers } from 'recompose';
+import { graphql, Query } from 'react-apollo';
 
 import { UserInfo, UserGroups, EditUser, EditUserStatus } from '../components';
 import { Group } from '../../groups/store/models';
@@ -18,6 +18,7 @@ import { fullName } from 'src/utils/helpers';
 import { LOGGED_IN_USER } from '../../auth/store/queries';
 import { CompanyContext } from '../../common/components/routing';
 import { UserRole } from '../store/models';
+import { USER_VIEW_FRAGMENT } from '../store/queries';
 
 type DropdownItem = {
   label: string;
@@ -35,16 +36,13 @@ type Props = {
   group: Group;
 };
 type DataProps = {
-  user: any;
-  groups: any[];
-  projects: any[];
   authedUser: any;
   disableUser(options: any): any;
   enableUser(options: any): any;
 };
 type HandlerProps = {
-  onEnableUser(): any;
-  onDisableUser(): any;
+  onEnableUser(user: any): any;
+  onDisableUser(user: any): any;
 };
 type EnhancedProps = Props & DataProps & HandlerProps;
 
@@ -54,230 +52,253 @@ class UserViewPage extends React.Component<EnhancedProps> {
   };
 
   render() {
-    const {
-      user,
-      groups,
-      projects,
-      history,
-      match,
-      onEnableUser,
-      onDisableUser,
-    } = this.props;
-
-    if (!user) {
-      return null;
-    }
-
-    const items: DropdownItem[] = [
-      {
-        label: 'Edit',
-        icon: 'fas fa-pencil-alt',
-        onClick: (userId: string) =>
-          this.props.history.push(`/user/${userId}/edit`),
-      },
-    ];
-
-    if (user.disabled) {
-      items.push({
-        label: 'Enable user',
-        icon: 'fas fa-unlock',
-        onClick: onEnableUser,
-      });
-    } else {
-      items.push({
-        label: 'Disable user',
-        icon: 'fas fa-ban',
-        onClick: onDisableUser,
-      });
-    }
+    const { match, onEnableUser, onDisableUser } = this.props;
 
     return (
-      <div>
-        <PageHeader
-          options={() =>
-            user.role !== UserRole.Admin ? (
-              <StyledDropdown
-                className="dropdown"
-                items={items}
-                renderItem={(item: DropdownItem) => {
-                  if (item.to) {
-                    return (
-                      <Link to={item.to}>
-                        <i className={item.icon} />
-                        {item.label}
-                      </Link>
-                    );
-                  }
-                  return (
-                    <div onClick={() => item.onClick(user.id)}>
-                      <i className={item.icon} />
-                      {item.label}
-                    </div>
-                  );
-                }}
-              >
-                <Button icon="fas fa-cog" />
-              </StyledDropdown>
-            ) : null
+      <Query
+        query={USER_VIEW_PAGE_QUERY}
+        variables={{
+          id: this.props.match.params.id,
+          companyId: this.props.authedUser.company.id,
+        }}
+      >
+        {({
+          data: { allGroups: groups, allProjects: projects, User: user },
+          loading,
+        }: any) => {
+          if (loading) {
+            return <PageLoader />;
           }
-        >
-          <Translate text="users.labels.USER_PROFILE" />:{' '}
-          {`${user.firstName} ${user.lastName}`}
-        </PageHeader>
 
-        {user.disabled && (
-          <Row>
-            <Column xs={12}>
-              <Message negative>
-                <Message.Header>User Disabled</Message.Header>
-                <p>This user has been disabled</p>
-              </Message>
-            </Column>
-          </Row>
-        )}
+          if (!user) {
+            return null;
+          }
 
-        <Row>
-          <Column xs={12} sm={3} md={2}>
-            <UserLeftColumn>
-              <UserCard>
-                <UserCardActions>
-                  <CreateChat history={this.props.history} otherUser={user}>
-                    <span className="fa-stack fa-2x">
-                      <i className="fas fa-circle fa-stack-2x" />
-                      <i className="fas fa-envelope fa-stack-1x fa-inverse" />
-                    </span>
-                  </CreateChat>
-                </UserCardActions>
-                <Avatar view="lg" avatar={user.image} name={fullName(user)} />
+          const items: DropdownItem[] = [
+            {
+              label: 'Edit',
+              icon: 'fas fa-pencil-alt',
+              onClick: (userId: string) =>
+                this.props.history.push(`/user/${userId}/edit`),
+            },
+          ];
 
-                <h3>{`${user.firstName} ${user.lastName}`}</h3>
-              </UserCard>
+          if (user.disabled) {
+            items.push({
+              label: 'Enable user',
+              icon: 'fas fa-unlock',
+              onClick: () => onEnableUser(user),
+            });
+          } else {
+            items.push({
+              label: 'Disable user',
+              icon: 'fas fa-ban',
+              onClick: () => onDisableUser(user),
+            });
+          }
 
-              <UserNavigation>
-                <ul>
-                  {user.role === UserRole.User && (
-                    <>
-                      <UserNavigationLink active={!match.params.page}>
-                        <Link to={`/user/${user.id}`}>
-                          <Icon name="fas fa-clock" fixedWidth />
-                          Timesheets
-                        </Link>
-                      </UserNavigationLink>
-                      <UserNavigationLink
-                        active={match.params.page === 'generator'}
-                      >
-                        <Link to={`/user/${user.id}/generator`}>
-                          <Icon name="fas fa-code-branch" fixedWidth />
-                          Generator
-                        </Link>
-                      </UserNavigationLink>
-                    </>
-                  )}
-                  <UserNavigationLink active={match.params.page === 'details'}>
-                    <Link to={`/user/${user.id}/details`}>
-                      <Icon name="fas fa-info-circle" fixedWidth />
-                      Details
-                    </Link>
-                  </UserNavigationLink>
-                </ul>
-              </UserNavigation>
-            </UserLeftColumn>
-          </Column>
-
-          <Column xs={12} sm={9} md={10}>
-            <Switch>
-              <Route
-                path={`/user/:id/generator`}
-                render={props => (
-                  <Box
-                    title={() => (
-                      <Translate text="timesheet.labels.GENERATE_NEW_TIMESHEETS" />
-                    )}
-                  >
-                    <CompanyContext.Consumer>
-                      {({ company }: any) => (
-                        <TimesheetGenerator
-                          history={props.history}
-                          userId={user.id}
-                          group={user.group}
-                          companyId={company.id}
-                          userProjectId={
-                            (user.projectMember || []).map(
-                              (member: any) => member.project.id
-                            )[0]
-                          }
-                          projects={(user.projectMember || []).map(
-                            (member: any) => member.project
-                          )}
-                          previousTimesheets={user.timesheets}
-                        />
-                      )}
-                    </CompanyContext.Consumer>
-                  </Box>
-                )}
-              />
-              <Route
-                path={`/user/:id/details`}
-                render={props => (
-                  <>
-                    <UserInfo user={user} />
-                    {user.role !== UserRole.Admin && (
-                      <UserGroups
-                        user={user}
-                        groups={groups.filter((group: any) => {
-                          return !!user.projectMember.find(
-                            (projectMember: any) =>
-                              projectMember.project.id === group.project.id
+          return (
+            <div>
+              <PageHeader
+                options={() =>
+                  user.role !== UserRole.Admin ? (
+                    <StyledDropdown
+                      className="dropdown"
+                      items={items}
+                      renderItem={(item: DropdownItem) => {
+                        if (item.to) {
+                          return (
+                            <Link to={item.to}>
+                              <i className={item.icon} />
+                              {item.label}
+                            </Link>
                           );
-                        })}
-                        onSubmit={this.handleUpdateGroups}
-                        initialSelectedGroup={user.group ? user.group.id : ''}
+                        }
+                        return (
+                          <div onClick={() => item.onClick(user.id)}>
+                            <i className={item.icon} />
+                            {item.label}
+                          </div>
+                        );
+                      }}
+                    >
+                      <Button icon="fas fa-cog" />
+                    </StyledDropdown>
+                  ) : null
+                }
+              >
+                <Translate text="users.labels.USER_PROFILE" />:{' '}
+                {`${user.firstName} ${user.lastName}`}
+              </PageHeader>
+
+              {user.disabled && (
+                <Row>
+                  <Column xs={12}>
+                    <Message negative>
+                      <Message.Header>User Disabled</Message.Header>
+                      <p>This user has been disabled</p>
+                    </Message>
+                  </Column>
+                </Row>
+              )}
+
+              <Row>
+                <Column xs={12} sm={3} md={2}>
+                  <UserLeftColumn>
+                    <UserCard>
+                      <UserCardActions>
+                        <CreateChat
+                          history={this.props.history}
+                          otherUser={user}
+                        >
+                          <span className="fa-stack fa-2x">
+                            <i className="fas fa-circle fa-stack-2x" />
+                            <i className="fas fa-envelope fa-stack-1x fa-inverse" />
+                          </span>
+                        </CreateChat>
+                      </UserCardActions>
+                      <Avatar
+                        view="lg"
+                        avatar={user.image}
+                        name={fullName(user)}
                       />
-                    )}
-                  </>
-                )}
-              />
-              <Route
-                path={`/user/:id/edit`}
-                render={props => (
-                  <>
-                    <EditUser
-                      {...props}
-                      user={user}
-                      userProject={(user.projectMember || []).map(
-                        (member: any) => member.project
+
+                      <h3>{`${user.firstName} ${user.lastName}`}</h3>
+                    </UserCard>
+
+                    <UserNavigation>
+                      <ul>
+                        {user.role === UserRole.User && (
+                          <>
+                            <UserNavigationLink active={!match.params.page}>
+                              <Link to={`/user/${user.id}`}>
+                                <Icon name="fas fa-clock" fixedWidth />
+                                Timesheets
+                              </Link>
+                            </UserNavigationLink>
+                            <UserNavigationLink
+                              active={match.params.page === 'generator'}
+                            >
+                              <Link to={`/user/${user.id}/generator`}>
+                                <Icon name="fas fa-code-branch" fixedWidth />
+                                Generator
+                              </Link>
+                            </UserNavigationLink>
+                          </>
+                        )}
+                        <UserNavigationLink
+                          active={match.params.page === 'details'}
+                        >
+                          <Link to={`/user/${user.id}/details`}>
+                            <Icon name="fas fa-info-circle" fixedWidth />
+                            Details
+                          </Link>
+                        </UserNavigationLink>
+                      </ul>
+                    </UserNavigation>
+                  </UserLeftColumn>
+                </Column>
+
+                <Column xs={12} sm={9} md={10}>
+                  <Switch>
+                    <Route
+                      path={`/user/:id/generator`}
+                      render={props => (
+                        <Box
+                          title={() => (
+                            <Translate text="timesheet.labels.GENERATE_NEW_TIMESHEETS" />
+                          )}
+                        >
+                          <CompanyContext.Consumer>
+                            {({ company }: any) => (
+                              <TimesheetGenerator
+                                history={props.history}
+                                userId={user.id}
+                                group={user.group}
+                                companyId={company.id}
+                                userProjectId={
+                                  (user.projectMember || []).map(
+                                    (member: any) => member.project.id
+                                  )[0]
+                                }
+                                projects={(user.projectMember || []).map(
+                                  (member: any) => member.project
+                                )}
+                                previousTimesheets={user.timesheets}
+                              />
+                            )}
+                          </CompanyContext.Consumer>
+                        </Box>
                       )}
-                      projects={projects}
                     />
-                    {this.props.authedUser.role === UserRole.Admin && (
-                      <>
-                        <h3>Change user type</h3>
-                        <EditUserStatus user={user} />
-                      </>
-                    )}
-                  </>
-                )}
-              />
-              <Route
-                path={`/user/:id`}
-                render={props => (
-                  <Box
-                    title={() => (
-                      <Translate text="timesheet.labels.TIMESHEETS_FOR_USER" />
-                    )}
-                  >
-                    <TimesheetList
-                      items={user.timesheets || []}
-                      disableFilter={false}
-                      noItemsText="There is no generated timesheets for this user."
+                    <Route
+                      path={`/user/:id/details`}
+                      render={props => (
+                        <>
+                          <UserInfo user={user} />
+                          {user.role !== UserRole.Admin && (
+                            <UserGroups
+                              user={user}
+                              groups={groups.filter((group: any) => {
+                                return !!user.projectMember.find(
+                                  (projectMember: any) =>
+                                    projectMember.project.id ===
+                                    group.project.id
+                                );
+                              })}
+                              onSubmit={this.handleUpdateGroups}
+                              initialSelectedGroup={
+                                user.group ? user.group.id : ''
+                              }
+                            />
+                          )}
+                        </>
+                      )}
                     />
-                  </Box>
-                )}
-              />
-            </Switch>
-          </Column>
-        </Row>
-      </div>
+                    <Route
+                      path={`/user/:id/edit`}
+                      render={props => (
+                        <>
+                          <EditUser
+                            {...props}
+                            user={user}
+                            userProject={(user.projectMember || []).map(
+                              (member: any) => member.project
+                            )}
+                            projects={projects}
+                          />
+                          {this.props.authedUser.role === UserRole.Admin && (
+                            <>
+                              <h3>Change user type</h3>
+                              <EditUserStatus user={user} />
+                            </>
+                          )}
+                        </>
+                      )}
+                    />
+                    <Route
+                      path={`/user/:id`}
+                      render={props => (
+                        <Box
+                          title={() => (
+                            <Translate text="timesheet.labels.TIMESHEETS_FOR_USER" />
+                          )}
+                        >
+                          <TimesheetList
+                            items={user.timesheets || []}
+                            disableFilter={false}
+                            noItemsText="There is no generated timesheets for this user."
+                          />
+                        </Box>
+                      )}
+                    />
+                  </Switch>
+                </Column>
+              </Row>
+            </div>
+          );
+        }}
+      </Query>
     );
   }
 }
@@ -285,33 +306,7 @@ class UserViewPage extends React.Component<EnhancedProps> {
 export const USER_VIEW_PAGE_QUERY = gql`
   query($id: ID!, $companyId: ID!) {
     User(id: $id) {
-      __typename
-      id
-      firstName
-      lastName
-      disabled
-      email
-      role
-      image {
-        __typename
-        id
-        name
-        url
-      }
-      timesheets {
-        __typename
-        id
-        status
-        periodStart
-      }
-      projectMember {
-        id
-        role
-        project {
-          id
-          name
-        }
-      }
+      ...UserView
       group {
         id
         name
@@ -342,26 +337,13 @@ export const USER_VIEW_PAGE_QUERY = gql`
       name
     }
   }
+  ${USER_VIEW_FRAGMENT}
 `;
 
 const enhance = compose(
   graphql(LOGGED_IN_USER, {
     props: ({ data }: any) => ({
       authedUser: data.user,
-    }),
-  }),
-  graphql(USER_VIEW_PAGE_QUERY, {
-    options: (props: any) => ({
-      variables: {
-        id: props.match.params.id,
-        companyId: props.authedUser.company.id,
-      },
-    }),
-    props: ({ data }: any) => ({
-      loading: data.loading,
-      groups: data.allGroups || [],
-      projects: data.allProjects || [],
-      user: data.User,
     }),
   }),
   graphql(DISABLE_USER, {
@@ -374,14 +356,13 @@ const enhance = compose(
     // onRemove: ({ deleteUser }) => (userId: string) => {
     //   deleteUser({ variables: { id: userId } });
     // },
-    onDisableUser: ({ disableUser, user }) => () => {
+    onDisableUser: ({ disableUser }) => user => {
       disableUser({ variables: { id: user.id } });
     },
-    onEnableUser: ({ enableUser, user }) => () => {
+    onEnableUser: ({ enableUser }) => user => {
       enableUser({ variables: { id: user.id } });
     },
-  }),
-  branch(({ loading }) => loading, renderComponent(PageLoader))
+  })
 );
 
 export default enhance(UserViewPage);

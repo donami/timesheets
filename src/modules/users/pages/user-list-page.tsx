@@ -87,7 +87,7 @@ const UserListPage: React.SFC<EnhancedProps> = ({ onDisableUser }) => (
                     property: 'fullName',
                     filterAs: (item: any, filterState: any) => {
                       const regex = new RegExp(filterState.fullName, 'i');
-                      return item.fullName.match(regex);
+                      return `${item.firstName} ${item.lastName}`.match(regex);
                     },
                     options: [
                       {

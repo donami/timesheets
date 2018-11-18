@@ -28,40 +28,48 @@ export const GET_USERS = gql`
   }
   ${USER_LIST_ITEM_FRAGMENT}
 `;
-
-export const GET_USER = gql`
-  query getUser($id: ID!) {
-    User(id: $id) {
+export const USER_VIEW_FRAGMENT = gql`
+  fragment UserView on User {
+    __typename
+    id
+    firstName
+    lastName
+    disabled
+    email
+    gender
+    image {
+      __typename
       id
-      firstName
-      lastName
-      disabled
-      email
-      gender
-      image {
-        __typename
-        id
-        name
-        url
-      }
+      name
+      url
+    }
+    role
+    timesheets {
+      __typename
+      id
+      status
+      periodStart
+    }
+    projectMember {
+      id
       role
-      timesheets {
-        id
-        status
-        periodStart
-      }
-      projectMember {
-        id
-        role
-        project {
-          id
-          name
-        }
-      }
-      group {
+      project {
         id
         name
       }
     }
+    group {
+      id
+      name
+    }
   }
+`;
+
+export const GET_USER = gql`
+  query getUser($id: ID!) {
+    User(id: $id) {
+      ...UserView
+    }
+  }
+  ${USER_VIEW_FRAGMENT}
 `;

@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { USER_VIEW_FRAGMENT } from './queries';
 
 export const DELETE_USER = gql`
   mutation deleteUser($id: ID!) {
@@ -29,23 +30,26 @@ export const UPDATE_USER = gql`
       imageId: $imageId
       companyId: $companyId
     ) {
-      id
-      firstName
-      lastName
-      gender
-      image {
-        __typename
-        id
-        name
-        url
-      }
-      role
+      ...UserView
       group {
         id
         name
+        template {
+          id
+          name
+          hoursDays {
+            id
+            break
+            holiday
+            inTime
+            outTime
+            totalHours
+          }
+        }
       }
     }
   }
+  ${USER_VIEW_FRAGMENT}
 `;
 
 export const DISABLE_USER = gql`
