@@ -4,7 +4,6 @@ import * as moment from 'moment';
 import {
   compose,
   branch,
-  renderNothing,
   withHandlers,
   withState,
   renderComponent,
@@ -22,6 +21,7 @@ import { paddEmptyDates } from '../../../utils/calendar';
 import { UPDATE_TIMESHEET } from '../store/mutations';
 import { CREATE_NOTIFICATION } from '../../auth/store/mutations';
 import { CREATE_LOG } from '../../common/store/mutations';
+import { NotificationType } from '../../auth/store/models';
 
 type Props = {
   match: any;
@@ -321,7 +321,7 @@ const enhance = compose<EnhancedProps, Props>(
         variables: {
           message: 'Your timesheet was approved.',
           icon: 'fas fa-check',
-          notificationType: 'TimesheetApproved',
+          notificationType: NotificationType.TIMESHEET_APPROVED,
           userId: timesheet.owner.id,
         },
       });
@@ -341,11 +341,21 @@ const enhance = compose<EnhancedProps, Props>(
       loggedInUser,
       updateTimesheet,
       createLog,
+      createNotification,
     }) => () => {
       updateTimesheet({
         variables: {
           id: timesheet.id,
           status: TimesheetStatus.NeedsRevisement,
+        },
+      });
+
+      createNotification({
+        variables: {
+          message: 'Your timesheet needs to be revised and submitted again.',
+          icon: 'fas fa-exclamation-triangle',
+          notificationType: NotificationType.TIMESHEET_NEEDS_REVISEMENT,
+          userId: timesheet.owner.id,
         },
       });
 

@@ -3140,10 +3140,10 @@ gauge@~2.7.3:
     strip-ansi "^3.0.1"
     wide-align "^1.1.0"
 
-genui@0.2.8:
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/genui/-/genui-0.2.8.tgz#496438110c2f9496323f2fc614910809da78a44b"
-  integrity sha512-PJ7ECQ9q5XoshOxmFDVvGSbG1088PLDQX5joCSCic4oxSzfOuDPandyfQJRxItc4pX5QRBZaH3RNGgSBkHAtag==
+genui@0.3.16:
+  version "0.3.16"
+  resolved "https://registry.yarnpkg.com/genui/-/genui-0.3.16.tgz#7e6556e07288a5a86e3f745df84885a73ee9d6c5"
+  integrity sha512-4sUsPVmslQ6COAz0J9gnnm4cVaExHMUGwg2ldAR8AgVHBJiGURphEI1Eo+GCiLMgTrskUkny7cW0y7fAJAcV1g==
   dependencies:
     animate.css "^3.7.0"
     autoprefixer "7.1.6"
