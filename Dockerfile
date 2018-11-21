@@ -19,6 +19,7 @@ RUN npm install -g serve
 COPY package.json /usr/src/app/
 # COPY package-lock.json /usr/src/app/
 
+RUN rm -rf node_modules
 RUN npm install
 
 # Bundle app source

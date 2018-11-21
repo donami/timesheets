@@ -10,7 +10,18 @@ export const DEFAULT_USER_IMAGE_FEMALE = 'user_female.png';
 
 export const DISPLAY_ONLY_PAST_AND_CURRENT_TIMESHEET = true;
 
-export const API_ENDPOINT_FILE =
-  'https://api.graph.cool/file/v1/cjmhdh572edi30115p6cqqfjc';
-export const API_ENDPOINT =
+const API_URL_DEVELOPMENT =
   'https://api.graph.cool/simple/v1/cjmhdh572edi30115p6cqqfjc';
+const API_ENDPOINT_FILE_DEVELOPMENT =
+  'https://api.graph.cool/file/v1/cjmhdh572edi30115p6cqqfjc';
+const API_URL_PRODUCTION =
+  'https://api.graph.cool/simple/v1/cjoraqm298jlo0150g40zq9mo';
+const API_ENDPOINT_FILE_PRODUCTION =
+  'https://api.graph.cool/file/v1/cjoraqm298jlo0150g40zq9mo';
+
+export const API_ENDPOINT_FILE = production
+  ? API_ENDPOINT_FILE_PRODUCTION
+  : API_ENDPOINT_FILE_DEVELOPMENT;
+export const API_ENDPOINT = production
+  ? API_URL_PRODUCTION
+  : API_URL_DEVELOPMENT;
