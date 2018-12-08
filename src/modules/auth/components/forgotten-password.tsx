@@ -60,11 +60,11 @@ const enhance = compose<EnhancedProps, Props>(
         sendMail({
           variables: {
             email: user.email,
-            subject: 'Forgotten password - Timefly.io',
+            subject: 'Forgotten password - Dashtime.io',
             body: `
             Hi ${user.firstName}, <br/><br/>
   
-            You are receiving this message because you have requested resetting your password on the Timefly site.<br/>
+            You are receiving this message because you have requested resetting your password on the Dashtime site.<br/>
             Please, follow this link to create a new password:<br/><br/>
   
             <a href="${APP_URL}/#/auth/forgotten-password/${
@@ -74,7 +74,7 @@ const enhance = compose<EnhancedProps, Props>(
             If you have not requested resetting your password, you can just delete this email.<br/><br/>
   
             Thank you for using our services,<br/>
-            Timefly Team
+            Dashtime Team
             `,
           },
         });
