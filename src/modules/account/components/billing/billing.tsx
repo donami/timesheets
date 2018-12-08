@@ -94,10 +94,10 @@ const Billing: React.SFC<Props> = ({ company }) => {
         </ContentTitle>
         <ContentBody>
           <p>
-            Timefly does not save any card information on our servers and cannot
-            be used by our staff. Your credit card details are encrypted and
-            securely stored by <em>Stripe</em>, to enable us to automatically
-            bill your credit card on a recurring basis.
+            Dashtime does not save any card information on our servers and
+            cannot be used by our staff. Your credit card details are encrypted
+            and securely stored by <em>Stripe</em>, to enable us to
+            automatically bill your credit card on a recurring basis.
           </p>
 
           <p>

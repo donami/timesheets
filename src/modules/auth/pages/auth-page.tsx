@@ -49,7 +49,7 @@ class AuthPage extends React.Component<EnhancedProps> {
                 path="*"
                 render={props => (
                   <>
-                    <Title>Sign in to Timefly</Title>
+                    <Title>Sign in to Dashtime</Title>
 
                     <Mutation mutation={AUTHENTICATE_USER}>
                       {(mutate, { loading }) => {
